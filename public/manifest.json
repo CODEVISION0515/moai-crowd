@@ -1,0 +1,33 @@
+{
+  "name": "MOAI Crowd",
+  "short_name": "MOAI Crowd",
+  "description": "仲間と創る、仕事のマッチング。MOAIコミュニティ発のクラウドソーシング。",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fafaf9",
+  "theme_color": "#0f766e",
+  "orientation": "portrait",
+  "lang": "ja",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    { "name": "案件を探す", "url": "/jobs" },
+    { "name": "案件を投稿", "url": "/jobs/new" },
+    { "name": "メッセージ", "url": "/messages" },
+    { "name": "ダッシュボード", "url": "/dashboard" }
+  ]
+}
