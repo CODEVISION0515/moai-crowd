@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import RecommendedJobs from "@/components/RecommendedJobs";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,8 @@ export default async function DashboardPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 space-y-10">
       <h1 className="text-2xl font-bold">ダッシュボード</h1>
+
+      <RecommendedJobs />
 
       <section>
         <div className="flex justify-between items-center mb-3">

@@ -11,6 +11,19 @@ export default function ProposalForm({ jobId }: { jobId: string }) {
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const [aiLoading, setAiLoading] = useState(false);
+  async function generateWithAi() {
+    setAiLoading(true);
+    const res = await fetch("/api/ai/draft-proposal", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jobId }),
+    });
+    const data = await res.json();
+    if (data.text) setCoverLetter(data.text);
+    setAiLoading(false);
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true); setErr(null);
@@ -31,7 +44,13 @@ export default function ProposalForm({ jobId }: { jobId: string }) {
 
   return (
     <form onSubmit={onSubmit} className="card space-y-4">
-      <h3 className="font-semibold text-lg">この案件に応募する</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="font-semibold text-lg">この案件に応募する</h3>
+        <button type="button" onClick={generateWithAi} disabled={aiLoading}
+          className="text-xs text-moai-primary hover:underline">
+          {aiLoading ? "生成中..." : "✨ AIで下書き"}
+        </button>
+      </div>
       <div>
         <label className="label">メッセージ *</label>
         <textarea required rows={6} className="input" value={coverLetter}

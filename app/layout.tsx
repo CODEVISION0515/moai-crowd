@@ -36,13 +36,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               MOAI <span className="text-moai-accent">Crowd</span>
             </Link>
             <nav className="flex items-center gap-4 text-sm">
-              <Link href="/jobs" className="hover:text-moai-primary">案件を探す</Link>
-              <Link href="/workers" className="hover:text-moai-primary">受注者を探す</Link>
+              <Link href="/jobs" className="hover:text-moai-primary">案件</Link>
+              <Link href="/workers" className="hover:text-moai-primary">仲間</Link>
+              <Link href="/community" className="hover:text-moai-primary">コミュニティ</Link>
+              <Link href="/events" className="hover:text-moai-primary">イベント</Link>
+              <Link href="/leaderboard" className="hover:text-moai-primary">🏆</Link>
               {user ? (
                 <>
-                  <Link href="/jobs/new" className="hover:text-moai-primary">案件を依頼</Link>
-                  <Link href="/messages" className="hover:text-moai-primary">メッセージ</Link>
-                  <Link href="/dashboard" className="hover:text-moai-primary">ダッシュボード</Link>
+                  <Link href="/jobs/new" className="hover:text-moai-primary">依頼</Link>
+                  <Link href="/messages" className="hover:text-moai-primary">DM</Link>
+                  <Link href="/invoices" className="hover:text-moai-primary">請求書</Link>
+                  <Link href="/dashboard" className="hover:text-moai-primary">マイページ</Link>
                   <NotificationBell userId={user.id} />
                   <SignOutButton />
                 </>
