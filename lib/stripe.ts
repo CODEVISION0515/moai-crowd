@@ -6,7 +6,7 @@ const secretKey = process.env.STRIPE_SECRET_KEY;
 let _stripe: Stripe | null = null;
 export function getStripe(): Stripe {
   if (!secretKey) throw new Error("STRIPE_SECRET_KEY未設定");
-  if (!_stripe) _stripe = new Stripe(secretKey, { apiVersion: "2024-11-20.acacia" });
+  if (!_stripe) _stripe = new Stripe(secretKey);
   return _stripe;
 }
 
