@@ -1,41 +1,9 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import { saveStep1, saveStep2, finishOnboarding } from "./actions";
 
 export const dynamic = "force-dynamic";
-
-async function saveStep1(formData: FormData) {
-  "use server";
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) redirect("/login");
-  await sb.from("profiles").update({
-    display_name: String(formData.get("display_name") || ""),
-    handle: String(formData.get("handle") || "").toLowerCase().replace(/[^a-z0-9_]/g, ""),
-    tagline: String(formData.get("tagline") || "") || null,
-  }).eq("id", user.id);
-  redirect("/onboarding?step=2");
-}
-
-async function saveStep2(formData: FormData) {
-  "use server";
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) redirect("/login");
-  await sb.from("profiles").update({
-    skills: String(formData.get("skills") || "").split(",").map((s) => s.trim()).filter(Boolean),
-    bio: String(formData.get("bio") || "") || null,
-    is_worker: formData.get("role") !== "client_only",
-    is_client: formData.get("role") !== "worker_only",
-  }).eq("id", user.id);
-  redirect("/onboarding?step=3");
-}
-
-async function finishOnboarding() {
-  "use server";
-  redirect("/dashboard");
-}
 
 export default async function OnboardingPage({
   searchParams,

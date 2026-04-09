@@ -1,33 +1,6 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
 import AIDraftPanel from "./AIDraftPanel";
-
-async function createJob(formData: FormData) {
-  "use server";
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
-  const payload = {
-    client_id: user.id,
-    title: String(formData.get("title") || "").trim(),
-    description: String(formData.get("description") || "").trim(),
-    category: String(formData.get("category") || "その他"),
-    skills: String(formData.get("skills") || "")
-      .split(",").map((s) => s.trim()).filter(Boolean),
-    budget_min_jpy: Number(formData.get("budget_min") || 0) || null,
-    budget_max_jpy: Number(formData.get("budget_max") || 0) || null,
-    budget_type: String(formData.get("budget_type") || "fixed"),
-    deadline: (formData.get("deadline") as string) || null,
-    status: "open" as const,
-  };
-
-  const { data, error } = await supabase.from("jobs").insert(payload).select("id").single();
-  if (error) throw error;
-  revalidatePath("/jobs");
-  redirect(`/jobs/${data.id}`);
-}
+import { createJob } from "./actions";
 
 export default async function NewJobPage() {
   const sb = await createClient();

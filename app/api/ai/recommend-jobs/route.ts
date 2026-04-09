@@ -1,8 +1,9 @@
-// 受注者向け: プロフィールに基づいて案件を推薦
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateText } from "@/lib/ai";
 import { consumeCredits } from "@/lib/credits";
+
+// recommend-jobs は結果に DB データを結合するため createAiRouteHandler ではなく直書き
 
 export async function GET() {
   const sb = await createClient();
@@ -39,11 +40,12 @@ ${jobs.map((j) => `ID:${j.id} [${j.category}] ${j.title} | ${j.skills?.join(",")
   try {
     const text = await generateText(SYSTEM, prompt, 1024);
     const match = text.match(/\[[\s\S]*\]/);
-    const picks = match ? JSON.parse(match[0]) : [];
+    const picks: { id: string; reason: string }[] = match ? JSON.parse(match[0]) : [];
     const byId = new Map(jobs.map((j) => [j.id, j]));
-    const matches = picks.map((p: any) => ({ ...byId.get(p.id), reason: p.reason })).filter((m: any) => m.id);
+    const matches = picks.map((p) => ({ ...byId.get(p.id), reason: p.reason })).filter((m) => m.id);
     return NextResponse.json({ matches });
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : "generation failed";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

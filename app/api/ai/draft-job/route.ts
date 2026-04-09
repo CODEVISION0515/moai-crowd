@@ -1,8 +1,4 @@
-// AI案件下書き: ざっくりしたアイデアから案件タイトル・説明・カテゴリ・スキルを生成
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { generateText } from "@/lib/ai";
-import { consumeCredits } from "@/lib/credits";
+import { createAiRouteHandler } from "@/lib/ai-route";
 
 const SYSTEM = `あなたは日本のクラウドソーシング「MOAI Crowd」の案件作成アシスタントです。
 発注者が入力した曖昧なアイデアから、受注者が応募しやすい案件を作成します。
@@ -20,26 +16,12 @@ const SYSTEM = `あなたは日本のクラウドソーシング「MOAI Crowd」
 
 曖昧な情報は業界相場で妥当な範囲を補完してください。`;
 
-export async function POST(req: Request) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
-  const credit = await consumeCredits(user.id, "draft_job");
-  if (!credit.ok) return NextResponse.json({ error: credit.error, required: credit.required }, { status: 402 });
-
-  const { idea } = await req.json();
-  if (!idea || typeof idea !== "string") {
-    return NextResponse.json({ error: "idea required" }, { status: 400 });
-  }
-
-  try {
-    const text = await generateText(SYSTEM, `発注アイデア:\n${idea}`, 2048);
-    const match = text.match(/\{[\s\S]*\}/);
-    const json = match ? JSON.parse(match[0]) : null;
-    if (!json) throw new Error("JSON parse failed");
-    return NextResponse.json(json);
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 });
-  }
-}
+export const POST = createAiRouteHandler({
+  featureSlug: "draft_job",
+  parseJson: true,
+  async buildPrompt(req) {
+    const { idea } = await req.json();
+    if (!idea || typeof idea !== "string") throw new Error("idea required");
+    return { system: SYSTEM, user: `発注アイデア:\n${idea}`, maxTokens: 2048 };
+  },
+});

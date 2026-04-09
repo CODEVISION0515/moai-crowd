@@ -16,9 +16,11 @@ export async function POST(req: Request) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
+    const admin = createAdminClient();
+
+    // 契約エスクロー入金
     const contractId = session.metadata?.contract_id;
     if (contractId) {
-      const admin = createAdminClient();
       await admin.from("contracts").update({
         status: "working",
         funded_at: new Date().toISOString(),
@@ -33,6 +35,23 @@ export async function POST(req: Request) {
           amount_jpy: c.amount_jpy,
           stripe_ref: session.id,
           note: "エスクロー入金",
+        });
+      }
+    }
+
+    // クレジット購入
+    if (session.metadata?.type === "credit_purchase") {
+      const userId = session.metadata.user_id;
+      const credits = Number(session.metadata.credits);
+      const packageId = session.metadata.package_id;
+      if (userId && credits > 0) {
+        await admin.rpc("grant_credits", {
+          p_user_id: userId,
+          p_amount: credits,
+          p_kind: "purchase",
+          p_reason: `クレジットパッケージ: ${packageId}`,
+          p_metadata: { package_id: packageId, session_id: session.id },
+          p_stripe_pi: session.payment_intent as string,
         });
       }
     }

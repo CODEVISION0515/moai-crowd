@@ -2,7 +2,7 @@
 // 環境変数 LLM_PROVIDER で切り替え: "gemini" (default) | "anthropic" | "openrouter"
 
 type Provider = "gemini" | "anthropic" | "openrouter";
-const PROVIDER = (process.env.LLM_PROVIDER || "gemini") as Provider;
+const PROVIDER = (process.env.LLM_PROVIDER || "openrouter") as Provider;
 
 // Gemini ==================================================
 async function callGemini(system: string, user: string, maxTokens: number): Promise<string> {

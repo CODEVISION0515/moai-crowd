@@ -16,6 +16,7 @@ const PUBLIC_LINKS = [
 const AUTH_LINKS = [
   { href: "/dashboard", label: "マイページ" },
   { href: "/jobs/new", label: "依頼する" },
+  { href: "/bookmarks", label: "保存した案件" },
   { href: "/messages", label: "DM" },
   { href: "/credits", label: "🪙 クレジット" },
   { href: "/invoices", label: "請求書" },

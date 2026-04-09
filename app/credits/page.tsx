@@ -1,7 +1,8 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getAiFeatures, getCreditPackages, getCreditsBalance } from "@/lib/credits";
+import CreditPurchaseButton from "@/components/CreditPurchaseButton";
+import { formatDateShort } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -53,22 +54,23 @@ export default async function CreditsPage() {
       <section>
         <h2 className="section-title mb-4">クレジットパッケージ</h2>
         <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-3">
-          {packages.map((p: any) => (
-            <div key={p.id} className={`card relative ${p.is_popular ? "border-moai-accent ring-2 ring-moai-accent/30" : ""}`}>
-              {p.is_popular && (
-                <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-moai-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-full">人気</div>
-              )}
-              <div className="font-semibold">{p.name}</div>
-              <div className="mt-2 text-2xl font-bold text-moai-primary">
-                {p.credits > 0 ? `${p.credits.toLocaleString()}pt` : "無制限"}
+          {packages.map((p) => {
+            const pkg = p as { id: string; name: string; credits: number; price_jpy: number; is_popular: boolean; description: string | null };
+            return (
+              <div key={pkg.id} className={`card relative ${pkg.is_popular ? "border-moai-accent ring-2 ring-moai-accent/30" : ""}`}>
+                {pkg.is_popular && (
+                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-moai-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-full">人気</div>
+                )}
+                <div className="font-semibold">{pkg.name}</div>
+                <div className="mt-2 text-2xl font-bold text-moai-primary">
+                  {pkg.credits > 0 ? `${pkg.credits.toLocaleString()}pt` : "無制限"}
+                </div>
+                <div className="text-sm text-slate-500">¥{pkg.price_jpy.toLocaleString()}{pkg.id === "unlimited_monthly" ? "/月" : ""}</div>
+                {pkg.description && <div className="mt-2 text-xs text-slate-500">{pkg.description}</div>}
+                <CreditPurchaseButton packageId={pkg.id} label="購入する" />
               </div>
-              <div className="text-sm text-slate-500">¥{p.price_jpy.toLocaleString()}{p.id === "unlimited_monthly" ? "/月" : ""}</div>
-              {p.description && <div className="mt-2 text-xs text-slate-500">{p.description}</div>}
-              <button disabled className="mt-3 w-full btn-outline opacity-60 cursor-not-allowed">
-                準備中
-              </button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -85,18 +87,21 @@ export default async function CreditsPage() {
               </tr>
             </thead>
             <tbody>
-              {features.map((f: any) => (
-                <tr key={f.slug} className="border-t border-slate-100">
-                  <td className="p-3">
-                    <div className="font-medium">{f.name}</div>
-                    {f.description && <div className="text-xs text-slate-500 mt-0.5">{f.description}</div>}
-                  </td>
-                  <td className="p-3 text-right text-slate-500">{f.credits_cost}pt</td>
-                  <td className="p-3 text-right">
-                    <span className="badge-success">無料</span>
-                  </td>
-                </tr>
-              ))}
+              {features.map((f) => {
+                const feat = f as { slug: string; name: string; description: string | null; credits_cost: number };
+                return (
+                  <tr key={feat.slug} className="border-t border-slate-100">
+                    <td className="p-3">
+                      <div className="font-medium">{feat.name}</div>
+                      {feat.description && <div className="text-xs text-slate-500 mt-0.5">{feat.description}</div>}
+                    </td>
+                    <td className="p-3 text-right text-slate-500">{feat.credits_cost}pt</td>
+                    <td className="p-3 text-right">
+                      <span className="badge-success">無料</span>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -117,18 +122,21 @@ export default async function CreditsPage() {
                 </tr>
               </thead>
               <tbody>
-                {txs.map((t: any) => (
-                  <tr key={t.id} className="border-t border-slate-100">
-                    <td className="p-3 text-xs text-slate-500">
-                      {new Date(t.created_at).toLocaleString("ja-JP", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
-                    </td>
-                    <td className="p-3">{t.reason ?? t.kind}</td>
-                    <td className={`p-3 text-right font-semibold ${t.amount > 0 ? "text-green-600" : "text-slate-600"}`}>
-                      {t.amount > 0 ? "+" : ""}{t.amount}
-                    </td>
-                    <td className="p-3 text-right text-slate-500">{t.balance_after}</td>
-                  </tr>
-                ))}
+                {txs.map((t) => {
+                  const tx = t as { id: string; created_at: string; reason: string | null; kind: string; amount: number; balance_after: number };
+                  return (
+                    <tr key={tx.id} className="border-t border-slate-100">
+                      <td className="p-3 text-xs text-slate-500">
+                        {formatDateShort(tx.created_at)}
+                      </td>
+                      <td className="p-3">{tx.reason ?? tx.kind}</td>
+                      <td className={`p-3 text-right font-semibold ${tx.amount > 0 ? "text-green-600" : "text-slate-600"}`}>
+                        {tx.amount > 0 ? "+" : ""}{tx.amount}
+                      </td>
+                      <td className="p-3 text-right text-slate-500">{tx.balance_after}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           ) : (

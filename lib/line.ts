@@ -1,5 +1,12 @@
 // LINE Messaging API ヘルパー
+import crypto from "crypto";
+
 const LINE_API = "https://api.line.me/v2/bot";
+
+interface LineTextMessage {
+  type: "text";
+  text: string;
+}
 
 export async function linePush(userId: string, text: string, link?: string) {
   const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
@@ -7,7 +14,7 @@ export async function linePush(userId: string, text: string, link?: string) {
     console.warn("[line] LINE_CHANNEL_ACCESS_TOKEN未設定");
     return;
   }
-  const messages: any[] = [{ type: "text", text }];
+  const messages: LineTextMessage[] = [{ type: "text", text }];
   if (link) {
     messages[0].text = `${text}\n\n${link}`;
   }
@@ -43,7 +50,6 @@ export async function lineReply(replyToken: string, text: string) {
 
 export function verifyLineSignature(body: string, signature: string | null): boolean {
   if (!signature) return false;
-  const crypto = require("crypto");
   const secret = process.env.LINE_CHANNEL_SECRET;
   if (!secret) return false;
   const hash = crypto.createHmac("sha256", secret).update(body).digest("base64");

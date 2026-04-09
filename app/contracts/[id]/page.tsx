@@ -1,10 +1,11 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
 import DeliverableForm from "./DeliverableForm";
 import FundButton from "./FundButton";
 import ReviewForm from "./ReviewForm";
+import { approveDeliverable, requestRevision } from "./actions";
+import { formatDateJP } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -37,40 +38,6 @@ export default async function ContractPage({ params }: { params: Promise<{ id: s
     .eq("contract_id", id)
     .eq("reviewer_id", user.id)
     .maybeSingle();
-
-  async function approveDeliverable(formData: FormData) {
-    "use server";
-    const deliverableId = String(formData.get("deliverable_id"));
-    const sb2 = await createClient();
-    const { data: { user: u } } = await sb2.auth.getUser();
-    if (!u) return;
-    await sb2.from("deliverables").update({
-      review_status: "approved",
-      reviewed_at: new Date().toISOString(),
-    }).eq("id", deliverableId);
-
-    // エスクロー解放 API 呼び出し
-    const origin = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    await fetch(`${origin}/api/contracts/${id}/release`, {
-      method: "POST",
-      headers: { Cookie: "" }, // RLS側でuser判定できないのでAdmin経由に依存
-    }).catch(() => {});
-    revalidatePath(`/contracts/${id}`);
-  }
-
-  async function requestRevision(formData: FormData) {
-    "use server";
-    const deliverableId = String(formData.get("deliverable_id"));
-    const note = String(formData.get("revision_note") || "");
-    const sb2 = await createClient();
-    await sb2.from("deliverables").update({
-      review_status: "revision_requested",
-      reviewed_at: new Date().toISOString(),
-      revision_note: note,
-    }).eq("id", deliverableId);
-    await sb2.from("contracts").update({ status: "working" }).eq("id", id);
-    revalidatePath(`/contracts/${id}`);
-  }
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
@@ -118,11 +85,11 @@ export default async function ContractPage({ params }: { params: Promise<{ id: s
         <div className="mt-8">
           <h2 className="text-lg font-semibold mb-3">提出履歴</h2>
           <div className="space-y-3">
-            {deliverables.map((d: any) => (
+            {deliverables.map((d) => (
               <div key={d.id} className="card">
                 <div className="flex justify-between items-start">
                   <div className="text-xs text-slate-500">
-                    {new Date(d.submitted_at).toLocaleString("ja-JP")}
+                    {formatDateJP(d.submitted_at)}
                   </div>
                   <span className="badge">{d.review_status}</span>
                 </div>

@@ -1,8 +1,8 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
 import ProposalForm from "./ProposalForm";
+import { acceptProposal } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -31,44 +31,6 @@ export default async function JobDetailPage({
     .order("created_at", { ascending: false });
 
   const myProposal = proposals?.find((p: any) => p.worker_id === user?.id);
-
-  async function acceptProposal(formData: FormData) {
-    "use server";
-    const proposalId = String(formData.get("proposal_id"));
-    const sb = await createClient();
-    const { data: { user: u } } = await sb.auth.getUser();
-    if (!u) redirect("/login");
-
-    const { data: prop } = await sb.from("proposals").select("*").eq("id", proposalId).single();
-    if (!prop) return;
-
-    const feePercent = Number(process.env.PLATFORM_FEE_PERCENT || 10);
-    const fee = Math.floor((prop.proposed_amount_jpy * feePercent) / 100);
-    const payout = prop.proposed_amount_jpy - fee;
-
-    await sb.from("contracts").insert({
-      job_id: prop.job_id,
-      proposal_id: prop.id,
-      client_id: u.id,
-      worker_id: prop.worker_id,
-      amount_jpy: prop.proposed_amount_jpy,
-      platform_fee_jpy: fee,
-      worker_payout_jpy: payout,
-      status: "funded",
-    });
-    await sb.from("proposals").update({ status: "accepted" }).eq("id", prop.id);
-    await sb.from("jobs").update({ status: "in_progress" }).eq("id", prop.job_id);
-
-    // スレッド自動作成
-    await sb.from("threads").upsert({
-      job_id: prop.job_id,
-      client_id: u.id,
-      worker_id: prop.worker_id,
-    }, { onConflict: "job_id,client_id,worker_id" });
-
-    revalidatePath(`/jobs/${prop.job_id}`);
-    redirect(`/dashboard`);
-  }
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">

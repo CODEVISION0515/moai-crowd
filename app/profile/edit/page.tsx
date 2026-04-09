@@ -1,147 +1,19 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
 import ConnectStatus from "@/components/ConnectStatus";
 import LineLink from "@/components/LineLink";
 import AvatarUpload from "@/components/AvatarUpload";
 import ProfileCoach from "./ProfileCoach";
+import {
+  updateBasic, updateSocial,
+  addPortfolio, deletePortfolio,
+  addWorkExp, deleteWorkExp,
+  addEducation, deleteEducation,
+  addCertification, deleteCertification,
+} from "./actions";
 
 export const dynamic = "force-dynamic";
-
-async function updateBasic(formData: FormData) {
-  "use server";
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) redirect("/login");
-  await sb.from("profiles").update({
-    display_name: String(formData.get("display_name") || ""),
-    handle: String(formData.get("handle") || ""),
-    tagline: String(formData.get("tagline") || "") || null,
-    bio: String(formData.get("bio") || "") || null,
-    skills: String(formData.get("skills") || "").split(",").map((s) => s.trim()).filter(Boolean),
-    hourly_rate_jpy: Number(formData.get("hourly_rate") || 0) || null,
-    location: String(formData.get("location") || "") || null,
-    years_experience: Number(formData.get("years_experience") || 0) || null,
-    languages: String(formData.get("languages") || "").split(",").map((s) => s.trim()).filter(Boolean),
-    service_areas: String(formData.get("service_areas") || "").split(",").map((s) => s.trim()).filter(Boolean),
-    availability: String(formData.get("availability") || "available"),
-    work_hours: String(formData.get("work_hours") || "") || null,
-  }).eq("id", user.id);
-  revalidatePath("/profile/edit");
-}
-
-async function updateSocial(formData: FormData) {
-  "use server";
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) redirect("/login");
-  await sb.from("profiles").update({
-    twitter_handle: String(formData.get("twitter") || "") || null,
-    instagram_handle: String(formData.get("instagram") || "") || null,
-    github_handle: String(formData.get("github") || "") || null,
-    linkedin_url: String(formData.get("linkedin") || "") || null,
-    behance_url: String(formData.get("behance") || "") || null,
-    youtube_url: String(formData.get("youtube") || "") || null,
-    tiktok_handle: String(formData.get("tiktok") || "") || null,
-    website: String(formData.get("website") || "") || null,
-  }).eq("id", user.id);
-  revalidatePath("/profile/edit");
-}
-
-async function addPortfolio(formData: FormData) {
-  "use server";
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) redirect("/login");
-  await sb.from("portfolios").insert({
-    user_id: user.id,
-    title: String(formData.get("title") || ""),
-    description: String(formData.get("description") || "") || null,
-    image_url: String(formData.get("image_url") || "") || null,
-    external_url: String(formData.get("external_url") || "") || null,
-    tags: String(formData.get("tags") || "").split(",").map((s) => s.trim()).filter(Boolean),
-    client_name: String(formData.get("client_name") || "") || null,
-    completed_at: String(formData.get("completed_at") || "") || null,
-  });
-  revalidatePath("/profile/edit");
-}
-
-async function deletePortfolio(formData: FormData) {
-  "use server";
-  const sb = await createClient();
-  await sb.from("portfolios").delete().eq("id", String(formData.get("id")));
-  revalidatePath("/profile/edit");
-}
-
-async function addWorkExp(formData: FormData) {
-  "use server";
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) redirect("/login");
-  await sb.from("work_experiences").insert({
-    user_id: user.id,
-    company: String(formData.get("company") || ""),
-    title: String(formData.get("title") || ""),
-    description: String(formData.get("description") || "") || null,
-    start_date: String(formData.get("start_date") || ""),
-    end_date: String(formData.get("end_date") || "") || null,
-    is_current: formData.get("is_current") === "on",
-  });
-  revalidatePath("/profile/edit");
-}
-
-async function deleteWorkExp(formData: FormData) {
-  "use server";
-  const sb = await createClient();
-  await sb.from("work_experiences").delete().eq("id", String(formData.get("id")));
-  revalidatePath("/profile/edit");
-}
-
-async function addEducation(formData: FormData) {
-  "use server";
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) redirect("/login");
-  await sb.from("educations").insert({
-    user_id: user.id,
-    school: String(formData.get("school") || ""),
-    degree: String(formData.get("degree") || "") || null,
-    field: String(formData.get("field") || "") || null,
-    start_date: String(formData.get("start_date") || "") || null,
-    end_date: String(formData.get("end_date") || "") || null,
-  });
-  revalidatePath("/profile/edit");
-}
-
-async function deleteEducation(formData: FormData) {
-  "use server";
-  const sb = await createClient();
-  await sb.from("educations").delete().eq("id", String(formData.get("id")));
-  revalidatePath("/profile/edit");
-}
-
-async function addCertification(formData: FormData) {
-  "use server";
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) redirect("/login");
-  await sb.from("certifications").insert({
-    user_id: user.id,
-    name: String(formData.get("name") || ""),
-    issuer: String(formData.get("issuer") || "") || null,
-    issued_date: String(formData.get("issued_date") || "") || null,
-    credential_url: String(formData.get("credential_url") || "") || null,
-  });
-  revalidatePath("/profile/edit");
-}
-
-async function deleteCertification(formData: FormData) {
-  "use server";
-  const sb = await createClient();
-  await sb.from("certifications").delete().eq("id", String(formData.get("id")));
-  revalidatePath("/profile/edit");
-}
 
 export default async function ProfileEditPage() {
   const sb = await createClient();

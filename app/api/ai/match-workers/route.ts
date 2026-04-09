@@ -1,8 +1,9 @@
-// AIマッチング: 案件に対して最適な受注者候補を提案
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateText } from "@/lib/ai";
 import { consumeCredits } from "@/lib/credits";
+
+// match-workers は結果に DB データを結合するため createAiRouteHandler ではなく直書き
 
 export async function POST(req: Request) {
   const { jobId } = await req.json();
@@ -16,7 +17,6 @@ export async function POST(req: Request) {
   const { data: job } = await sb.from("jobs").select("*").eq("id", jobId).single();
   if (!job) return NextResponse.json({ error: "job not found" }, { status: 404 });
 
-  // スキル重複する受注者を上位20件取得
   const { data: candidates } = await sb
     .from("profiles")
     .select("id, handle, display_name, bio, skills, rating_avg, rating_count, hourly_rate_jpy")
@@ -47,13 +47,14 @@ ${candidates.map((c) => `- @${c.handle} ${c.display_name} [★${Number(c.rating_
   try {
     const text = await generateText(SYSTEM, prompt, 1024);
     const match = text.match(/\[[\s\S]*\]/);
-    const picks = match ? JSON.parse(match[0]) : [];
+    const picks: { handle: string; reason: string }[] = match ? JSON.parse(match[0]) : [];
     const byHandle = new Map(candidates.map((c) => [c.handle, c]));
     const matches = picks
-      .map((p: any) => ({ ...byHandle.get(p.handle), reason: p.reason }))
-      .filter((m: any) => m.id);
+      .map((p) => ({ ...byHandle.get(p.handle), reason: p.reason }))
+      .filter((m) => m.id);
     return NextResponse.json({ matches });
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : "generation failed";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
