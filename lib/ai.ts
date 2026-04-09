@@ -60,12 +60,18 @@ async function callAnthropic(system: string, user: string, maxTokens: number): P
   return block?.type === "text" ? block.text : "";
 }
 
-// OpenRouter (無料モデル) =================================
-async function callOpenRouter(system: string, user: string, maxTokens: number): Promise<string> {
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) throw new Error("OPENROUTER_API_KEY未設定");
-  const model = process.env.OPENROUTER_MODEL || "google/gemma-4-26b-a4b-it:free";
+// OpenRouter (無料モデル・自動フォールバック) ================
+const FREE_MODELS = [
+  "google/gemma-4-26b-a4b-it:free",
+  "google/gemma-4-31b-it:free",
+  "qwen/qwen3-coder:free",
+  "nvidia/nemotron-3-super-120b-a12b:free",
+  "google/gemma-3-4b-it:free",
+];
 
+async function callOpenRouterWithModel(
+  apiKey: string, model: string, system: string, user: string, maxTokens: number,
+): Promise<{ ok: boolean; text: string; error?: string }> {
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -83,9 +89,29 @@ async function callOpenRouter(system: string, user: string, maxTokens: number): 
       ],
     }),
   });
-  if (!res.ok) throw new Error(`OpenRouter API error: ${await res.text()}`);
+  if (!res.ok) {
+    const body = await res.text();
+    return { ok: false, text: "", error: body };
+  }
   const data = await res.json();
-  return data.choices?.[0]?.message?.content ?? "";
+  return { ok: true, text: data.choices?.[0]?.message?.content ?? "" };
+}
+
+async function callOpenRouter(system: string, user: string, maxTokens: number): Promise<string> {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) throw new Error("OPENROUTER_API_KEY未設定");
+
+  const primary = process.env.OPENROUTER_MODEL || FREE_MODELS[0];
+  const models = [primary, ...FREE_MODELS.filter((m) => m !== primary)];
+
+  for (const model of models) {
+    const result = await callOpenRouterWithModel(apiKey, model, system, user, maxTokens);
+    if (result.ok) {
+      return result.text;
+    }
+    console.warn(`[ai] ${model} failed, trying next...`);
+  }
+  throw new Error("全ての無料モデルがレート制限中です。しばらく待ってから再試行してください。");
 }
 
 // 統一インターフェース =====================================
