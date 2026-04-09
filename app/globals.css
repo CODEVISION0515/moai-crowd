@@ -2,15 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 :root {
   color-scheme: light;
-  --header-h: 60px;
-  --bottomnav-h: 64px;
+  --header-h: 56px;
+  --bottomnav-h: 60px;
 }
 
 @layer base {
   html, body {
-    @apply bg-moai-paper text-moai-ink antialiased;
+    @apply bg-white text-moai-ink antialiased;
     font-feature-settings: "palt";
   }
   body {
@@ -18,99 +20,99 @@
     overscroll-behavior-y: none;
   }
   h1, h2, h3 { @apply font-display tracking-tight; }
-  h1 { @apply text-2xl md:text-3xl font-bold; }
-  h2 { @apply text-xl md:text-2xl font-bold; }
-  h3 { @apply text-base md:text-lg font-semibold; }
-  ::selection { @apply bg-moai-primary/20 text-moai-primary-900; }
+  h1 { @apply text-2xl md:text-3xl font-semibold; }
+  h2 { @apply text-xl md:text-2xl font-semibold; }
+  h3 { @apply text-base md:text-lg font-medium; }
+  ::selection { @apply bg-moai-primary/15 text-moai-primary-900; }
 }
 
 @layer components {
-  /* Buttons */
+  /* Buttons — フラット・控えめ */
   .btn {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-medium transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
-    min-height: 40px;
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed;
+    min-height: 36px;
   }
   .btn-primary {
-    @apply btn bg-moai-primary text-white shadow-soft hover:bg-moai-primary-700 hover:shadow-hover;
+    @apply btn bg-moai-ink text-white hover:bg-gray-800;
   }
   .btn-accent {
-    @apply btn bg-moai-accent text-white shadow-soft hover:bg-moai-accent-600 hover:shadow-hover;
+    @apply btn bg-moai-primary text-white hover:bg-moai-primary-800;
   }
   .btn-outline {
-    @apply btn border border-slate-200 bg-white text-slate-700 hover:border-moai-primary hover:text-moai-primary;
+    @apply btn border border-moai-border bg-white text-moai-ink hover:bg-moai-cloud;
   }
   .btn-ghost {
-    @apply btn text-slate-600 hover:bg-slate-100 hover:text-moai-primary;
+    @apply btn text-moai-muted hover:bg-moai-cloud hover:text-moai-ink;
   }
-  .btn-lg { @apply px-6 py-3 text-base; min-height: 48px; }
-  .btn-sm { @apply px-3 py-1.5 text-xs; min-height: 32px; }
+  .btn-lg { @apply px-5 py-2.5 text-sm; min-height: 40px; }
+  .btn-sm { @apply px-3 py-1.5 text-xs; min-height: 30px; }
 
-  /* Inputs */
+  /* Inputs — シンプル・薄いボーダー */
   .input {
-    @apply w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm transition-colors placeholder:text-slate-400 focus:border-moai-primary focus:outline-none focus:ring-4 focus:ring-moai-primary/10;
-    min-height: 42px;
+    @apply w-full rounded-lg border border-moai-border bg-white px-3 py-2 text-sm transition-colors placeholder:text-gray-400 focus:border-moai-ink focus:outline-none focus:ring-1 focus:ring-moai-ink/10;
+    min-height: 38px;
   }
   textarea.input { min-height: unset; }
   .label {
-    @apply block text-xs font-medium text-slate-600 mb-1.5;
+    @apply block text-xs font-medium text-moai-muted mb-1;
   }
 
-  /* Cards */
+  /* Cards — ミニマル・ボーダー主体 */
   .card {
-    @apply rounded-2xl border border-slate-100 bg-white p-5 shadow-soft transition-shadow;
+    @apply rounded-lg border border-moai-border bg-white p-4 transition-colors;
   }
   .card-hover {
-    @apply card hover:shadow-card hover:border-moai-primary/20;
+    @apply card hover:border-gray-300 hover:bg-moai-cloud/50;
   }
   .card-flat {
-    @apply rounded-2xl bg-white p-5;
+    @apply rounded-lg bg-white p-4;
   }
 
-  /* Badges */
+  /* Badges — 控えめ */
   .badge {
-    @apply inline-flex items-center gap-1 rounded-full bg-moai-primary/10 px-2.5 py-1 text-xs font-medium text-moai-primary;
+    @apply inline-flex items-center gap-1 rounded-md bg-moai-cloud px-2 py-0.5 text-xs font-medium text-moai-muted;
   }
   .badge-accent {
-    @apply badge bg-moai-accent/15 text-moai-accent-600;
+    @apply badge bg-moai-primary/10 text-moai-primary;
   }
   .badge-coral {
-    @apply badge bg-rose-100 text-rose-700;
+    @apply badge bg-red-50 text-red-600;
   }
   .badge-slate {
-    @apply badge bg-slate-100 text-slate-700;
+    @apply badge bg-gray-100 text-gray-600;
   }
   .badge-success {
-    @apply badge bg-green-100 text-green-700;
+    @apply badge bg-emerald-50 text-emerald-700;
   }
 
-  /* Layout helpers */
+  /* Layout */
   .container-app {
-    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-5xl px-4 sm:px-6;
   }
   .stack { @apply flex flex-col gap-4; }
   .row { @apply flex items-center gap-3; }
 
   /* Section headings */
   .section-title {
-    @apply text-lg md:text-xl font-bold tracking-tight text-moai-ink;
+    @apply text-base font-semibold text-moai-ink;
   }
 
-  /* Page padding for bottom nav (mobile) */
-  .pb-nav { @apply pb-24 md:pb-10; }
+  /* Page padding for bottom nav */
+  .pb-nav { @apply pb-20 md:pb-8; }
 
   /* Skeleton */
   .skeleton {
-    @apply animate-pulse bg-slate-100 rounded-xl;
+    @apply animate-pulse bg-gray-100 rounded-lg;
   }
 
   /* Divider */
   .divider {
-    @apply h-px w-full bg-slate-100;
+    @apply h-px w-full bg-moai-border;
   }
 
-  /* Glass effect */
+  /* Header — シンプル・ボーダー */
   .glass {
-    @apply bg-white/80 backdrop-blur-lg border-b border-slate-200/50;
+    @apply bg-white/95 backdrop-blur-sm border-b border-moai-border;
   }
 }
 
@@ -120,6 +122,5 @@
   .card { box-shadow: none !important; border: 1px solid #ddd; }
 }
 
-/* Hide scrollbar on horizontal scroll */
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }

@@ -15,7 +15,7 @@ export default function BottomNav({ userId }: { userId: string | null }) {
   if (!userId) return null;
 
   return (
-    <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 glass border-t border-slate-200/60">
+    <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-white border-t border-moai-border">
       <div className="grid grid-cols-5 h-[var(--bottomnav-h)] safe-bottom">
         {ITEMS.map((item) => {
           const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
@@ -23,16 +23,16 @@ export default function BottomNav({ userId }: { userId: string | null }) {
           if (item.primary) {
             return (
               <Link key={item.href} href={item.href} className="flex items-center justify-center">
-                <span className="-mt-6 inline-flex items-center justify-center h-14 w-14 rounded-full bg-moai-primary text-white shadow-hover">
-                  <Icon className="h-7 w-7" />
+                <span className="inline-flex items-center justify-center h-10 w-10 rounded-lg bg-moai-ink text-white">
+                  <Icon className="h-5 w-5" />
                 </span>
               </Link>
             );
           }
           return (
             <Link key={item.href} href={item.href} className="flex flex-col items-center justify-center gap-0.5 text-[10px]">
-              <Icon className={`h-6 w-6 ${active ? "text-moai-primary" : "text-slate-400"}`} />
-              <span className={active ? "text-moai-primary font-semibold" : "text-slate-500"}>{item.label}</span>
+              <Icon className={`h-5 w-5 ${active ? "text-moai-ink" : "text-gray-400"}`} />
+              <span className={active ? "text-moai-ink font-medium" : "text-gray-500"}>{item.label}</span>
             </Link>
           );
         })}

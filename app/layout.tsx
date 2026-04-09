@@ -35,9 +35,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Header userId={user?.id ?? null} />
         <main className="flex-1 pb-nav">{children}</main>
         <BottomNav userId={user?.id ?? null} />
-        <footer className="hidden md:block border-t border-slate-100 bg-white py-8">
-          <div className="container-app text-center text-xs text-slate-500">
-            © {new Date().getFullYear()} MOAI Crowd by CODEVISION · 仲間と創る、仕事のマッチング
+        <footer className="hidden md:block border-t border-moai-border py-6">
+          <div className="container-app text-center text-xs text-moai-muted">
+            © {new Date().getFullYear()} MOAI Crowd by CODEVISION
           </div>
         </footer>
       </body>
