@@ -90,20 +90,11 @@ async function callOpenRouter(system: string, user: string, maxTokens: number): 
 
 // 統一インターフェース =====================================
 export async function generateText(system: string, user: string, maxTokens = 1024): Promise<string> {
-  try {
-    switch (PROVIDER) {
-      case "gemini": return await callGemini(system, user, maxTokens);
-      case "anthropic": return await callAnthropic(system, user, maxTokens);
-      case "openrouter": return await callOpenRouter(system, user, maxTokens);
-      default: return await callGemini(system, user, maxTokens);
-    }
-  } catch (e: any) {
-    // Geminiがレート制限等で失敗したら OpenRouter にフォールバック
-    if (PROVIDER === "gemini" && process.env.OPENROUTER_API_KEY) {
-      console.warn("[ai] Gemini failed, falling back to OpenRouter:", e.message);
-      return await callOpenRouter(system, user, maxTokens);
-    }
-    throw e;
+  switch (PROVIDER) {
+    case "gemini": return await callGemini(system, user, maxTokens);
+    case "anthropic": return await callAnthropic(system, user, maxTokens);
+    case "openrouter": return await callOpenRouter(system, user, maxTokens);
+    default: return await callOpenRouter(system, user, maxTokens);
   }
 }
 
