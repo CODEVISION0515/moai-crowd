@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Message } from "@/types/database";
+import { formatTime } from "@/lib/utils";
 
 export default function Chat({
   threadId, userId, initial,
@@ -46,7 +47,7 @@ export default function Chat({
               }`}>
                 <div className="whitespace-pre-wrap">{m.body}</div>
                 <div className={`text-[10px] mt-1 ${mine ? "text-white/70" : "text-slate-400"}`}>
-                  {new Date(m.created_at).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}
+                  {formatTime(m.created_at)}
                 </div>
               </div>
             </div>

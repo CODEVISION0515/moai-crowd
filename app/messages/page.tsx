@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { formatDateJP } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,7 @@ export default async function MessagesPage() {
                   <div className="text-xs text-slate-500">{t.jobs?.title ?? "(案件情報なし)"}</div>
                 </div>
                 <div className="text-xs text-slate-400">
-                  {new Date(t.last_message_at).toLocaleString("ja-JP")}
+                  {formatDateJP(t.last_message_at)}
                 </div>
               </div>
             </Link>

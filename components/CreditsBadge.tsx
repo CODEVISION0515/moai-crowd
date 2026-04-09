@@ -14,7 +14,7 @@ export default function CreditsBadge({ userId }: { userId: string }) {
     const ch = sb.channel(`credits:${userId}`)
       .on("postgres_changes",
         { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${userId}` },
-        (payload: any) => setBalance(payload.new.credits_balance ?? 0))
+        (payload: { new: { credits_balance?: number } }) => setBalance(payload.new.credits_balance ?? 0))
       .subscribe();
     return () => { sb.removeChannel(ch); };
   }, [userId]);

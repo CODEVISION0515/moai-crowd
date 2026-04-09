@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import RecommendedJobs from "@/components/RecommendedJobs";
+import { formatCurrency } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -80,7 +81,7 @@ export default async function DashboardPage() {
                   <div className="font-semibold line-clamp-1">{c.jobs?.title}</div>
                   <span className="badge shrink-0">{c.status}</span>
                 </div>
-                <div className="mt-2 text-sm text-slate-500">¥{c.amount_jpy.toLocaleString()}</div>
+                <div className="mt-2 text-sm text-slate-500">{formatCurrency(c.amount_jpy)}</div>
               </Link>
             ))}
           </div>
@@ -117,7 +118,7 @@ export default async function DashboardPage() {
                     <div className="font-medium line-clamp-1">{p.jobs?.title}</div>
                     <span className="badge text-xs shrink-0">{p.status}</span>
                   </div>
-                  <div className="text-xs text-slate-400 mt-1">提案 ¥{p.proposed_amount_jpy.toLocaleString()}</div>
+                  <div className="text-xs text-slate-400 mt-1">提案 {formatCurrency(p.proposed_amount_jpy)}</div>
                 </Link>
               ))}
             </div>

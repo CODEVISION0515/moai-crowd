@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
+import { formatDateJP } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +44,7 @@ export default async function ReportsPage() {
               <div className="mt-1 font-semibold">{r.reason}</div>
               {r.detail && <p className="mt-1 text-sm text-slate-600 whitespace-pre-wrap">{r.detail}</p>}
               <div className="mt-2 text-xs text-slate-400">
-                通報者: {r.reporter?.display_name} / {new Date(r.created_at).toLocaleString("ja-JP")}
+                通報者: {r.reporter?.display_name} / {formatDateJP(r.created_at)}
               </div>
             </div>
           </div>

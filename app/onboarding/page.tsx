@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { saveStep1, saveStep2, finishOnboarding } from "./actions";
+import StepForm from "./StepForm";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +31,7 @@ export default async function OnboardingPage({
       </div>
 
       {currentStep === 1 && (
-        <form action={saveStep1} className="card animate-slide-up space-y-5">
+        <StepForm action={saveStep1} className="card animate-slide-up space-y-5">
           <div>
             <h1 className="text-2xl font-bold">はじめまして、ようこそ 👋</h1>
             <p className="mt-2 text-sm text-slate-600">まずはあなたの基本情報を教えてください。</p>
@@ -51,11 +52,11 @@ export default async function OnboardingPage({
             <input name="tagline" defaultValue={profile?.tagline ?? ""} className="input" placeholder="例: 沖縄発のWeb職人。AIが得意です" />
           </div>
           <button className="btn-primary btn-lg w-full">次へ →</button>
-        </form>
+        </StepForm>
       )}
 
       {currentStep === 2 && (
-        <form action={saveStep2} className="card animate-slide-up space-y-5">
+        <StepForm action={saveStep2} className="card animate-slide-up space-y-5">
           <div>
             <h1 className="text-2xl font-bold">あなたについて教えてください 💬</h1>
             <p className="mt-2 text-sm text-slate-600">スキルや得意分野を入力するとマッチング精度が上がります。</p>
@@ -90,7 +91,7 @@ export default async function OnboardingPage({
             <Link href="/onboarding?step=1" className="btn-outline">戻る</Link>
             <button className="btn-primary btn-lg flex-1">次へ →</button>
           </div>
-        </form>
+        </StepForm>
       )}
 
       {currentStep === 3 && (

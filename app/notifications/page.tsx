@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { markAllRead } from "./actions";
+import { formatDateJP } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +38,7 @@ export default async function NotificationsPage() {
                 {n.body && <div className="text-sm text-slate-600 mt-1">{n.body}</div>}
               </div>
               <div className="text-xs text-slate-400 shrink-0">
-                {new Date(n.created_at).toLocaleString("ja-JP")}
+                {formatDateJP(n.created_at)}
               </div>
             </div>
           </Link>

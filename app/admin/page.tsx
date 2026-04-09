@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/server";
+import { formatCurrency } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,7 @@ export default async function AdminDashboard() {
     { label: "総ユーザー数", value: userCount ?? 0 },
     { label: "総案件数", value: jobCount ?? 0 },
     { label: "総契約数", value: contractCount ?? 0 },
-    { label: "手数料累計", value: `¥${totalFee.toLocaleString()}` },
+    { label: "手数料累計", value: formatCurrency(totalFee) },
     { label: "未処理の通報", value: openReports ?? 0, highlight: (openReports ?? 0) > 0 },
   ];
 

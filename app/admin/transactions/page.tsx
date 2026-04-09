@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/server";
+import { formatDateJP, formatCurrency } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -26,11 +27,11 @@ export default async function AdminTransactionsPage() {
           {txs?.map((t: any) => (
             <tr key={t.id} className="border-t border-slate-200">
               <td className="p-3 text-xs text-slate-500">
-                {new Date(t.created_at).toLocaleString("ja-JP")}
+                {formatDateJP(t.created_at)}
               </td>
               <td className="p-3">{t.contracts?.jobs?.title ?? "-"}</td>
               <td className="p-3"><span className="badge">{t.kind}</span></td>
-              <td className="p-3 text-right font-semibold">¥{t.amount_jpy.toLocaleString()}</td>
+              <td className="p-3 text-right font-semibold">{formatCurrency(t.amount_jpy)}</td>
               <td className="p-3 text-xs text-slate-500">{t.note}</td>
             </tr>
           ))}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { formatDateShort } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -60,7 +61,7 @@ export default async function CommunityPage({
                     <span>by {p.author?.display_name} Lv.{p.author?.level ?? 1}</span>
                     <span>💬 {p.comment_count}</span>
                     <span>❤️ {p.like_count}</span>
-                    <span>{new Date(p.updated_at).toLocaleString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                    <span>{formatDateShort(p.updated_at)}</span>
                   </div>
                 </div>
               </div>
