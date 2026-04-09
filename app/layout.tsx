@@ -1,25 +1,27 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { createClient } from "@/lib/supabase/server";
-import SignOutButton from "@/components/SignOutButton";
-import NotificationBell from "@/components/NotificationBell";
+import Header from "@/components/Header";
+import BottomNav from "@/components/BottomNav";
 import PWARegister from "@/components/PWARegister";
 
 export const metadata: Metadata = {
   title: "MOAI Crowd | 仲間と創る、仕事のマッチング",
-  description: "MOAIコミュニティ発のクラウドソーシング。仕事を頼みたい人と、力を貸したい人を繋ぐ。",
+  description: "MOAIコミュニティ発のクラウドソーシング。仕事を頼みたい人と、力を貸したい人を、ゆんたくで繋ぐ。",
   manifest: "/manifest.json",
-  themeColor: "#0f766e",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "MOAI Crowd",
   },
-  icons: {
-    icon: "/icon-192.png",
-    apple: "/icon-192.png",
-  },
+  icons: { icon: "/icon-192.png", apple: "/icon-192.png" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0d9488",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -30,38 +32,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="ja">
       <body className="min-h-screen flex flex-col">
         <PWARegister />
-        <header className="border-b border-slate-200 bg-white">
-          <div className="mx-auto max-w-6xl flex items-center justify-between px-4 py-3">
-            <Link href="/" className="text-xl font-bold text-moai-primary">
-              MOAI <span className="text-moai-accent">Crowd</span>
-            </Link>
-            <nav className="flex items-center gap-4 text-sm">
-              <Link href="/jobs" className="hover:text-moai-primary">案件</Link>
-              <Link href="/workers" className="hover:text-moai-primary">仲間</Link>
-              <Link href="/community" className="hover:text-moai-primary">コミュニティ</Link>
-              <Link href="/events" className="hover:text-moai-primary">イベント</Link>
-              <Link href="/leaderboard" className="hover:text-moai-primary">🏆</Link>
-              {user ? (
-                <>
-                  <Link href="/jobs/new" className="hover:text-moai-primary">依頼</Link>
-                  <Link href="/messages" className="hover:text-moai-primary">DM</Link>
-                  <Link href="/invoices" className="hover:text-moai-primary">請求書</Link>
-                  <Link href="/dashboard" className="hover:text-moai-primary">マイページ</Link>
-                  <NotificationBell userId={user.id} />
-                  <SignOutButton />
-                </>
-              ) : (
-                <>
-                  <Link href="/login" className="hover:text-moai-primary">ログイン</Link>
-                  <Link href="/signup" className="btn-primary">新規登録</Link>
-                </>
-              )}
-            </nav>
+        <Header userId={user?.id ?? null} />
+        <main className="flex-1 pb-nav">{children}</main>
+        <BottomNav userId={user?.id ?? null} />
+        <footer className="hidden md:block border-t border-slate-100 bg-white py-8">
+          <div className="container-app text-center text-xs text-slate-500">
+            © {new Date().getFullYear()} MOAI Crowd by CODEVISION · 仲間と創る、仕事のマッチング
           </div>
-        </header>
-        <main className="flex-1">{children}</main>
-        <footer className="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
-          © {new Date().getFullYear()} MOAI Crowd by CODEVISION
         </footer>
       </body>
     </html>

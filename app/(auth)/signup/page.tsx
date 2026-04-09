@@ -21,7 +21,7 @@ export default function SignUpPage() {
     });
     setLoading(false);
     if (error) return setErr(error.message);
-    router.push("/dashboard");
+    router.push("/onboarding");
     router.refresh();
   }
 
