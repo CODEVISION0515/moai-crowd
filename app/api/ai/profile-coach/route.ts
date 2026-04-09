@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateText } from "@/lib/ai";
+import { consumeCredits } from "@/lib/credits";
 
 const SYSTEM = `あなたはクラウドソーシングのプロフィール最適化コーチです。
 受注者のプロフィール情報を分析し、受注率を上げるための具体的なアドバイスをします。
@@ -18,6 +19,9 @@ export async function POST() {
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const credit = await consumeCredits(user.id, "profile_coach");
+  if (!credit.ok) return NextResponse.json({ error: credit.error, required: credit.required }, { status: 402 });
 
   const [{ data: profile }, { data: portfolios }, { data: workExps }, { data: certs }] = await Promise.all([
     sb.from("profiles").select("*").eq("id", user.id).single(),

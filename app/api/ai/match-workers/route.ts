@@ -2,10 +2,16 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateText } from "@/lib/ai";
+import { consumeCredits } from "@/lib/credits";
 
 export async function POST(req: Request) {
   const { jobId } = await req.json();
   const sb = await createClient();
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const credit = await consumeCredits(user.id, "match_workers", { jobId });
+  if (!credit.ok) return NextResponse.json({ error: credit.error, required: credit.required }, { status: 402 });
 
   const { data: job } = await sb.from("jobs").select("*").eq("id", jobId).single();
   if (!job) return NextResponse.json({ error: "job not found" }, { status: 404 });

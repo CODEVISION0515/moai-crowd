@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import SignOutButton from "@/components/SignOutButton";
 import NotificationBell from "@/components/NotificationBell";
+import CreditsBadge from "@/components/CreditsBadge";
 
 const PUBLIC_LINKS = [
   { href: "/jobs", label: "案件" },
@@ -16,6 +17,7 @@ const AUTH_LINKS = [
   { href: "/dashboard", label: "マイページ" },
   { href: "/jobs/new", label: "依頼する" },
   { href: "/messages", label: "DM" },
+  { href: "/credits", label: "🪙 クレジット" },
   { href: "/invoices", label: "請求書" },
   { href: "/earnings", label: "収益" },
   { href: "/leaderboard", label: "🏆 ランキング" },
@@ -56,6 +58,7 @@ export default function Header({ userId }: { userId: string | null }) {
           {userId ? (
             <>
               <Link href="/jobs/new" className="hidden md:inline-flex btn-primary btn-sm">+ 依頼する</Link>
+              <CreditsBadge userId={userId} />
               <NotificationBell userId={userId} />
               <button onClick={() => setOpen(!open)} className="md:hidden p-2 rounded-lg hover:bg-slate-100" aria-label="メニュー">
                 <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

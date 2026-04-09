@@ -13,6 +13,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <Link href="/admin/users" className="hover:text-moai-primary">ユーザー</Link>
           <Link href="/admin/jobs" className="hover:text-moai-primary">案件</Link>
           <Link href="/admin/transactions" className="hover:text-moai-primary">取引</Link>
+          <Link href="/admin/credits" className="hover:text-moai-primary">🪙 クレジット</Link>
         </nav>
       </div>
       {children}

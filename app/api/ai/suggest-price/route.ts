@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateText } from "@/lib/ai";
+import { consumeCredits } from "@/lib/credits";
 
 const SYSTEM = `日本のクラウドソーシング相場に詳しいAIです。案件内容から妥当な予算範囲を提案してください。
 出力JSONのみ:
@@ -17,6 +18,9 @@ export async function POST(req: Request) {
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const credit = await consumeCredits(user.id, "suggest_price");
+  if (!credit.ok) return NextResponse.json({ error: credit.error, required: credit.required }, { status: 402 });
 
   // 類似案件の相場データ
   const { data: similar } = await sb.from("jobs")

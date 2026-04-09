@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateText } from "@/lib/ai";
+import { consumeCredits } from "@/lib/credits";
 
 const SYSTEM = `あなたは日本のクラウドソーシング「MOAI Crowd」の案件作成アシスタントです。
 発注者が入力した曖昧なアイデアから、受注者が応募しやすい案件を作成します。
@@ -23,6 +24,9 @@ export async function POST(req: Request) {
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const credit = await consumeCredits(user.id, "draft_job");
+  if (!credit.ok) return NextResponse.json({ error: credit.error, required: credit.required }, { status: 402 });
 
   const { idea } = await req.json();
   if (!idea || typeof idea !== "string") {

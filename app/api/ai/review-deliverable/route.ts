@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateText } from "@/lib/ai";
+import { consumeCredits } from "@/lib/credits";
 
 const SYSTEM = `クラウドソーシング案件の成果物を第三者的にレビューするAIアシスタントです。
 案件要件と成果物を比較し、以下の観点でフィードバックしてください:
@@ -24,6 +25,9 @@ export async function POST(req: Request) {
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const credit = await consumeCredits(user.id, "review_deliverable", { deliverableId });
+  if (!credit.ok) return NextResponse.json({ error: credit.error, required: credit.required }, { status: 402 });
 
   const { data: deliverable } = await sb.from("deliverables")
     .select("*, contracts(job_id, client_id, jobs(title, description, skills))")

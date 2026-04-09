@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateText } from "@/lib/ai";
+import { consumeCredits } from "@/lib/credits";
 
 const SYSTEM = `クラウドソーシングの応募文作成AIです。受注者目線で丁寧・誠実・具体的な応募文を書いてください。
 - 冒頭で案件への関心と自己紹介
@@ -16,6 +17,9 @@ export async function POST(req: Request) {
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const credit = await consumeCredits(user.id, "draft_proposal", { jobId });
+  if (!credit.ok) return NextResponse.json({ error: credit.error, required: credit.required }, { status: 402 });
 
   const { data: job } = await sb.from("jobs").select("*").eq("id", jobId).single();
   const { data: profile } = await sb.from("profiles").select("display_name, bio, skills").eq("id", user.id).single();
