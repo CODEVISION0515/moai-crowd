@@ -64,7 +64,7 @@ async function callAnthropic(system: string, user: string, maxTokens: number): P
 async function callOpenRouter(system: string, user: string, maxTokens: number): Promise<string> {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) throw new Error("OPENROUTER_API_KEY未設定");
-  const model = process.env.OPENROUTER_MODEL || "google/gemini-2.0-flash-exp:free";
+  const model = process.env.OPENROUTER_MODEL || "meta-llama/llama-4-maverick:free";
 
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
