@@ -72,29 +72,36 @@ const FREE_MODELS = [
 async function callOpenRouterWithModel(
   apiKey: string, model: string, system: string, user: string, maxTokens: number,
 ): Promise<{ ok: boolean; text: string; error?: string }> {
-  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-      "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "https://moai-crowd.vercel.app",
-      "X-Title": "MOAI Crowd",
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: maxTokens,
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: user },
-      ],
-    }),
-  });
-  if (!res.ok) {
-    const body = await res.text();
-    return { ok: false, text: "", error: body };
+  try {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+        "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "https://moai-crowd.vercel.app",
+        "X-Title": "MOAI Crowd",
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: maxTokens,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: user },
+        ],
+      }),
+    });
+    if (!res.ok) {
+      const body = await res.text();
+      return { ok: false, text: "", error: body };
+    }
+    const data = await res.json();
+    const text = data.choices?.[0]?.message?.content;
+    if (!text) return { ok: false, text: "", error: "empty response" };
+    return { ok: true, text };
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : "fetch failed";
+    return { ok: false, text: "", error: msg };
   }
-  const data = await res.json();
-  return { ok: true, text: data.choices?.[0]?.message?.content ?? "" };
 }
 
 async function callOpenRouter(system: string, user: string, maxTokens: number): Promise<string> {
