@@ -25,6 +25,10 @@ export default function SignUpPage() {
       .catch(() => {});
   }, [refCode]);
 
+  const pwStrength = password.length === 0 ? 0 : password.length < 8 ? 1 : password.length < 12 ? 2 : 3;
+  const pwColor = ["bg-slate-200", "bg-red-400", "bg-amber-400", "bg-emerald-500"][pwStrength];
+  const pwLabel = ["", "弱い", "普通", "強い"][pwStrength];
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true); setErr(null);
@@ -44,36 +48,115 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 py-16">
-      <h1 className="text-2xl font-bold mb-2 text-center">新規登録</h1>
-      <p className="text-center text-sm text-slate-600 mb-6">コミュニティ参加は完全無料です</p>
-      {referrer && (
-        <div className="card-flat mb-4 bg-moai-primary/5 border border-moai-primary/30 text-sm">
-          <div className="font-medium">🎁 紹介者: @{referrer.handle}（{referrer.display_name}）経由</div>
-          <div className="mt-1 text-slate-600">登録完了で <b>+500クレジット</b> 獲得できます</div>
+    <div className="min-h-[calc(100vh-var(--header-h))] flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md animate-slide-up">
+        {/* Branding */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 mb-4">
+            <span className="text-2xl font-bold text-moai-primary">MOAI</span>
+            <span className="text-sm text-moai-muted">Crowd</span>
+          </div>
+          <h1 className="text-2xl font-bold">新規登録</h1>
+          <p className="text-sm text-moai-muted mt-1">30秒で完了。完全無料。</p>
         </div>
-      )}
-      <form onSubmit={onSubmit} className="card space-y-4">
-        <div>
-          <label className="label">表示名</label>
-          <input required className="input" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+
+        {/* Referrer banner */}
+        {referrer && (
+          <div className="card mb-4 border-moai-primary/30 bg-moai-primary/[0.03] animate-scale-in">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-moai-primary/10 flex items-center justify-center text-lg">🎁</div>
+              <div>
+                <div className="text-sm font-medium">@{referrer.handle}（{referrer.display_name}）からの紹介</div>
+                <div className="text-xs text-moai-muted mt-0.5">登録完了で <span className="font-semibold text-moai-primary">+500クレジット</span> 獲得</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <form onSubmit={onSubmit} className="card space-y-4">
+          <div>
+            <label className="label">表示名</label>
+            <input
+              required
+              className="input"
+              placeholder="あなたの名前"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              autoComplete="name"
+            />
+          </div>
+          <div>
+            <label className="label">メールアドレス</label>
+            <input
+              type="email"
+              required
+              className="input"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+            />
+          </div>
+          <div>
+            <label className="label">パスワード</label>
+            <input
+              type="password"
+              required
+              minLength={8}
+              className="input"
+              placeholder="8文字以上"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
+            />
+            {password.length > 0 && (
+              <div className="mt-2 flex items-center gap-2">
+                <div className="flex-1 flex gap-1">
+                  {[1, 2, 3].map((level) => (
+                    <div key={level} className={`h-1 flex-1 rounded-full transition-colors ${pwStrength >= level ? pwColor : "bg-slate-100"}`} />
+                  ))}
+                </div>
+                <span className="text-[11px] text-moai-muted">{pwLabel}</span>
+              </div>
+            )}
+          </div>
+
+          {err && (
+            <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
+              <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {err}
+            </div>
+          )}
+
+          <button type="submit" disabled={loading} className="btn-accent w-full btn-lg">
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                作成中...
+              </span>
+            ) : "アカウント作成"}
+          </button>
+
+          <p className="text-sm text-center text-moai-muted pt-2">
+            既にアカウントをお持ち？{" "}
+            <Link href="/login" className="text-moai-primary font-medium hover:underline">ログイン</Link>
+          </p>
+        </form>
+
+        {/* Social proof */}
+        <div className="mt-6 flex items-center justify-center gap-4 text-xs text-moai-muted">
+          <span className="flex items-center gap-1">
+            <svg className="h-3.5 w-3.5 text-moai-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+            エスクロー決済で安心
+          </span>
+          <span className="text-moai-border">|</span>
+          <span>手数料10%</span>
+          <span className="text-moai-border">|</span>
+          <span>AI機能無料</span>
         </div>
-        <div>
-          <label className="label">メールアドレス</label>
-          <input type="email" required className="input" value={email} onChange={(e) => setEmail(e.target.value)} />
-        </div>
-        <div>
-          <label className="label">パスワード (8文字以上)</label>
-          <input type="password" required minLength={8} className="input" value={password} onChange={(e) => setPassword(e.target.value)} />
-        </div>
-        {err && <p className="text-sm text-red-600">{err}</p>}
-        <button type="submit" disabled={loading} className="btn-primary w-full">
-          {loading ? "..." : "アカウント作成"}
-        </button>
-        <p className="text-sm text-center text-slate-600">
-          既にアカウントをお持ち？ <Link href="/login" className="text-moai-primary hover:underline">ログイン</Link>
-        </p>
-      </form>
+      </div>
     </div>
   );
 }

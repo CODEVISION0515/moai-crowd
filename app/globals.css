@@ -8,67 +8,115 @@
   color-scheme: light;
   --header-h: 56px;
   --bottomnav-h: 60px;
+  --transition-fast: 150ms;
+  --transition-normal: 250ms;
+  --transition-slow: 400ms;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @layer base {
   html, body {
     @apply bg-white text-moai-ink antialiased;
-    font-feature-settings: "palt";
+    font-feature-settings: "palt", "kern";
   }
   body {
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior-y: none;
   }
-  h1, h2, h3 { @apply font-display tracking-tight; }
-  h1 { @apply text-2xl md:text-3xl font-semibold; }
+  h1, h2, h3 {
+    @apply font-display tracking-tight;
+    text-wrap: balance;
+  }
+  h1 { @apply text-2xl md:text-3xl font-bold; }
   h2 { @apply text-xl md:text-2xl font-semibold; }
   h3 { @apply text-base md:text-lg font-medium; }
   ::selection { @apply bg-moai-primary/15 text-moai-primary-900; }
+
+  /* Japanese text optimization */
+  p, li, td, th { word-break: auto-phrase; overflow-wrap: anywhere; }
 }
 
+/* ============================================================
+   COMPONENT CLASSES
+   ============================================================ */
 @layer components {
-  /* Buttons — フラット・控えめ */
+
+  /* ── Buttons ── */
   .btn {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2
+           text-sm font-medium transition-all duration-150
+           active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moai-primary/30 focus-visible:ring-offset-2;
     min-height: 36px;
   }
   .btn-primary {
-    @apply btn bg-moai-ink text-white hover:bg-gray-800;
+    @apply btn bg-moai-ink text-white hover:bg-gray-800 shadow-soft hover:shadow-card;
   }
   .btn-accent {
-    @apply btn bg-moai-primary text-white hover:bg-moai-primary-800;
+    @apply btn bg-moai-primary text-white hover:bg-moai-primary-800 shadow-soft hover:shadow-card;
   }
   .btn-outline {
-    @apply btn border border-moai-border bg-white text-moai-ink hover:bg-moai-cloud;
+    @apply btn border border-moai-border bg-white text-moai-ink hover:bg-moai-cloud hover:border-gray-300;
   }
   .btn-ghost {
     @apply btn text-moai-muted hover:bg-moai-cloud hover:text-moai-ink;
   }
-  .btn-lg { @apply px-5 py-2.5 text-sm; min-height: 40px; }
+  .btn-danger {
+    @apply btn bg-red-500 text-white hover:bg-red-600;
+  }
+  .btn-success {
+    @apply btn bg-emerald-600 text-white hover:bg-emerald-700;
+  }
+  .btn-lg { @apply px-6 py-3 text-sm font-semibold; min-height: 44px; }
   .btn-sm { @apply px-3 py-1.5 text-xs; min-height: 30px; }
+  .btn-icon {
+    @apply btn p-2;
+    min-height: unset;
+    min-width: unset;
+  }
 
-  /* Inputs — シンプル・薄いボーダー */
+  /* ── Inputs ── */
   .input {
-    @apply w-full rounded-lg border border-moai-border bg-white px-3 py-2 text-sm transition-colors placeholder:text-gray-400 focus:border-moai-ink focus:outline-none focus:ring-1 focus:ring-moai-ink/10;
-    min-height: 38px;
+    @apply w-full rounded-lg border border-moai-border bg-white px-3 py-2 text-sm
+           transition-all duration-150 placeholder:text-slate-400
+           focus:border-moai-primary focus:outline-none
+           focus:ring-2 focus:ring-moai-primary/10;
+    min-height: 40px;
+  }
+  .input-lg {
+    @apply input px-4 py-3 text-base;
+    min-height: 48px;
+  }
+  .input-error {
+    @apply border-red-300 bg-red-50/50 focus:border-red-500 focus:ring-red-500/10;
   }
   textarea.input { min-height: unset; }
   .label {
-    @apply block text-xs font-medium text-moai-muted mb-1;
+    @apply block text-xs font-medium text-moai-muted mb-1.5;
   }
 
-  /* Cards — ミニマル・ボーダー主体 */
+  /* ── Cards ── */
   .card {
-    @apply rounded-lg border border-moai-border bg-white p-4 transition-colors;
+    @apply rounded-xl border border-moai-border bg-white p-5 shadow-soft transition-all duration-200;
   }
   .card-hover {
-    @apply card hover:border-gray-300 hover:bg-moai-cloud/50;
+    @apply card cursor-pointer hover:shadow-hover hover:-translate-y-0.5 hover:border-slate-300;
   }
   .card-flat {
-    @apply rounded-lg bg-white p-4;
+    @apply rounded-xl bg-white p-5;
+  }
+  .card-featured {
+    @apply card border-l-[3px] border-l-moai-primary bg-gradient-card;
+  }
+  .card-urgent {
+    @apply card border-l-[3px] border-l-amber-400 bg-amber-50/30;
+  }
+  .card-interactive {
+    @apply card cursor-pointer active:scale-[0.99] hover:shadow-hover hover:-translate-y-0.5;
   }
 
-  /* Badges — 控えめ */
+  /* ── Badges ── */
   .badge {
     @apply inline-flex items-center gap-1 rounded-md bg-moai-cloud px-2 py-0.5 text-xs font-medium text-moai-muted;
   }
@@ -79,15 +127,87 @@
     @apply badge bg-red-50 text-red-600;
   }
   .badge-slate {
-    @apply badge bg-gray-100 text-gray-600;
+    @apply badge bg-slate-100 text-slate-600;
   }
   .badge-success {
     @apply badge bg-emerald-50 text-emerald-700;
   }
+  .badge-warning {
+    @apply badge bg-amber-50 text-amber-700;
+  }
+  .badge-gold {
+    @apply badge bg-yellow-50 text-yellow-700;
+  }
+  .badge-new {
+    @apply badge bg-blue-50 text-blue-600 font-semibold;
+  }
+  .badge-popular {
+    @apply badge bg-orange-50 text-orange-600 font-semibold;
+  }
 
-  /* Layout */
+  /* ── Trust badges (Lancers pattern) ── */
+  .trust-badge {
+    @apply inline-flex items-center gap-1 text-xs font-medium text-emerald-600;
+  }
+
+  /* ── Chips (interactive filter tags) ── */
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium
+           border border-moai-border bg-white text-moai-muted
+           cursor-pointer transition-all duration-150
+           hover:border-moai-primary hover:text-moai-primary hover:bg-moai-primary/5;
+  }
+  .chip-active {
+    @apply border-moai-primary bg-moai-primary/10 text-moai-primary;
+  }
+
+  /* ── Stat cards ── */
+  .stat-card {
+    @apply card flex flex-col gap-1;
+  }
+  .stat-card-value {
+    @apply text-2xl font-bold tracking-tight text-moai-ink;
+  }
+  .stat-card-label {
+    @apply text-xs font-medium text-moai-muted;
+  }
+
+  /* ── Progress bar ── */
+  .progress-bar {
+    @apply h-2 w-full rounded-full bg-slate-100 overflow-hidden;
+  }
+  .progress-bar-fill {
+    @apply h-full rounded-full bg-moai-primary transition-all duration-500;
+  }
+
+  /* ── Avatar ring (online indicator) ── */
+  .avatar-ring {
+    @apply relative;
+  }
+  .avatar-ring::after {
+    content: "";
+    @apply absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 border-2 border-white;
+  }
+
+  /* ── Shimmer skeleton ── */
+  .shimmer {
+    @apply rounded-lg;
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+
+  /* ── Countdown ── */
+  .countdown {
+    @apply inline-flex items-center gap-1 text-xs font-semibold text-amber-600;
+  }
+
+  /* ── Layout ── */
   .container-app {
     @apply mx-auto w-full max-w-5xl px-4 sm:px-6;
+  }
+  .container-wide {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
   }
   .stack { @apply flex flex-col gap-4; }
   .row { @apply flex items-center gap-3; }
@@ -96,13 +216,22 @@
   .section-title {
     @apply text-base font-semibold text-moai-ink;
   }
+  .section-header {
+    @apply flex items-center justify-between mb-4;
+  }
+  .section-header .section-title {
+    @apply mb-0;
+  }
+  .section-link {
+    @apply text-sm font-medium text-moai-primary hover:text-moai-primary-800 transition-colors;
+  }
 
   /* Page padding for bottom nav */
-  .pb-nav { @apply pb-20 md:pb-8; }
+  .pb-nav { @apply pb-24 md:pb-8; }
 
   /* Skeleton */
   .skeleton {
-    @apply animate-pulse bg-gray-100 rounded-lg;
+    @apply animate-pulse bg-slate-100 rounded-lg;
   }
 
   /* Divider */
@@ -110,10 +239,46 @@
     @apply h-px w-full bg-moai-border;
   }
 
-  /* Header — シンプル・ボーダー */
+  /* Header glass */
   .glass {
-    @apply bg-white/95 backdrop-blur-sm border-b border-moai-border;
+    @apply bg-white/80 backdrop-blur-md border-b border-moai-border;
   }
+
+  /* Empty state */
+  .empty-state {
+    @apply flex flex-col items-center justify-center py-16 text-center;
+  }
+  .empty-state-icon {
+    @apply text-4xl mb-3;
+  }
+  .empty-state-title {
+    @apply text-sm font-medium text-moai-ink mb-1;
+  }
+  .empty-state-desc {
+    @apply text-xs text-moai-muted;
+  }
+
+  /* Horizontal scroll container */
+  .scroll-x {
+    @apply flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .scroll-x > * {
+    @apply snap-start shrink-0;
+  }
+
+  /* Notification dot */
+  .notification-dot {
+    @apply absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-red-500;
+  }
+}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 }
 
 /* Print */
