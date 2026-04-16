@@ -24,7 +24,7 @@ export type XpReason =
   | "five_star_review" | "daily_login" | "streak_bonus" | "event_attended";
 export type BadgeTier = "bronze" | "silver" | "gold" | "platinum";
 export type InvoiceStatus = "draft" | "sent" | "paid" | "void";
-export type CreditTxKind = "welcome_bonus" | "admin_grant" | "campaign_bonus" | "purchase" | "consume" | "refund";
+export type CreditTxKind = "welcome_bonus" | "admin_grant" | "campaign_bonus" | "purchase" | "consume" | "refund" | "referral_signup" | "referral_first_deal";
 export type Availability = "available" | "busy" | "limited" | "unavailable";
 export type UserRole = "user" | "admin" | "moderator";
 export type BudgetType = "fixed" | "hourly";
@@ -412,6 +412,25 @@ export interface AiFeature {
   is_free_during_beta: boolean;
   is_active: boolean;
   sort_order: number;
+}
+
+// ── Referrals ─────────────────────────────────────
+
+export interface ReferralCode {
+  code: string;
+  owner_id: string;
+  created_at: string;
+}
+
+export interface Referral {
+  id: string;
+  referrer_id: string;
+  referee_id: string;
+  code: string;
+  signup_rewarded_at: string | null;
+  first_deal_rewarded_at: string | null;
+  referee_segment: "client" | "worker" | null;
+  created_at: string;
 }
 
 // ── LINE Integration ──────────────────────────────

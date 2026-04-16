@@ -1,9 +1,8 @@
 "use server";
 
-import { requireUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { formAction } from "@/lib/actions";
 import {
-  parseFormData,
   updateBasicSchema,
   updateSocialSchema,
   addPortfolioSchema,
@@ -13,11 +12,10 @@ import {
   deleteByIdSchema,
 } from "@/lib/validations";
 
-export async function updateBasic(formData: FormData) {
-  const { sb, user } = await requireUser();
-  const parsed = parseFormData(updateBasicSchema, formData);
-  if (!parsed.success) return;
-  const d = parsed.data;
+const PROFILE_EDIT_PATH = "/profile/edit";
+const revalidateEdit = () => revalidatePath(PROFILE_EDIT_PATH);
+
+export const updateBasic = formAction(updateBasicSchema, async ({ sb, user, data: d }) => {
   await sb.from("profiles").update({
     display_name: d.display_name,
     handle: d.handle,
@@ -32,14 +30,10 @@ export async function updateBasic(formData: FormData) {
     availability: d.availability,
     work_hours: d.work_hours,
   }).eq("id", user.id);
-  revalidatePath("/profile/edit");
-}
+  revalidateEdit();
+});
 
-export async function updateSocial(formData: FormData) {
-  const { sb, user } = await requireUser();
-  const parsed = parseFormData(updateSocialSchema, formData);
-  if (!parsed.success) return;
-  const d = parsed.data;
+export const updateSocial = formAction(updateSocialSchema, async ({ sb, user, data: d }) => {
   await sb.from("profiles").update({
     twitter_handle: d.twitter,
     instagram_handle: d.instagram,
@@ -50,14 +44,10 @@ export async function updateSocial(formData: FormData) {
     tiktok_handle: d.tiktok,
     website: d.website,
   }).eq("id", user.id);
-  revalidatePath("/profile/edit");
-}
+  revalidateEdit();
+});
 
-export async function addPortfolio(formData: FormData) {
-  const { sb, user } = await requireUser();
-  const parsed = parseFormData(addPortfolioSchema, formData);
-  if (!parsed.success) return;
-  const d = parsed.data;
+export const addPortfolio = formAction(addPortfolioSchema, async ({ sb, user, data: d }) => {
   await sb.from("portfolios").insert({
     user_id: user.id,
     title: d.title,
@@ -68,22 +58,15 @@ export async function addPortfolio(formData: FormData) {
     client_name: d.client_name,
     completed_at: d.completed_at,
   });
-  revalidatePath("/profile/edit");
-}
+  revalidateEdit();
+});
 
-export async function deletePortfolio(formData: FormData) {
-  const { sb } = await requireUser();
-  const parsed = parseFormData(deleteByIdSchema, formData);
-  if (!parsed.success) return;
-  await sb.from("portfolios").delete().eq("id", parsed.data.id);
-  revalidatePath("/profile/edit");
-}
+export const deletePortfolio = formAction(deleteByIdSchema, async ({ sb, data }) => {
+  await sb.from("portfolios").delete().eq("id", data.id);
+  revalidateEdit();
+});
 
-export async function addWorkExp(formData: FormData) {
-  const { sb, user } = await requireUser();
-  const parsed = parseFormData(addWorkExpSchema, formData);
-  if (!parsed.success) return;
-  const d = parsed.data;
+export const addWorkExp = formAction(addWorkExpSchema, async ({ sb, user, data: d }) => {
   await sb.from("work_experiences").insert({
     user_id: user.id,
     company: d.company,
@@ -93,22 +76,15 @@ export async function addWorkExp(formData: FormData) {
     end_date: d.end_date,
     is_current: d.is_current,
   });
-  revalidatePath("/profile/edit");
-}
+  revalidateEdit();
+});
 
-export async function deleteWorkExp(formData: FormData) {
-  const { sb } = await requireUser();
-  const parsed = parseFormData(deleteByIdSchema, formData);
-  if (!parsed.success) return;
-  await sb.from("work_experiences").delete().eq("id", parsed.data.id);
-  revalidatePath("/profile/edit");
-}
+export const deleteWorkExp = formAction(deleteByIdSchema, async ({ sb, data }) => {
+  await sb.from("work_experiences").delete().eq("id", data.id);
+  revalidateEdit();
+});
 
-export async function addEducation(formData: FormData) {
-  const { sb, user } = await requireUser();
-  const parsed = parseFormData(addEducationSchema, formData);
-  if (!parsed.success) return;
-  const d = parsed.data;
+export const addEducation = formAction(addEducationSchema, async ({ sb, user, data: d }) => {
   await sb.from("educations").insert({
     user_id: user.id,
     school: d.school,
@@ -117,22 +93,15 @@ export async function addEducation(formData: FormData) {
     start_date: d.start_date,
     end_date: d.end_date,
   });
-  revalidatePath("/profile/edit");
-}
+  revalidateEdit();
+});
 
-export async function deleteEducation(formData: FormData) {
-  const { sb } = await requireUser();
-  const parsed = parseFormData(deleteByIdSchema, formData);
-  if (!parsed.success) return;
-  await sb.from("educations").delete().eq("id", parsed.data.id);
-  revalidatePath("/profile/edit");
-}
+export const deleteEducation = formAction(deleteByIdSchema, async ({ sb, data }) => {
+  await sb.from("educations").delete().eq("id", data.id);
+  revalidateEdit();
+});
 
-export async function addCertification(formData: FormData) {
-  const { sb, user } = await requireUser();
-  const parsed = parseFormData(addCertificationSchema, formData);
-  if (!parsed.success) return;
-  const d = parsed.data;
+export const addCertification = formAction(addCertificationSchema, async ({ sb, user, data: d }) => {
   await sb.from("certifications").insert({
     user_id: user.id,
     name: d.name,
@@ -140,13 +109,10 @@ export async function addCertification(formData: FormData) {
     issued_date: d.issued_date,
     credential_url: d.credential_url,
   });
-  revalidatePath("/profile/edit");
-}
+  revalidateEdit();
+});
 
-export async function deleteCertification(formData: FormData) {
-  const { sb } = await requireUser();
-  const parsed = parseFormData(deleteByIdSchema, formData);
-  if (!parsed.success) return;
-  await sb.from("certifications").delete().eq("id", parsed.data.id);
-  revalidatePath("/profile/edit");
-}
+export const deleteCertification = formAction(deleteByIdSchema, async ({ sb, data }) => {
+  await sb.from("certifications").delete().eq("id", data.id);
+  revalidateEdit();
+});

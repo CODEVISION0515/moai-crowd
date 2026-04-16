@@ -1,23 +1,41 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
+type Referrer = { handle: string; display_name: string };
+
 export default function SignUpPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const refCode = searchParams.get("ref") ?? "";
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [referrer, setReferrer] = useState<Referrer | null>(null);
+
+  useEffect(() => {
+    if (!refCode) return;
+    fetch(`/api/referral/lookup?code=${encodeURIComponent(refCode)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => data && setReferrer(data))
+      .catch(() => {});
+  }, [refCode]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true); setErr(null);
     const { error } = await createClient().auth.signUp({
       email, password,
-      options: { data: { display_name: displayName } },
+      options: {
+        data: {
+          display_name: displayName,
+          ...(refCode ? { referral_code: refCode } : {}),
+        },
+      },
     });
     setLoading(false);
     if (error) return setErr(error.message);
@@ -29,6 +47,12 @@ export default function SignUpPage() {
     <div className="mx-auto max-w-md px-4 py-16">
       <h1 className="text-2xl font-bold mb-2 text-center">新規登録</h1>
       <p className="text-center text-sm text-slate-600 mb-6">コミュニティ参加は完全無料です</p>
+      {referrer && (
+        <div className="card-flat mb-4 bg-moai-primary/5 border border-moai-primary/30 text-sm">
+          <div className="font-medium">🎁 紹介者: @{referrer.handle}（{referrer.display_name}）経由</div>
+          <div className="mt-1 text-slate-600">登録完了で <b>+500クレジット</b> 獲得できます</div>
+        </div>
+      )}
       <form onSubmit={onSubmit} className="card space-y-4">
         <div>
           <label className="label">表示名</label>

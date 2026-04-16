@@ -19,6 +19,7 @@ const AUTH_LINKS = [
   { href: "/bookmarks", label: "保存済み" },
   { href: "/messages", label: "メッセージ" },
   { href: "/credits", label: "クレジット" },
+  { href: "/invite", label: "紹介して稼ぐ" },
   { href: "/invoices", label: "請求書" },
   { href: "/earnings", label: "収益" },
   { href: "/leaderboard", label: "ランキング" },

@@ -1,20 +1,14 @@
 "use server";
 
-import { requireUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { parseFormData, onboardingStep1Schema, onboardingStep2Schema } from "@/lib/validations";
+import { statefulFormAction, type ActionResult } from "@/lib/actions";
+import { onboardingStep1Schema, onboardingStep2Schema } from "@/lib/validations";
 
-export type ActionResult = { error?: string } | void;
+export type { ActionResult };
 
-export async function saveStep1(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
-  const { sb, user } = await requireUser();
-  const parsed = parseFormData(onboardingStep1Schema, formData);
-  if (!parsed.success) return { error: parsed.error };
-
-  const d = parsed.data;
+export const saveStep1 = statefulFormAction(onboardingStep1Schema, async ({ sb, user, data: d }) => {
   const handle = d.handle.toLowerCase().replace(/[^a-z0-9_]/g, "");
 
-  // ハンドル重複チェック
   const { data: existing } = await sb
     .from("profiles")
     .select("id")
@@ -31,14 +25,9 @@ export async function saveStep1(_prev: ActionResult, formData: FormData): Promis
   if (error) return { error: error.message };
 
   redirect("/onboarding?step=2");
-}
+});
 
-export async function saveStep2(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
-  const { sb, user } = await requireUser();
-  const parsed = parseFormData(onboardingStep2Schema, formData);
-  if (!parsed.success) return { error: parsed.error };
-
-  const d = parsed.data;
+export const saveStep2 = statefulFormAction(onboardingStep2Schema, async ({ sb, user, data: d }) => {
   const { error } = await sb.from("profiles").update({
     skills: d.skills,
     bio: d.bio,
@@ -48,7 +37,7 @@ export async function saveStep2(_prev: ActionResult, formData: FormData): Promis
   if (error) return { error: error.message };
 
   redirect("/onboarding?step=3");
-}
+});
 
 export async function finishOnboarding() {
   redirect("/dashboard");

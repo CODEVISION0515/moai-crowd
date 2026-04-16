@@ -1,16 +1,12 @@
 "use server";
 
-import { requireUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { parseFormData, acceptProposalSchema } from "@/lib/validations";
+import { formAction } from "@/lib/actions";
+import { acceptProposalSchema } from "@/lib/validations";
 
-export async function acceptProposal(formData: FormData) {
-  const { sb, user } = await requireUser();
-  const parsed = parseFormData(acceptProposalSchema, formData);
-  if (!parsed.success) return;
-
-  const { data: prop } = await sb.from("proposals").select("*").eq("id", parsed.data.proposal_id).single();
+export const acceptProposal = formAction(acceptProposalSchema, async ({ sb, user, data }) => {
+  const { data: prop } = await sb.from("proposals").select("*").eq("id", data.proposal_id).single();
   if (!prop) return;
 
   const feePercent = Number(process.env.PLATFORM_FEE_PERCENT || 10);
@@ -30,7 +26,6 @@ export async function acceptProposal(formData: FormData) {
   await sb.from("proposals").update({ status: "accepted" }).eq("id", prop.id);
   await sb.from("jobs").update({ status: "in_progress" }).eq("id", prop.job_id);
 
-  // スレッド自動作成
   await sb.from("threads").upsert({
     job_id: prop.job_id,
     client_id: user.id,
@@ -39,4 +34,4 @@ export async function acceptProposal(formData: FormData) {
 
   revalidatePath(`/jobs/${prop.job_id}`);
   redirect("/dashboard");
-}
+});

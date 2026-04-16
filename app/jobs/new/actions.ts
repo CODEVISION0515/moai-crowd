@@ -1,16 +1,11 @@
 "use server";
 
-import { requireUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { parseFormData, createJobSchema } from "@/lib/validations";
+import { formAction } from "@/lib/actions";
+import { createJobSchema } from "@/lib/validations";
 
-export async function createJob(formData: FormData) {
-  const { sb, user } = await requireUser();
-  const parsed = parseFormData(createJobSchema, formData);
-  if (!parsed.success) return;
-  const d = parsed.data;
-
+export const createJob = formAction(createJobSchema, async ({ sb, user, data: d }) => {
   const { data, error } = await sb.from("jobs").insert({
     client_id: user.id,
     title: d.title,
@@ -27,4 +22,4 @@ export async function createJob(formData: FormData) {
   if (error) throw error;
   revalidatePath("/jobs");
   redirect(`/jobs/${data.id}`);
-}
+});
