@@ -13,7 +13,8 @@ export type TransactionKind = "escrow_fund" | "escrow_release" | "platform_fee" 
 export type NotificationKind =
   | "proposal_received" | "proposal_accepted" | "proposal_rejected"
   | "deliverable_submitted" | "deliverable_approved" | "revision_requested"
-  | "message_received" | "contract_funded" | "review_received";
+  | "message_received" | "contract_funded" | "review_received"
+  | "post_commented" | "post_liked" | "comment_replied" | "new_follower";
 export type ReportTarget = "user" | "job" | "proposal" | "message" | "deliverable";
 export type ReportStatus = "open" | "reviewing" | "resolved" | "dismissed";
 export type PostKind = "discussion" | "question" | "showcase" | "announcement";
@@ -68,6 +69,8 @@ export interface Profile {
   service_areas: string[];
   timezone: string;
   profile_completion: number;
+  follower_count: number;
+  following_count: number;
   // SNS
   twitter_handle: string | null;
   instagram_handle: string | null;
@@ -260,6 +263,12 @@ export interface Like {
 export interface Follow {
   follower_id: string;
   followee_id: string;
+  created_at: string;
+}
+
+export interface PostBookmark {
+  user_id: string;
+  post_id: string;
   created_at: string;
 }
 

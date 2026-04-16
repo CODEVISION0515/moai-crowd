@@ -281,6 +281,44 @@
   .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 }
 
+/* ── Markdown body ── */
+.markdown-body {
+  @apply text-sm leading-relaxed;
+}
+.markdown-body .md-p {
+  @apply mb-3 last:mb-0;
+}
+.markdown-body .md-h2 {
+  @apply text-lg font-bold mt-6 mb-2;
+}
+.markdown-body .md-h3 {
+  @apply text-base font-semibold mt-5 mb-2;
+}
+.markdown-body .md-h4 {
+  @apply text-sm font-semibold mt-4 mb-1;
+}
+.markdown-body .md-code-block {
+  @apply bg-slate-50 border border-moai-border rounded-lg p-3 my-3 text-xs overflow-x-auto;
+}
+.markdown-body .md-code-inline {
+  @apply bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono;
+}
+.markdown-body .md-blockquote {
+  @apply border-l-[3px] border-moai-primary/40 pl-3 py-0.5 my-3 text-moai-muted italic;
+}
+.markdown-body .md-link {
+  @apply text-moai-primary underline underline-offset-2 hover:text-moai-primary-800;
+}
+.markdown-body .md-ul,
+.markdown-body .md-ol {
+  @apply pl-5 my-2 space-y-1;
+}
+.markdown-body .md-ul { list-style-type: disc; }
+.markdown-body .md-ol { list-style-type: decimal; }
+.markdown-body .md-hr {
+  @apply my-4 border-moai-border;
+}
+
 /* Print */
 @media print {
   .no-print, header, footer { display: none !important; }

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import FollowButton from "@/components/FollowButton";
 
 export const dynamic = "force-dynamic";
 
@@ -17,9 +18,13 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
   const { data: profile } = await sb.from("profiles").select("*").eq("handle", handle).single();
   if (!profile) notFound();
 
+  const { data: { user } } = await sb.auth.getUser();
+  const isOwnProfile = user?.id === profile.id;
+
   const [
     { data: reviews }, { data: badges }, { data: portfolios },
     { data: workExps }, { data: educations }, { data: certs }, { data: recentPosts },
+    followRes,
   ] = await Promise.all([
     sb.from("reviews").select("*, reviewer:reviewer_id(display_name, handle)").eq("reviewee_id", profile.id).order("created_at", { ascending: false }).limit(10),
     sb.from("user_badges").select("awarded_at, badges(slug, name, description, icon, tier)").eq("user_id", profile.id).order("awarded_at", { ascending: false }),
@@ -28,7 +33,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
     sb.from("educations").select("*").eq("user_id", profile.id).order("start_date", { ascending: false }),
     sb.from("certifications").select("*").eq("user_id", profile.id).order("issued_date", { ascending: false }),
     sb.from("posts").select("id, title, kind, created_at").eq("author_id", profile.id).order("created_at", { ascending: false }).limit(5),
+    user && !isOwnProfile
+      ? sb.from("follows").select("follower_id").eq("follower_id", user.id).eq("followee_id", profile.id).maybeSingle()
+      : Promise.resolve({ data: null }),
   ]);
+  const isFollowing = !!followRes.data;
 
   // XPバーの進捗
   const currentLevelXp = Math.pow(profile.level - 1, 2) * 50;
@@ -55,12 +64,17 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
                   </h1>
                   <div className="text-sm text-slate-500">@{profile.handle}</div>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${av.color}`}>{av.label}</span>
+                <div className="flex items-center gap-2">
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${av.color}`}>{av.label}</span>
+                  {user && !isOwnProfile && <FollowButton targetUserId={profile.id} initiallyFollowing={isFollowing} />}
+                </div>
               </div>
               {profile.tagline && <p className="mt-2 text-slate-700">{profile.tagline}</p>}
               <div className="mt-3 flex items-center gap-3 text-sm flex-wrap">
                 <span className="badge bg-moai-accent text-white">Lv.{profile.level}</span>
                 <span>★ {Number(profile.rating_avg).toFixed(1)} ({profile.rating_count})</span>
+                <span className="text-moai-muted">{profile.follower_count ?? 0} フォロワー</span>
+                <span className="text-moai-muted">{profile.following_count ?? 0} フォロー中</span>
                 {profile.streak_days > 0 && <span>🔥 {profile.streak_days}日連続</span>}
                 {profile.years_experience && <span>💼 経験{profile.years_experience}年</span>}
                 {profile.location && <span>📍 {profile.location}</span>}
