@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { Avatar } from "@/components/Avatar";
 import { formatCurrency } from "@/lib/utils";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -177,7 +178,7 @@ export default async function HomePage() {
               <Link key={w.id} href={`/profile/${w.handle}`} className="card-hover group">
                 <div className="flex items-center gap-3">
                   <div className="h-11 w-11 rounded-full overflow-hidden bg-gradient-to-br from-moai-primary/10 to-moai-primary/5 flex items-center justify-center text-sm font-semibold text-moai-primary shrink-0 ring-2 ring-moai-border">
-                    {w.avatar_url ? <img src={w.avatar_url} alt="" className="h-full w-full object-cover" /> : (w.display_name?.[0] ?? "?")}
+                    <Avatar src={w.avatar_url} name={w.display_name} size={44} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="text-sm font-medium truncate group-hover:text-moai-primary transition-colors">{w.display_name}</div>

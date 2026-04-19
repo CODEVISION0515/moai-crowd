@@ -5,6 +5,7 @@ import DeliverableForm from "./DeliverableForm";
 import FundButton from "./FundButton";
 import ReviewForm from "./ReviewForm";
 import { approveDeliverable, requestRevision } from "./actions";
+import { ToastForm } from "@/components/ToastForm";
 import { formatDateJP } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -113,17 +114,17 @@ export default async function ContractPage({ params }: { params: Promise<{ id: s
 
                 {isClient && d.review_status === "pending" && (
                   <div className="mt-3 flex gap-2">
-                    <form action={approveDeliverable}>
+                    <ToastForm action={approveDeliverable}>
                       <input type="hidden" name="deliverable_id" value={d.id} />
                       <button className="btn-primary">承認して支払う</button>
-                    </form>
+                    </ToastForm>
                     <details className="flex-1">
                       <summary className="btn-outline cursor-pointer">修正依頼</summary>
-                      <form action={requestRevision} className="mt-2 space-y-2">
+                      <ToastForm action={requestRevision} className="mt-2 space-y-2">
                         <input type="hidden" name="deliverable_id" value={d.id} />
                         <textarea name="revision_note" required rows={3} className="input" placeholder="修正してほしい点を具体的に" />
                         <button className="btn-outline w-full">修正を依頼する</button>
-                      </form>
+                      </ToastForm>
                     </details>
                   </div>
                 )}

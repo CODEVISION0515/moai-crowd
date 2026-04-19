@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import FollowButton from "@/components/FollowButton";
+import { Avatar } from "@/components/Avatar";
+import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -53,7 +56,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
         <div className="relative pt-8">
           <div className="flex items-start gap-4">
             <div className="h-28 w-28 rounded-full overflow-hidden bg-white flex items-center justify-center text-4xl font-bold text-moai-primary border-4 border-white shadow-lg shrink-0">
-              {profile.avatar_url ? <img src={profile.avatar_url} className="h-full w-full object-cover" alt="" /> : (profile.display_name?.[0] ?? "?")}
+              <Avatar src={profile.avatar_url} name={profile.display_name} size={112} priority />
             </div>
             <div className="flex-1 mt-12">
               <div className="flex items-start justify-between gap-3 flex-wrap">
@@ -156,7 +159,17 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
           <div className="grid md:grid-cols-2 gap-4">
             {portfolios.map((p: any) => (
               <a key={p.id} href={p.external_url || "#"} target={p.external_url ? "_blank" : undefined} className="card hover:shadow-md transition">
-                {p.image_url && <img src={p.image_url} alt={p.title} className="w-full h-40 object-cover rounded-lg" />}
+                {p.image_url && (
+                  <div className="relative w-full h-40 rounded-lg overflow-hidden bg-moai-cloud">
+                    <Image
+                      src={p.image_url}
+                      alt={p.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover"
+                    />
+                  </div>
+                )}
                 <h3 className="mt-3 font-semibold">{p.title}</h3>
                 {p.description && <p className="mt-1 text-sm text-slate-600 line-clamp-3">{p.description}</p>}
                 <div className="mt-2 flex flex-wrap gap-1">
@@ -251,7 +264,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
               {r.comment && <p className="mt-2 text-sm">{r.comment}</p>}
             </div>
           ))}
-          {(!reviews || reviews.length === 0) && <p className="text-sm text-slate-500">まだレビューがありません</p>}
+          {(!reviews || reviews.length === 0) && (
+            <EmptyState icon="⭐" title="まだレビューがありません" description="案件完了後、クライアントから評価が届きます" />
+          )}
         </div>
       </div>
     </div>

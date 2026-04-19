@@ -15,41 +15,56 @@ export default function BottomNav({ userId }: { userId: string | null }) {
   if (!userId) return null;
 
   return (
-    <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-white/80 backdrop-blur-md border-t border-moai-border">
-      <div className="grid grid-cols-5 h-[var(--bottomnav-h)] safe-bottom">
+    <nav
+      aria-label="メインナビゲーション"
+      className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-white/80 backdrop-blur-md border-t border-moai-border"
+    >
+      <ul className="grid grid-cols-5 h-[var(--bottomnav-h)] safe-bottom">
         {ITEMS.map((item) => {
           const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
           const Icon = item.icon;
 
           if (item.primary) {
             return (
-              <Link key={item.href} href={item.href} className="flex items-center justify-center">
-                <span className="inline-flex items-center justify-center h-11 w-11 rounded-2xl bg-moai-primary text-white shadow-md active:scale-95 transition-transform">
-                  <Icon className="h-5 w-5" />
-                </span>
-              </Link>
+              <li key={item.href} className="contents">
+                <Link
+                  href={item.href}
+                  aria-label={item.label}
+                  aria-current={active ? "page" : undefined}
+                  className="flex items-center justify-center"
+                >
+                  <span
+                    className="inline-flex items-center justify-center h-11 w-11 rounded-2xl bg-moai-primary text-white shadow-md active:scale-95 transition-transform"
+                    aria-hidden="true"
+                  >
+                    <Icon className="h-5 w-5" />
+                  </span>
+                </Link>
+              </li>
             );
           }
 
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex flex-col items-center justify-center gap-0.5 text-[10px] transition-colors"
-            >
-              <span className="relative">
-                <Icon className={`h-5 w-5 transition-colors ${active ? "text-moai-primary" : "text-slate-400"}`} />
-              </span>
-              <span className={`transition-colors ${active ? "text-moai-primary font-semibold" : "text-slate-500"}`}>
-                {item.label}
-              </span>
-              {active && (
-                <span className="absolute bottom-1.5 w-1 h-1 rounded-full bg-moai-primary" />
-              )}
-            </Link>
+            <li key={item.href} className="contents">
+              <Link
+                href={item.href}
+                aria-current={active ? "page" : undefined}
+                className="flex flex-col items-center justify-center gap-0.5 text-[10px] transition-colors"
+              >
+                <span className="relative" aria-hidden="true">
+                  <Icon className={`h-5 w-5 transition-colors ${active ? "text-moai-primary" : "text-slate-400"}`} />
+                </span>
+                <span className={`transition-colors ${active ? "text-moai-primary font-semibold" : "text-slate-500"}`}>
+                  {item.label}
+                </span>
+                {active && (
+                  <span className="absolute bottom-1.5 w-1 h-1 rounded-full bg-moai-primary" aria-hidden="true" />
+                )}
+              </Link>
+            </li>
           );
         })}
-      </div>
+      </ul>
     </nav>
   );
 }

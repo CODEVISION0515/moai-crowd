@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 
 export default function ReviewForm({
@@ -9,15 +10,18 @@ export default function ReviewForm({
   const router = useRouter();
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
-  const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true); setErr(null);
+    setLoading(true);
     const sb = createClient();
     const { data: { user } } = await sb.auth.getUser();
-    if (!user) { setLoading(false); return; }
+    if (!user) {
+      toast.error("ログインし直してください");
+      setLoading(false);
+      return;
+    }
     const { error } = await sb.from("reviews").insert({
       contract_id: contractId,
       reviewer_id: user.id,
@@ -26,31 +30,53 @@ export default function ReviewForm({
       comment: comment || null,
     });
     setLoading(false);
-    if (error) return setErr(error.message);
+    if (error) {
+      toast.error(`評価の送信に失敗しました: ${error.message}`);
+      return;
+    }
+    toast.success("評価を送信しました");
     router.refresh();
   }
 
   return (
-    <form onSubmit={onSubmit} className="card space-y-4">
+    <form onSubmit={onSubmit} className="card space-y-4" noValidate>
       <h3 className="font-semibold text-lg">相手を評価する</h3>
       <div>
-        <label className="label">評価</label>
-        <div className="flex gap-1 text-2xl">
+        <span id="rating-label" className="label">評価</span>
+        <div
+          role="radiogroup"
+          aria-labelledby="rating-label"
+          className="flex gap-1 text-2xl"
+        >
           {[1, 2, 3, 4, 5].map((n) => (
-            <button type="button" key={n} onClick={() => setRating(n)}
-              className={n <= rating ? "text-moai-accent" : "text-slate-300"}>
+            <button
+              type="button"
+              key={n}
+              onClick={() => setRating(n)}
+              role="radio"
+              aria-checked={n === rating}
+              aria-label={`星${n}つ`}
+              className={`transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moai-primary/30 rounded ${
+                n <= rating ? "text-moai-accent" : "text-slate-300"
+              }`}
+            >
               ★
             </button>
           ))}
         </div>
       </div>
       <div>
-        <label className="label">コメント</label>
-        <textarea rows={4} className="input" value={comment} onChange={(e) => setComment(e.target.value)} />
+        <label htmlFor="review-comment" className="label">コメント</label>
+        <textarea
+          id="review-comment"
+          rows={4}
+          className="input"
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+        />
       </div>
-      {err && <p className="text-sm text-red-600">{err}</p>}
       <button disabled={loading} className="btn-primary w-full">
-        {loading ? "..." : "評価を送信する"}
+        {loading ? "送信中…" : "評価を送信する"}
       </button>
     </form>
   );

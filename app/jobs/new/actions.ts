@@ -2,10 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { formAction } from "@/lib/actions";
+import { statefulFormAction } from "@/lib/actions";
 import { createJobSchema } from "@/lib/validations";
 
-export const createJob = formAction(createJobSchema, async ({ sb, user, data: d }) => {
+export const createJob = statefulFormAction(createJobSchema, async ({ sb, user, data: d }) => {
   const { data, error } = await sb.from("jobs").insert({
     client_id: user.id,
     title: d.title,
@@ -19,7 +19,7 @@ export const createJob = formAction(createJobSchema, async ({ sb, user, data: d 
     status: "open" as const,
   }).select("id").single();
 
-  if (error) throw error;
+  if (error) return { error: "案件の投稿に失敗しました。時間をおいて再度お試しください。" };
   revalidatePath("/jobs");
   redirect(`/jobs/${data.id}`);
 });

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,14 @@ export default async function EventsPage() {
           );
         })}
         {(!events || events.length === 0) && (
-          <p className="col-span-full text-center text-slate-500 py-10">予定されているイベントはありません</p>
+          <div className="col-span-full">
+            <EmptyState
+              icon="📅"
+              title="予定されているイベントはありません"
+              description="新しいイベントを企画してコミュニティを盛り上げましょう"
+              action={{ href: "/events/new", label: "イベントを作成" }}
+            />
+          </div>
         )}
       </div>
     </div>

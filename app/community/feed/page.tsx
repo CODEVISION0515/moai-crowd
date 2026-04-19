@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { Avatar } from "@/components/Avatar";
 import { formatDateShort } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -64,9 +65,7 @@ export default async function FollowingFeedPage() {
               <Link key={p.id} href={`/community/${p.id}`} className="card-hover group block">
                 <div className="flex items-start gap-3">
                   <div className="h-9 w-9 rounded-full overflow-hidden bg-moai-cloud flex items-center justify-center text-xs font-semibold text-moai-muted shrink-0">
-                    {p.author?.avatar_url
-                      ? <img src={p.author.avatar_url} alt="" className="h-full w-full object-cover" />
-                      : (p.author?.display_name?.[0] ?? "?")}
+                    <Avatar src={p.author?.avatar_url} name={p.author?.display_name} size={36} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">

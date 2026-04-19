@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import MarkdownBody from "@/components/MarkdownBody";
 import PostBookmarkButton from "@/components/PostBookmarkButton";
+import { Avatar } from "@/components/Avatar";
 import CommentForm from "./CommentForm";
 import CommentThread from "./CommentThread";
 import LikeButton from "./LikeButton";
@@ -107,9 +108,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
         <div className="mt-3 flex items-center gap-3">
           <Link href={`/profile/${post.author?.handle}`} className="flex items-center gap-2 group">
             <div className="h-8 w-8 rounded-full overflow-hidden bg-moai-cloud flex items-center justify-center text-xs font-semibold text-moai-muted shrink-0">
-              {post.author?.avatar_url
-                ? <img src={post.author.avatar_url} alt="" className="h-full w-full object-cover" />
-                : (post.author?.display_name?.[0] ?? "?")}
+              <Avatar src={post.author?.avatar_url} name={post.author?.display_name} size={32} />
             </div>
             <div>
               <div className="text-sm font-medium group-hover:text-moai-primary transition-colors">

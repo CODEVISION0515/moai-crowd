@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { markAllRead } from "./actions";
 import { formatDateJP } from "@/lib/utils";
+import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +45,7 @@ export default async function NotificationsPage() {
           </Link>
         ))}
         {(!items || items.length === 0) && (
-          <p className="text-center text-slate-500 py-10">通知はまだありません</p>
+          <EmptyState icon="🔔" title="通知はまだありません" description="新着のお知らせはここに表示されます" />
         )}
       </div>
     </div>

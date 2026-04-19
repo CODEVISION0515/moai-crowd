@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { formatDateJP } from "@/lib/utils";
+import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -64,7 +65,9 @@ export default async function ReportsPage() {
           )}
         </div>
       ))}
-      {(!reports || reports.length === 0) && <p className="text-slate-500 text-center py-10">通報はありません</p>}
+      {(!reports || reports.length === 0) && (
+        <EmptyState icon="✅" title="通報はありません" description="対応が必要な通報はここに表示されます" />
+      )}
     </div>
   );
 }

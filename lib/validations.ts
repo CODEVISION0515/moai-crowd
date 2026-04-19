@@ -6,15 +6,22 @@ import { z } from "zod";
 export function parseFormData<T>(
   schema: z.ZodType<T, z.ZodTypeDef, unknown>,
   formData: FormData,
-): { success: true; data: T } | { success: false; error: string } {
+):
+  | { success: true; data: T }
+  | { success: false; error: string; fieldErrors: Record<string, string> } {
   const raw: Record<string, unknown> = {};
   formData.forEach((value, key) => {
     raw[key] = value;
   });
   const result = schema.safeParse(raw);
   if (!result.success) {
+    const fieldErrors: Record<string, string> = {};
+    for (const issue of result.error.issues) {
+      const key = issue.path.join(".") || "_";
+      if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+    }
     const msg = result.error.issues.map((i) => i.message).join(", ");
-    return { success: false, error: msg };
+    return { success: false, error: msg, fieldErrors };
   }
   return { success: true, data: result.data };
 }
@@ -191,4 +198,36 @@ export const createReviewSchema = z.object({
 
 export const creditCheckoutSchema = z.object({
   packageId: z.string().min(1, "パッケージIDは必須です"),
+});
+
+// ── Post Schema ──────────────────────────────────
+
+export const createPostSchema = z.object({
+  kind: z.enum(["discussion", "question", "showcase"]).default("discussion"),
+  title: z.string().min(1, "タイトルは必須です").max(200),
+  body: z.string().min(1, "本文は必須です"),
+  tags: csvToArray,
+});
+
+// ── Invoice Schema ───────────────────────────────
+
+export const createInvoiceSchema = z.object({
+  recipient_handle: z
+    .string()
+    .min(1, "宛先ハンドルは必須です")
+    .regex(/^[a-z0-9_]{3,20}$/, "宛先はハンドル形式（英小文字・数字・_の3〜20文字）で入力してください"),
+  subject: z.string().min(1, "件名は必須です").max(200),
+  amount: z
+    .union([z.string(), z.number()])
+    .transform((v) => Number(v))
+    .pipe(z.number().int().positive("金額は1円以上で入力してください")),
+  tax_rate: z
+    .union([z.string(), z.number()])
+    .optional()
+    .transform((v) => {
+      const n = Number(v);
+      return isFinite(n) && n >= 0 ? n : 10;
+    }),
+  due_date: optionalString,
+  notes: optionalString,
 });

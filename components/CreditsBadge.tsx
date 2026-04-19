@@ -21,8 +21,12 @@ export default function CreditsBadge({ userId }: { userId: string }) {
 
   if (balance === null) return null;
   return (
-    <Link href="/credits" className="inline-flex items-center gap-1 text-xs font-semibold text-moai-accent-600 bg-moai-accent/10 rounded-full px-3 py-1.5 hover:bg-moai-accent/20 transition">
-      <span>🪙</span>
+    <Link
+      href="/credits"
+      aria-label={`クレジット残高 ${balance.toLocaleString()}`}
+      className="inline-flex items-center gap-1 text-xs font-semibold text-moai-accent-600 bg-moai-accent/10 rounded-full px-3 py-1.5 hover:bg-moai-accent/20 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moai-primary/30"
+    >
+      <span aria-hidden="true">🪙</span>
       <span>{balance.toLocaleString()}</span>
     </Link>
   );

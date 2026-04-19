@@ -51,7 +51,7 @@ export default function Header({ userId }: { userId: string | null }) {
       >
         <div className="container-app flex items-center justify-between h-[var(--header-h)]">
           {/* Logo */}
-          <Link href="/" className="flex items-baseline gap-1.5 group">
+          <Link href="/" aria-label="MOAI Crowd ホーム" className="flex items-baseline gap-1.5 group">
             <span className="text-lg font-bold text-moai-primary transition-colors group-hover:text-moai-primary-800">
               MOAI
             </span>
@@ -59,7 +59,7 @@ export default function Header({ userId }: { userId: string | null }) {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-0.5">
+          <nav aria-label="グローバルナビゲーション" className="hidden md:flex items-center gap-0.5">
             {PUBLIC_LINKS.map((l) => (
               <NavLink key={l.href} href={l.href} active={pathname.startsWith(l.href)}>
                 {l.label}
@@ -85,9 +85,11 @@ export default function Header({ userId }: { userId: string | null }) {
                 <button
                   onClick={() => setOpen(!open)}
                   className="md:hidden p-2 rounded-lg hover:bg-moai-cloud transition-colors"
-                  aria-label="メニュー"
+                  aria-label={open ? "メニューを閉じる" : "メニューを開く"}
+                  aria-expanded={open}
+                  aria-controls="mobile-menu"
                 >
-                  <svg className="h-5 w-5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-5 w-5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     {open
                       ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
                       : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />}
@@ -102,9 +104,11 @@ export default function Header({ userId }: { userId: string | null }) {
                 <button
                   onClick={() => setOpen(!open)}
                   className="md:hidden p-2 rounded-lg hover:bg-moai-cloud transition-colors"
-                  aria-label="メニュー"
+                  aria-label={open ? "メニューを閉じる" : "メニューを開く"}
+                  aria-expanded={open}
+                  aria-controls="mobile-menu"
                 >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     {open
                       ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
                       : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />}
@@ -117,14 +121,15 @@ export default function Header({ userId }: { userId: string | null }) {
 
         {/* Mobile drawer */}
         {open && (
-          <div className="md:hidden border-t border-moai-border bg-white animate-slide-down">
-            <div className="container-app py-3 space-y-1">
+          <div id="mobile-menu" className="md:hidden border-t border-moai-border bg-white animate-slide-down">
+            <nav aria-label="モバイルナビゲーション" className="container-app py-3 space-y-1">
               {PUBLIC_LINKS.map((l) => {
                 const active = pathname.startsWith(l.href);
                 return (
                   <Link
                     key={l.href}
                     href={l.href}
+                    aria-current={active ? "page" : undefined}
                     className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                       active ? "bg-moai-cloud text-moai-ink" : "text-moai-muted hover:bg-moai-cloud hover:text-moai-ink"
                     }`}
@@ -143,11 +148,12 @@ export default function Header({ userId }: { userId: string | null }) {
                       <Link
                         key={l.href}
                         href={l.href}
+                        aria-current={active ? "page" : undefined}
                         className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                           active ? "bg-moai-cloud text-moai-ink" : "text-moai-muted hover:bg-moai-cloud hover:text-moai-ink"
                         }`}
                       >
-                        <span className="text-base">{l.icon}</span>
+                        <span className="text-base" aria-hidden="true">{l.icon}</span>
                         {l.label}
                       </Link>
                     );
@@ -160,7 +166,7 @@ export default function Header({ userId }: { userId: string | null }) {
                   <div className="px-3 py-2"><SignOutButton /></div>
                 </>
               )}
-            </div>
+            </nav>
           </div>
         )}
       </header>
@@ -181,6 +187,7 @@ function NavLink({ href, active, children }: { href: string; active: boolean; ch
   return (
     <Link
       href={href}
+      aria-current={active ? "page" : undefined}
       className={`relative px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
         active
           ? "text-moai-ink"
@@ -189,7 +196,7 @@ function NavLink({ href, active, children }: { href: string; active: boolean; ch
     >
       {children}
       {active && (
-        <span className="absolute -bottom-[13px] left-1/2 -translate-x-1/2 w-5 h-0.5 rounded-full bg-moai-primary" />
+        <span className="absolute -bottom-[13px] left-1/2 -translate-x-1/2 w-5 h-0.5 rounded-full bg-moai-primary" aria-hidden="true" />
       )}
     </Link>
   );

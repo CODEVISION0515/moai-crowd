@@ -26,11 +26,19 @@ export default function NotificationBell({ userId }: { userId: string }) {
     return () => { sb.removeChannel(ch); };
   }, [userId]);
 
+  const label = count > 0 ? `通知 (未読 ${count}件)` : "通知";
   return (
-    <Link href="/notifications" className="relative hover:text-moai-primary">
-      🔔
+    <Link
+      href="/notifications"
+      aria-label={label}
+      className="relative hover:text-moai-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moai-primary/30 rounded-md"
+    >
+      <span aria-hidden="true">🔔</span>
       {count > 0 && (
-        <span className="absolute -top-2 -right-3 rounded-full bg-red-500 text-white text-[10px] px-1.5 py-0.5 min-w-[18px] text-center">
+        <span
+          aria-hidden="true"
+          className="absolute -top-2 -right-3 rounded-full bg-red-500 text-white text-[10px] px-1.5 py-0.5 min-w-[18px] text-center"
+        >
           {count > 99 ? "99+" : count}
         </span>
       )}
