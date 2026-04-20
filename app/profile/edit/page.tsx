@@ -7,6 +7,7 @@ import LineLink from "@/components/LineLink";
 import AvatarUpload from "@/components/AvatarUpload";
 import { ToastForm } from "@/components/ToastForm";
 import { FieldError } from "@/components/FieldError";
+import { FieldInput } from "@/components/Field";
 import ProfileCoach from "./ProfileCoach";
 import {
   updateBasic, updateSocial,
@@ -61,35 +62,28 @@ export default async function ProfileEditPage() {
 
       {/* 基本情報 */}
       <ToastForm action={updateBasic} className="card space-y-4" noValidate>
-        {({ fieldErrors }) => (
-        <>
         <h2 className="font-semibold">基本情報</h2>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="display_name" className="label">表示名 <span className="text-red-500">*</span></label>
-            <input
+            <FieldInput
               id="display_name"
               name="display_name"
               required
               maxLength={50}
               defaultValue={profile?.display_name ?? ""}
-              className={`input ${fieldErrors?.display_name ? "input-error" : ""}`}
-              aria-invalid={fieldErrors?.display_name ? "true" : undefined}
             />
-            <FieldError errors={fieldErrors} name="display_name" />
+            <FieldError name="display_name" />
           </div>
           <div>
             <label htmlFor="handle" className="label">ハンドル <span className="text-red-500">*</span></label>
-            <input
+            <FieldInput
               id="handle"
               name="handle"
               required
               defaultValue={profile?.handle ?? ""}
-              className={`input ${fieldErrors?.handle ? "input-error" : ""}`}
-              aria-invalid={fieldErrors?.handle ? "true" : undefined}
-              aria-describedby="handle-hint"
             />
-            <FieldError errors={fieldErrors} name="handle" />
+            <FieldError name="handle" />
             <p id="handle-hint" className="mt-1 text-xs text-moai-muted">英小文字・数字・_の3〜20文字</p>
           </div>
         </div>
@@ -189,8 +183,6 @@ export default async function ProfileEditPage() {
         </div>
 
         <button className="btn-primary">基本情報を保存</button>
-        </>
-        )}
       </ToastForm>
 
       {/* SNS */}
