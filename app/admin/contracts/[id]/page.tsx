@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/server";
 import { ToastForm } from "@/components/ToastForm";
 import { FieldError } from "@/components/FieldError";
+import { FieldTextarea } from "@/components/Field";
 import { formatCurrency, formatDateJP } from "@/lib/utils";
 import { refundContract } from "./actions";
 
@@ -187,26 +188,20 @@ export default async function AdminContractDetailPage({
             ステータスは <code>refunded</code> に、関連案件は <code>open</code> に戻されます。
           </p>
           <ToastForm action={refundContract} className="space-y-3" noValidate>
-            {({ fieldErrors }) => (
-              <>
-                <input type="hidden" name="contract_id" value={contract.id} />
-                <div>
-                  <label htmlFor="reason" className="label">返金理由 <span className="text-red-500">*</span></label>
-                  <textarea
-                    id="reason"
-                    name="reason"
-                    required
-                    rows={3}
-                    maxLength={500}
-                    className={`input ${fieldErrors?.reason ? "input-error" : ""}`}
-                    placeholder="例: クライアント都合によるキャンセル、紛争解決のため等"
-                    aria-invalid={fieldErrors?.reason ? "true" : undefined}
-                  />
-                  <FieldError errors={fieldErrors} name="reason" />
-                </div>
-                <button className="btn-danger">返金を実行する</button>
-              </>
-            )}
+            <input type="hidden" name="contract_id" value={contract.id} />
+            <div>
+              <label htmlFor="reason" className="label">返金理由 <span className="text-red-500">*</span></label>
+              <FieldTextarea
+                id="reason"
+                name="reason"
+                required
+                rows={3}
+                maxLength={500}
+                placeholder="例: クライアント都合によるキャンセル、紛争解決のため等"
+              />
+              <FieldError name="reason" />
+            </div>
+            <button className="btn-danger">返金を実行する</button>
           </ToastForm>
         </div>
       )}
