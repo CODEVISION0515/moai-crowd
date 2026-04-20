@@ -14,7 +14,24 @@ export type NotificationKind =
   | "proposal_received" | "proposal_accepted" | "proposal_rejected"
   | "deliverable_submitted" | "deliverable_approved" | "revision_requested"
   | "message_received" | "contract_funded" | "review_received"
-  | "post_commented" | "post_liked" | "comment_replied" | "new_follower";
+  | "post_commented" | "post_liked" | "comment_replied" | "new_follower"
+  | "mentioned_in_comment" | "mentioned_in_post" | "post_answer_accepted" | "event_upcoming";
+
+export type DigestFrequency = "immediate" | "daily_digest" | "weekly_digest" | "off";
+
+export interface NotificationGlobalPrefs {
+  user_id: string;
+  master_enabled: boolean;
+  email_enabled: boolean;
+  line_enabled: boolean;
+  push_enabled: boolean;
+  quiet_hours_enabled: boolean;
+  quiet_hours_start: string; // HH:MM:SS
+  quiet_hours_end: string;
+  timezone: string;
+  digest_frequency: DigestFrequency;
+  updated_at: string;
+}
 export type ReportTarget = "user" | "job" | "proposal" | "message" | "deliverable";
 export type ReportStatus = "open" | "reviewing" | "resolved" | "dismissed";
 export type PostKind = "discussion" | "question" | "showcase" | "announcement";

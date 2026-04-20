@@ -9,6 +9,8 @@ import {
   ActiveContractsSection,
   MyJobsSection,
   MyProposalsSection,
+  CommunityHighlights,
+  CommunityHighlightsSkeleton,
   SectionListSkeleton,
 } from "./sections";
 
@@ -27,6 +29,10 @@ export default async function DashboardPage() {
 
       <Suspense fallback={<StatsAndActionsSkeleton />}>
         <StatsAndActions userId={user.id} />
+      </Suspense>
+
+      <Suspense fallback={<CommunityHighlightsSkeleton />}>
+        <CommunityHighlights userId={user.id} />
       </Suspense>
 
       <RecommendedJobs />
