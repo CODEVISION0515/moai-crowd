@@ -209,6 +209,13 @@ export const createPostSchema = z.object({
   tags: csvToArray,
 });
 
+// ── Refund Schema ────────────────────────────────
+
+export const refundContractSchema = z.object({
+  contract_id: z.string().uuid("無効な契約IDです"),
+  reason: z.string().min(1, "返金理由は必須です").max(500),
+});
+
 // ── Invoice Schema ───────────────────────────────
 
 export const createInvoiceSchema = z.object({

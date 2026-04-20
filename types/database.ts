@@ -9,7 +9,7 @@
 export type JobStatus = "draft" | "open" | "in_progress" | "completed" | "canceled";
 export type ProposalStatus = "pending" | "accepted" | "rejected" | "withdrawn";
 export type ContractStatus = "funded" | "working" | "submitted" | "released" | "disputed" | "refunded";
-export type TransactionKind = "escrow_fund" | "escrow_release" | "platform_fee" | "refund";
+export type TransactionKind = "escrow_fund" | "escrow_release" | "platform_fee" | "refund" | "transfer_failed" | "charge_failed";
 export type NotificationKind =
   | "proposal_received" | "proposal_accepted" | "proposal_rejected"
   | "deliverable_submitted" | "deliverable_approved" | "revision_requested"
