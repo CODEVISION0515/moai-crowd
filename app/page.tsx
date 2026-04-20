@@ -45,15 +45,15 @@ export default async function HomePage() {
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 badge-accent px-3 py-1 rounded-full mb-6">
               <span className="h-1.5 w-1.5 rounded-full bg-moai-primary animate-pulse-dot" />
-              <span className="text-xs font-semibold">手数料 10% — 業界最安クラス</span>
+              <span className="text-xs font-semibold">業界最安手数料 · AI特化クラウドソーシング</span>
             </div>
 
             <h1 className="text-display-md md:text-display-lg">
-              仲間と創る、<br />仕事のマッチング。
+              一歩踏み出す、<br />AIの仕事を、沖縄から。
             </h1>
             <p className="mt-5 text-lg text-moai-muted leading-relaxed max-w-lg">
-              MOAIコミュニティ発のクラウドソーシング。<br className="hidden sm:block" />
-              受注者の手取りを最大化する、新しいプラットフォーム。
+              発注者手数料<strong className="text-moai-ink">4%</strong>（ローンチ6ヶ月は<strong className="text-moai-primary">0%</strong>）、受注者<strong className="text-moai-ink">5〜15%</strong>。<br className="hidden sm:block" />
+              MOAIスクール卒業生が受注で品質担保。安心のエスクロー決済。
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -100,8 +100,8 @@ export default async function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             <StatItem value={`${totalJobs}+`} label="累計案件数" />
             <StatItem value={`${totalUsers}+`} label="登録メンバー" />
-            <StatItem value="10%" label="手数料" accent />
-            <StatItem value="AI" label="無料で使える" />
+            <StatItem value="0-4%" label="発注者手数料" accent />
+            <StatItem value="5-15%" label="受注者手数料" />
           </div>
         </div>
       </section>

@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import FollowButton from "@/components/FollowButton";
 import { Avatar } from "@/components/Avatar";
 import { EmptyState } from "@/components/EmptyState";
+import { MoaiBadge } from "@/components/MoaiBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -64,6 +65,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
                   <h1 className="text-2xl font-bold flex items-center gap-2">
                     {profile.display_name}
                     {profile.verified_identity && <span title="本人確認済み" className="text-blue-500">✓</span>}
+                    <MoaiBadge crowdRole={profile.crowd_role} display={profile.moai_badge_display} cohort={profile.cohort} />
                   </h1>
                   <div className="text-sm text-slate-500">@{profile.handle}</div>
                 </div>
@@ -81,6 +83,16 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
                 {profile.streak_days > 0 && <span>🔥 {profile.streak_days}日連続</span>}
                 {profile.years_experience && <span>💼 経験{profile.years_experience}年</span>}
                 {profile.location && <span>📍 {profile.location}</span>}
+                {profile.github_username && (
+                  <a
+                    href={`https://github.com/${profile.github_username}`}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="text-moai-muted hover:text-moai-primary transition-colors"
+                  >
+                    🐙 @{profile.github_username}
+                  </a>
+                )}
               </div>
             </div>
           </div>

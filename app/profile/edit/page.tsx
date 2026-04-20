@@ -144,6 +144,50 @@ export default async function ProfileEditPage() {
             <input name="work_hours" defaultValue={profile?.work_hours ?? ""} className="input" placeholder="平日9-18時 / 週末対応可" />
           </div>
         </div>
+
+        {/* MOAI エコシステム関連 */}
+        <div className="pt-4 border-t border-moai-border space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="github_username" className="label">GitHub ユーザー名</label>
+              <input
+                id="github_username"
+                name="github_username"
+                defaultValue={profile?.github_username ?? ""}
+                className="input"
+                placeholder="your-username"
+              />
+              <p className="mt-1 text-xs text-moai-muted">公開ポートフォリオでGitHub実績を表示</p>
+            </div>
+            <div>
+              <label htmlFor="region" className="label">活動エリア</label>
+              <select id="region" name="region" defaultValue={profile?.region ?? ""} className="input">
+                <option value="">指定なし</option>
+                <option value="okinawa">沖縄</option>
+                <option value="fukuoka">福岡</option>
+                <option value="other">その他</option>
+              </select>
+            </div>
+          </div>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="moai_badge_display"
+              defaultChecked={profile?.moai_badge_display ?? true}
+              className="h-4 w-4"
+            />
+            <span>プロフィールにMOAIバッジ（在校生／卒業生／講師）を表示する</span>
+          </label>
+          {(profile?.crowd_role === "student" || profile?.crowd_role === "alumni") && (
+            <p className="text-xs text-moai-muted">
+              現在のMOAIロール: <strong>{profile.crowd_role === "alumni" ? "🎓 卒業生" : "🌱 在校生"}</strong>
+              {profile.cohort ? `（第${profile.cohort}期）` : ""}
+              {profile.graduation_date ? ` / 卒業予定日: ${profile.graduation_date}` : ""}
+              <span className="block mt-0.5">※ ロール・期・卒業日の変更は管理者にお問い合わせください。</span>
+            </p>
+          )}
+        </div>
+
         <button className="btn-primary">基本情報を保存</button>
         </>
         )}

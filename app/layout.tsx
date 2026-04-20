@@ -7,8 +7,8 @@ import BottomNav from "@/components/BottomNav";
 import PWARegister from "@/components/PWARegister";
 
 export const metadata: Metadata = {
-  title: "MOAI Crowd | 仲間と創る、仕事のマッチング",
-  description: "MOAIコミュニティ発のクラウドソーシング。仕事を頼みたい人と、力を貸したい人を、ゆんたくで繋ぐ。",
+  title: "MOAI Crowd | 業界最安手数料のAI特化クラウドソーシング",
+  description: "AI特化のクラウドソーシング。発注者手数料4%（ローンチ6ヶ月は0%）、MOAI卒業生が受注で品質担保。沖縄発・全国展開中。",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -51,9 +51,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <div className="flex items-baseline gap-1.5">
                 <span className="text-sm font-bold text-moai-primary">MOAI</span>
                 <span className="text-xs text-moai-muted">Crowd</span>
+                <span className="text-[10px] text-moai-muted ml-2">業界最安手数料のAI特化クラウドソーシング</span>
               </div>
               <div className="text-xs text-moai-muted">
-                © {new Date().getFullYear()} MOAI Crowd by CODEVISION
+                運営: CODEVISION株式会社 · © {new Date().getFullYear()} MOAI Crowd
               </div>
             </div>
           </div>

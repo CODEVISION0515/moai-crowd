@@ -73,6 +73,17 @@ export const updateBasicSchema = z.object({
   service_areas: csvToArray,
   availability: z.enum(["available", "busy", "limited", "unavailable"]).default("available"),
   work_hours: optionalString,
+  github_username: z
+    .string()
+    .optional()
+    .transform((s) => (s?.trim() ? s.trim().replace(/^@/, "") : null)),
+  moai_badge_display: z
+    .union([z.literal("on"), z.string(), z.undefined()])
+    .transform((v) => v === "on"),
+  region: z
+    .union([z.literal("okinawa"), z.literal("fukuoka"), z.literal("other"), z.literal("")])
+    .optional()
+    .transform((v) => (v === "" || !v ? null : v)),
 });
 export type UpdateBasicInput = z.infer<typeof updateBasicSchema>;
 

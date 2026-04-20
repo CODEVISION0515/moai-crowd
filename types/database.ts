@@ -28,6 +28,10 @@ export type InvoiceStatus = "draft" | "sent" | "paid" | "void";
 export type CreditTxKind = "welcome_bonus" | "admin_grant" | "campaign_bonus" | "purchase" | "consume" | "refund" | "referral_signup" | "referral_first_deal";
 export type Availability = "available" | "busy" | "limited" | "unavailable";
 export type UserRole = "user" | "admin" | "moderator";
+export type CrowdRole = "student" | "alumni" | "general" | "client" | "lecturer" | "community_manager";
+export type JobLevel = "L1" | "L2" | "L3" | "L4";
+export type JobSource = "direct" | "andcrew_overflow" | "andcrew_non_core" | "andcrew_small" | "andcrew_alumni_only";
+export type Region = "okinawa" | "fukuoka" | "other";
 export type BudgetType = "fixed" | "hourly";
 export type ReviewStatus = "pending" | "approved" | "revision_requested";
 export type PayoutCycle = "immediate" | "weekly" | "monthly";
@@ -55,6 +59,14 @@ export interface Profile {
   role: UserRole;
   is_suspended: boolean;
   suspended_reason: string | null;
+  // MOAI ecosystem
+  crowd_role: CrowdRole;
+  cohort: number | null;
+  enrollment_date: string | null;
+  graduation_date: string | null;
+  github_username: string | null;
+  moai_badge_display: boolean;
+  region: Region | null;
   // LINE integration
   line_user_id: string | null;
   notify_email: boolean;
