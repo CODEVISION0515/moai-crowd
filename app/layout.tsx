@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Toaster } from "sonner";
 import "./globals.css";
 import { createClient } from "@/lib/supabase/server";
 import Header from "@/components/Header";
@@ -32,6 +33,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="ja">
       <body className="min-h-screen flex flex-col bg-white">
         <PWARegister />
+        <Toaster
+          position="top-center"
+          richColors
+          closeButton
+          toastOptions={{
+            className: "!font-sans",
+            duration: 4000,
+          }}
+        />
         <Header userId={user?.id ?? null} />
         <main className="flex-1">{children}</main>
         <BottomNav userId={user?.id ?? null} />

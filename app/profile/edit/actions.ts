@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { formAction } from "@/lib/actions";
+import { formAction, statefulFormAction } from "@/lib/actions";
 import {
   updateBasicSchema,
   updateSocialSchema,
@@ -15,8 +15,8 @@ import {
 const PROFILE_EDIT_PATH = "/profile/edit";
 const revalidateEdit = () => revalidatePath(PROFILE_EDIT_PATH);
 
-export const updateBasic = formAction(updateBasicSchema, async ({ sb, user, data: d }) => {
-  await sb.from("profiles").update({
+export const updateBasic = statefulFormAction(updateBasicSchema, async ({ sb, user, data: d }) => {
+  const { error } = await sb.from("profiles").update({
     display_name: d.display_name,
     handle: d.handle,
     tagline: d.tagline,
@@ -30,11 +30,13 @@ export const updateBasic = formAction(updateBasicSchema, async ({ sb, user, data
     availability: d.availability,
     work_hours: d.work_hours,
   }).eq("id", user.id);
+  if (error) return { error: "保存に失敗しました。ハンドル名の重複などをご確認ください。" };
   revalidateEdit();
+  return { success: "基本情報を保存しました" };
 });
 
-export const updateSocial = formAction(updateSocialSchema, async ({ sb, user, data: d }) => {
-  await sb.from("profiles").update({
+export const updateSocial = statefulFormAction(updateSocialSchema, async ({ sb, user, data: d }) => {
+  const { error } = await sb.from("profiles").update({
     twitter_handle: d.twitter,
     instagram_handle: d.instagram,
     github_handle: d.github,
@@ -44,7 +46,9 @@ export const updateSocial = formAction(updateSocialSchema, async ({ sb, user, da
     tiktok_handle: d.tiktok,
     website: d.website,
   }).eq("id", user.id);
+  if (error) return { error: "SNS情報の保存に失敗しました" };
   revalidateEdit();
+  return { success: "SNS情報を保存しました" };
 });
 
 export const addPortfolio = formAction(addPortfolioSchema, async ({ sb, user, data: d }) => {

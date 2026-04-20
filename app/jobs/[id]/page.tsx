@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import ProposalForm from "./ProposalForm";
 import { acceptProposal } from "./actions";
+import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -112,7 +113,7 @@ export default async function JobDetailPage({
               </div>
             ))}
             {(!proposals || proposals.length === 0) && (
-              <p className="text-slate-500 text-center py-6">まだ応募がありません</p>
+              <EmptyState icon="📭" title="まだ応募がありません" description="応募が届くと、ここに表示されます" />
             )}
           </div>
         </div>

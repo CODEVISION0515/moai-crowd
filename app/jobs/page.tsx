@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import BookmarkButton from "@/components/BookmarkButton";
+import { Avatar } from "@/components/Avatar";
 import { formatCurrency } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -208,11 +209,9 @@ export default async function JobsPage({
                       {/* Meta */}
                       <div className="mt-3 flex items-center gap-3 text-xs text-moai-muted">
                         <span className="flex items-center gap-1.5">
-                          {client?.avatar_url ? (
-                            <img src={client.avatar_url} alt="" className="h-4 w-4 rounded-full object-cover" />
-                          ) : (
-                            <span className="h-4 w-4 rounded-full bg-moai-cloud flex items-center justify-center text-[9px] font-medium">{client?.display_name?.[0] ?? "?"}</span>
-                          )}
+                          <span className="h-4 w-4 rounded-full bg-moai-cloud overflow-hidden flex items-center justify-center text-[9px] font-medium">
+                            <Avatar src={client?.avatar_url} name={client?.display_name} size={16} />
+                          </span>
                           {client?.display_name ?? "-"}
                         </span>
                         <span>応募 {proposalCount}件</span>

@@ -3,7 +3,7 @@
 import { createAdminClient } from "@/lib/supabase/server";
 import { stripe } from "@/lib/stripe";
 import { revalidatePath } from "next/cache";
-import { formAction } from "@/lib/actions";
+import { statefulFormAction } from "@/lib/actions";
 import { approveDeliverableSchema, requestRevisionSchema } from "@/lib/validations";
 
 type AdminSb = ReturnType<typeof createAdminClient>;
@@ -63,7 +63,7 @@ async function awardReferralRewards(
   ]);
 }
 
-export const approveDeliverable = formAction(approveDeliverableSchema, async ({ sb, user, data }) => {
+export const approveDeliverable = statefulFormAction(approveDeliverableSchema, async ({ sb, user, data }) => {
   const { deliverable_id } = data;
 
   const { data: deliverable } = await sb
@@ -71,7 +71,7 @@ export const approveDeliverable = formAction(approveDeliverableSchema, async ({ 
     .select("contract_id")
     .eq("id", deliverable_id)
     .single();
-  if (!deliverable) return;
+  if (!deliverable) return { error: "成果物が見つかりません" };
 
   const contractId = deliverable.contract_id;
 
@@ -87,16 +87,19 @@ export const approveDeliverable = formAction(approveDeliverableSchema, async ({ 
     .select("*")
     .eq("id", contractId)
     .single();
-  if (!contract || contract.client_id !== user.id) return;
+  if (!contract || contract.client_id !== user.id) {
+    return { error: "承認権限がありません" };
+  }
 
   const transferRef = await transferToWorker(admin, contract);
   await recordRelease(admin, contract, transferRef);
   await awardReferralRewards(admin, contract);
 
   revalidatePath(`/contracts/${contractId}`);
+  return { success: "成果物を承認し、支払いを完了しました" };
 });
 
-export const requestRevision = formAction(requestRevisionSchema, async ({ sb, data }) => {
+export const requestRevision = statefulFormAction(requestRevisionSchema, async ({ sb, data }) => {
   const { deliverable_id, revision_note } = data;
 
   const { data: deliverable } = await sb
@@ -104,7 +107,7 @@ export const requestRevision = formAction(requestRevisionSchema, async ({ sb, da
     .select("contract_id")
     .eq("id", deliverable_id)
     .single();
-  if (!deliverable) return;
+  if (!deliverable) return { error: "成果物が見つかりません" };
 
   await sb.from("deliverables").update({
     review_status: "revision_requested",
@@ -115,4 +118,5 @@ export const requestRevision = formAction(requestRevisionSchema, async ({ sb, da
   await sb.from("contracts").update({ status: "working" }).eq("id", deliverable.contract_id);
 
   revalidatePath(`/contracts/${deliverable.contract_id}`);
+  return { success: "修正を依頼しました" };
 });

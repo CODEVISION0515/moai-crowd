@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getAiFeatures, getCreditPackages, getCreditsBalance } from "@/lib/credits";
 import CreditPurchaseButton from "@/components/CreditPurchaseButton";
+import { EmptyState } from "@/components/EmptyState";
 import { formatDateShort } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -140,7 +141,7 @@ export default async function CreditsPage() {
               </tbody>
             </table>
           ) : (
-            <p className="p-6 text-center text-slate-500">履歴はまだありません</p>
+            <EmptyState icon="🧾" title="履歴はまだありません" description="購入・利用の履歴はここに表示されます" />
           )}
         </div>
       </section>

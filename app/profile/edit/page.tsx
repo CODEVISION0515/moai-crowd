@@ -1,9 +1,12 @@
 import { redirect } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import ConnectStatus from "@/components/ConnectStatus";
 import LineLink from "@/components/LineLink";
 import AvatarUpload from "@/components/AvatarUpload";
+import { ToastForm } from "@/components/ToastForm";
+import { FieldError } from "@/components/FieldError";
 import ProfileCoach from "./ProfileCoach";
 import {
   updateBasic, updateSocial,
@@ -57,16 +60,37 @@ export default async function ProfileEditPage() {
       </section>
 
       {/* 基本情報 */}
-      <form action={updateBasic} className="card space-y-4">
+      <ToastForm action={updateBasic} className="card space-y-4" noValidate>
+        {({ fieldErrors }) => (
+        <>
         <h2 className="font-semibold">基本情報</h2>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="label">表示名 *</label>
-            <input name="display_name" required defaultValue={profile?.display_name ?? ""} className="input" />
+            <label htmlFor="display_name" className="label">表示名 <span className="text-red-500">*</span></label>
+            <input
+              id="display_name"
+              name="display_name"
+              required
+              maxLength={50}
+              defaultValue={profile?.display_name ?? ""}
+              className={`input ${fieldErrors?.display_name ? "input-error" : ""}`}
+              aria-invalid={fieldErrors?.display_name ? "true" : undefined}
+            />
+            <FieldError errors={fieldErrors} name="display_name" />
           </div>
           <div>
-            <label className="label">ハンドル *</label>
-            <input name="handle" required defaultValue={profile?.handle ?? ""} className="input" />
+            <label htmlFor="handle" className="label">ハンドル <span className="text-red-500">*</span></label>
+            <input
+              id="handle"
+              name="handle"
+              required
+              defaultValue={profile?.handle ?? ""}
+              className={`input ${fieldErrors?.handle ? "input-error" : ""}`}
+              aria-invalid={fieldErrors?.handle ? "true" : undefined}
+              aria-describedby="handle-hint"
+            />
+            <FieldError errors={fieldErrors} name="handle" />
+            <p id="handle-hint" className="mt-1 text-xs text-moai-muted">英小文字・数字・_の3〜20文字</p>
           </div>
         </div>
         <div>
@@ -121,10 +145,12 @@ export default async function ProfileEditPage() {
           </div>
         </div>
         <button className="btn-primary">基本情報を保存</button>
-      </form>
+        </>
+        )}
+      </ToastForm>
 
       {/* SNS */}
-      <form action={updateSocial} className="card space-y-4">
+      <ToastForm action={updateSocial} className="card space-y-4">
         <h2 className="font-semibold">SNS・連絡手段</h2>
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -161,7 +187,7 @@ export default async function ProfileEditPage() {
           </div>
         </div>
         <button className="btn-primary">SNSを保存</button>
-      </form>
+      </ToastForm>
 
       {/* ポートフォリオ */}
       <section className="card">
@@ -169,7 +195,11 @@ export default async function ProfileEditPage() {
         <div className="space-y-3 mb-4">
           {portfolios?.map((p) => (
             <div key={p.id} className="border border-slate-200 rounded-lg p-3 flex gap-3">
-              {p.image_url && <img src={p.image_url} alt="" className="h-20 w-20 rounded object-cover" />}
+              {p.image_url && (
+                <div className="relative h-20 w-20 rounded overflow-hidden bg-moai-cloud shrink-0">
+                  <Image src={p.image_url} alt={p.title ?? "ポートフォリオ画像"} fill sizes="80px" className="object-cover" />
+                </div>
+              )}
               <div className="flex-1 min-w-0">
                 <div className="font-semibold">{p.title}</div>
                 <div className="text-xs text-slate-500 line-clamp-2">{p.description}</div>

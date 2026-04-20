@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import BookmarkButton from "@/components/BookmarkButton";
+import { EmptyState } from "@/components/EmptyState";
 import { formatCurrency } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -47,10 +48,12 @@ export default async function BookmarksPage() {
           })}
         </div>
       ) : (
-        <div className="card text-center py-12">
-          <p className="text-slate-500 mb-4">まだ保存した案件がありません</p>
-          <Link href="/jobs" className="btn-primary">案件を探す</Link>
-        </div>
+        <EmptyState
+          icon="🔖"
+          title="まだ保存した案件がありません"
+          description="気になる案件はブックマークしておきましょう"
+          action={{ href: "/jobs", label: "案件を探す" }}
+        />
       )}
     </div>
   );

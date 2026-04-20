@@ -5,7 +5,14 @@ import { parseFormData } from "@/lib/validations";
 
 type Sb = Awaited<ReturnType<typeof requireUser>>["sb"];
 
-export type ActionResult = { error?: string } | void;
+export type ActionResult =
+  | {
+      error?: string;
+      success?: string;
+      fieldErrors?: Record<string, string>;
+    }
+  | null
+  | void;
 
 export type FormActionContext<T> = {
   sb: Sb;
@@ -39,7 +46,9 @@ export function statefulFormAction<S extends z.ZodType<unknown, z.ZodTypeDef, un
   return async (_prev: ActionResult, formData: FormData): Promise<ActionResult> => {
     const { sb, user } = await requireUser();
     const parsed = parseFormData(schema, formData);
-    if (!parsed.success) return { error: parsed.error };
+    if (!parsed.success) {
+      return { error: parsed.error, fieldErrors: parsed.fieldErrors };
+    }
     return handler({ sb, user, data: parsed.data as z.infer<S> });
   };
 }

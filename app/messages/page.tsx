@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateJP } from "@/lib/utils";
+import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +38,12 @@ export default async function MessagesPage() {
           );
         })}
         {(!threads || threads.length === 0) && (
-          <p className="text-center text-slate-500 py-10">まだメッセージはありません</p>
+          <EmptyState
+            icon="💬"
+            title="まだメッセージはありません"
+            description="案件に応募・契約するとメッセージが届きます"
+            action={{ href: "/jobs", label: "案件を探す" }}
+          />
         )}
       </div>
     </div>
