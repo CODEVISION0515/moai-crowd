@@ -73,6 +73,17 @@ export const updateBasicSchema = z.object({
   service_areas: csvToArray,
   availability: z.enum(["available", "busy", "limited", "unavailable"]).default("available"),
   work_hours: optionalString,
+  github_username: z
+    .string()
+    .optional()
+    .transform((s) => (s?.trim() ? s.trim().replace(/^@/, "") : null)),
+  moai_badge_display: z
+    .union([z.literal("on"), z.string(), z.undefined()])
+    .transform((v) => v === "on"),
+  region: z
+    .union([z.literal("okinawa"), z.literal("fukuoka"), z.literal("other"), z.literal("")])
+    .optional()
+    .transform((v) => (v === "" || !v ? null : v)),
 });
 export type UpdateBasicInput = z.infer<typeof updateBasicSchema>;
 
@@ -207,6 +218,13 @@ export const createPostSchema = z.object({
   title: z.string().min(1, "タイトルは必須です").max(200),
   body: z.string().min(1, "本文は必須です"),
   tags: csvToArray,
+});
+
+// ── Refund Schema ────────────────────────────────
+
+export const refundContractSchema = z.object({
+  contract_id: z.string().uuid("無効な契約IDです"),
+  reason: z.string().min(1, "返金理由は必須です").max(500),
 });
 
 // ── Invoice Schema ───────────────────────────────

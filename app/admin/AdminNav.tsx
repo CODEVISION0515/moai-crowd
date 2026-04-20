@@ -7,6 +7,7 @@ const LINKS = [
   { href: "/admin/reports", label: "通報" },
   { href: "/admin/users", label: "ユーザー" },
   { href: "/admin/jobs", label: "案件" },
+  { href: "/admin/contracts", label: "契約" },
   { href: "/admin/transactions", label: "取引" },
   { href: "/admin/credits", label: "🪙 クレジット" },
 ];

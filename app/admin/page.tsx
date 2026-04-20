@@ -39,12 +39,14 @@ async function Kpis() {
     { count: jobCount },
     { count: contractCount },
     { count: openReports },
+    { count: transferFailed },
     { data: feeSum },
   ] = await Promise.all([
     admin.from("profiles").select("*", { count: "exact", head: true }),
     admin.from("jobs").select("*", { count: "exact", head: true }),
     admin.from("contracts").select("*", { count: "exact", head: true }),
     admin.from("reports").select("*", { count: "exact", head: true }).eq("status", "open"),
+    admin.from("contracts").select("*", { count: "exact", head: true }).not("transfer_failed_at", "is", null),
     admin.from("transactions").select("amount_jpy").eq("kind", "platform_fee"),
   ]);
 
@@ -53,13 +55,14 @@ async function Kpis() {
   const kpis = [
     { label: "総ユーザー数", value: (userCount ?? 0).toLocaleString(), href: "/admin/users" },
     { label: "総案件数", value: (jobCount ?? 0).toLocaleString(), href: "/admin/jobs" },
-    { label: "総契約数", value: (contractCount ?? 0).toLocaleString() },
+    { label: "総契約数", value: (contractCount ?? 0).toLocaleString(), href: "/admin/contracts" },
     { label: "手数料累計", value: formatCurrency(totalFee), href: "/admin/transactions?kind=platform_fee" },
     { label: "未処理の通報", value: (openReports ?? 0).toLocaleString(), highlight: (openReports ?? 0) > 0, href: "/admin/reports" },
+    { label: "⚠️ Transfer失敗", value: (transferFailed ?? 0).toLocaleString(), highlight: (transferFailed ?? 0) > 0, href: "/admin/contracts?issue=transfer_failed" },
   ];
 
   return (
-    <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-4">
+    <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
       {kpis.map((k) => {
         const content = (
           <>
@@ -87,8 +90,8 @@ async function Kpis() {
 
 function KpisSkeleton() {
   return (
-    <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-4">
-      {[0, 1, 2, 3, 4].map((i) => (
+    <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
+      {[0, 1, 2, 3, 4, 5].map((i) => (
         <div key={i} className="card space-y-2">
           <SkeletonLine className="h-3 w-24" />
           <SkeletonLine className="h-7 w-16" />

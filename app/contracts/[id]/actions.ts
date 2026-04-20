@@ -7,18 +7,27 @@ import { statefulFormAction } from "@/lib/actions";
 import { approveDeliverableSchema, requestRevisionSchema } from "@/lib/validations";
 
 type AdminSb = ReturnType<typeof createAdminClient>;
+type TransferResult =
+  | { ok: true; transferId: string | null; skipped?: boolean }
+  | { ok: false; reason: string };
 
 async function transferToWorker(
   admin: AdminSb,
   contract: { worker_id: string; worker_payout_jpy: number; stripe_payment_intent_id: string | null; id: string },
-): Promise<string | null> {
+): Promise<TransferResult> {
   const { data: worker } = await admin
     .from("profiles")
     .select("stripe_account_id")
     .eq("id", contract.worker_id)
     .single();
 
-  if (!worker?.stripe_account_id || !contract.stripe_payment_intent_id) return null;
+  if (!worker?.stripe_account_id) {
+    return { ok: false, reason: "受注者の振込先口座が未設定です（Stripe Connect未完了）" };
+  }
+  if (!contract.stripe_payment_intent_id) {
+    // エスクロー未入金 — Transfer 不要ケース（例: 手動テスト）
+    return { ok: true, transferId: null, skipped: true };
+  }
 
   try {
     const transfer = await stripe.transfers.create({
@@ -27,10 +36,9 @@ async function transferToWorker(
       destination: worker.stripe_account_id,
       metadata: { contract_id: contract.id },
     });
-    return transfer.id;
-  } catch {
-    // Transfer 失敗してもステータスは更新する（手動対応用）
-    return null;
+    return { ok: true, transferId: transfer.id };
+  } catch (e: any) {
+    return { ok: false, reason: e?.message ?? "Stripe Transfer エラー" };
   }
 }
 
@@ -50,6 +58,31 @@ async function recordRelease(
   ]);
 
   await admin.from("jobs").update({ status: "completed" }).eq("id", contract.job_id);
+}
+
+async function recordTransferFailure(
+  admin: AdminSb,
+  contract: { id: string; worker_payout_jpy: number },
+  reason: string,
+) {
+  await admin.from("contracts").update({
+    transfer_failed_at: new Date().toISOString(),
+    transfer_failure_reason: reason,
+  }).eq("id", contract.id);
+
+  await admin.from("transactions").insert({
+    contract_id: contract.id,
+    kind: "transfer_failed",
+    amount_jpy: contract.worker_payout_jpy,
+    note: `Transfer失敗: ${reason}`,
+  });
+
+  // 管理者へアラート
+  await admin.rpc("notify_admins", {
+    p_title: "⚠️ Stripe Transfer失敗",
+    p_body: `契約ID: ${contract.id} / 理由: ${reason}`,
+    p_link: `/admin/contracts/${contract.id}`,
+  });
 }
 
 async function awardReferralRewards(
@@ -75,11 +108,6 @@ export const approveDeliverable = statefulFormAction(approveDeliverableSchema, a
 
   const contractId = deliverable.contract_id;
 
-  await sb.from("deliverables").update({
-    review_status: "approved",
-    reviewed_at: new Date().toISOString(),
-  }).eq("id", deliverable_id);
-
   // Admin クライアントで RLS をバイパスして release 処理
   const admin = createAdminClient();
   const { data: contract } = await admin
@@ -91,8 +119,22 @@ export const approveDeliverable = statefulFormAction(approveDeliverableSchema, a
     return { error: "承認権限がありません" };
   }
 
-  const transferRef = await transferToWorker(admin, contract);
-  await recordRelease(admin, contract, transferRef);
+  // 先に Transfer を試行。失敗したら契約ステータスは進めずエラー返却
+  const result = await transferToWorker(admin, contract);
+  if (!result.ok) {
+    await recordTransferFailure(admin, contract, result.reason);
+    return {
+      error: `支払い処理に失敗しました: ${result.reason}。管理者に通知済みです。`,
+    };
+  }
+
+  // Transfer 成功 → 成果物承認 & release 記録
+  await sb.from("deliverables").update({
+    review_status: "approved",
+    reviewed_at: new Date().toISOString(),
+  }).eq("id", deliverable_id);
+
+  await recordRelease(admin, contract, result.transferId);
   await awardReferralRewards(admin, contract);
 
   revalidatePath(`/contracts/${contractId}`);

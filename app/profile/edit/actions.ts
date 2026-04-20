@@ -29,6 +29,9 @@ export const updateBasic = statefulFormAction(updateBasicSchema, async ({ sb, us
     service_areas: d.service_areas,
     availability: d.availability,
     work_hours: d.work_hours,
+    github_username: d.github_username,
+    moai_badge_display: d.moai_badge_display,
+    region: d.region,
   }).eq("id", user.id);
   if (error) return { error: "保存に失敗しました。ハンドル名の重複などをご確認ください。" };
   revalidateEdit();
