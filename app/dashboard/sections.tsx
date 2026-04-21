@@ -304,6 +304,103 @@ export function SectionListSkeleton({ title }: { title: string }) {
   );
 }
 
+// ── Community highlights (hot posts + unread social notifications) ──
+
+const POST_KIND_META: Record<string, { icon: string; label: string; color: string }> = {
+  discussion: { icon: "💬", label: "ディスカッション", color: "bg-blue-50 text-blue-700" },
+  question: { icon: "❓", label: "質問", color: "bg-amber-50 text-amber-700" },
+  showcase: { icon: "🎨", label: "作品シェア", color: "bg-purple-50 text-purple-700" },
+  announcement: { icon: "📣", label: "お知らせ", color: "bg-red-50 text-red-700" },
+};
+
+export async function CommunityHighlights({ userId }: { userId: string }) {
+  const sb = await createClient();
+  // 24時間以内 or hot_score 上位から5件、さらに「自分宛のソーシャル未読通知」も取得
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+  const [hotRes, unreadSocialRes] = await Promise.all([
+    sb
+      .from("posts")
+      .select("id, title, kind, hot_score, comment_count, like_count, created_at, author:author_id(handle, display_name, avatar_url)")
+      .gte("created_at", since)
+      .order("hot_score", { ascending: false })
+      .limit(5),
+    sb
+      .from("notifications")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .is("read_at", null)
+      .in("kind", ["post_commented", "post_liked", "comment_replied", "new_follower", "mentioned_in_comment", "mentioned_in_post", "post_answer_accepted"]),
+  ]);
+
+  const posts = hotRes.data ?? [];
+  const unreadSocial = unreadSocialRes.count ?? 0;
+
+  return (
+    <Section title="🔥 コミュニティの動き" link="/community" linkLabel="もっと見る">
+      {unreadSocial > 0 && (
+        <Link
+          href="/notifications"
+          className="mb-3 flex items-center gap-2 px-4 py-2.5 rounded-lg bg-moai-primary/5 border border-moai-primary/20 hover:bg-moai-primary/10 transition-colors"
+        >
+          <span aria-hidden="true">🔔</span>
+          <span className="text-sm font-medium">
+            あなた宛の<strong className="text-moai-primary">新着 {unreadSocial} 件</strong> のコミュニティ通知があります
+          </span>
+          <span className="ml-auto text-xs text-moai-primary">→</span>
+        </Link>
+      )}
+
+      {posts.length > 0 ? (
+        <div className="space-y-2">
+          {posts.map((p: any) => {
+            const meta = POST_KIND_META[p.kind] ?? POST_KIND_META.discussion;
+            return (
+              <Link key={p.id} href={`/community/${p.id}`} className="card-hover block">
+                <div className="flex items-start gap-3">
+                  <span className="h-8 w-8 rounded-full overflow-hidden bg-moai-cloud flex items-center justify-center text-xs font-semibold text-moai-muted shrink-0">
+                    <Avatar src={p.author?.avatar_url} name={p.author?.display_name} size={32} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className={`badge text-[10px] ${meta.color}`}>{meta.icon} {meta.label}</span>
+                      <span className="text-[10px] text-moai-muted">by {p.author?.display_name}</span>
+                    </div>
+                    <div className="mt-1 text-sm font-medium line-clamp-1">{p.title}</div>
+                    <div className="mt-1 text-[11px] text-moai-muted flex gap-3">
+                      <span>💬 {p.comment_count ?? 0}</span>
+                      <span>👍 {p.like_count ?? 0}</span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      ) : (
+        <EmptyState
+          icon="💡"
+          title="直近24時間のトレンドはまだありません"
+          description="最初の話題を投稿してみませんか？"
+          action={{ href: "/community/new", label: "投稿する" }}
+        />
+      )}
+    </Section>
+  );
+}
+
+export function CommunityHighlightsSkeleton() {
+  return (
+    <Section title="🔥 コミュニティの動き">
+      <div className="space-y-2">
+        {[0, 1, 2].map((i) => (
+          <SkeletonCard key={i} />
+        ))}
+      </div>
+    </Section>
+  );
+}
+
 // ── Shared ────────────────────────────────────────────
 
 function Section({ title, link, linkLabel, children }: { title: string; link?: string; linkLabel?: string; children: React.ReactNode }) {
