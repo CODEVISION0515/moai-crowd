@@ -3,14 +3,16 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import SocialAuthButtons from "@/components/SocialAuthButtons";
 
 export default function LoginPage() {
   const router = useRouter();
   const params = useSearchParams();
   const redirect = params.get("redirect") || "/dashboard";
+  const urlError = params.get("error");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [err, setErr] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(urlError);
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
@@ -36,7 +38,10 @@ export default function LoginPage() {
           <p className="text-sm text-moai-muted mt-1">アカウントにログインしてください</p>
         </div>
 
-        <form onSubmit={onSubmit} className="card space-y-4">
+        <div className="card space-y-4">
+          <SocialAuthButtons redirectTo={redirect} />
+
+          <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <label className="label">メールアドレス</label>
             <input
@@ -84,7 +89,8 @@ export default function LoginPage() {
             アカウント未作成？{" "}
             <Link href="/signup" className="text-moai-primary font-medium hover:underline">新規登録</Link>
           </p>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import SocialAuthButtons from "@/components/SocialAuthButtons";
 
 type Referrer = { handle: string; display_name: string };
 
@@ -58,9 +59,16 @@ export default function SignUpPage() {
       return;
     }
     setLoading(true); setErr(null);
-    const { error } = await createClient().auth.signUp({
+    const base = typeof window !== "undefined" ? window.location.origin : "";
+    const callback = new URL("/auth/callback", base);
+    callback.searchParams.set("new", "1");
+    if (intent) callback.searchParams.set("next", `/onboarding?intent=${intent}`);
+    else callback.searchParams.set("next", "/onboarding");
+
+    const { data, error } = await createClient().auth.signUp({
       email, password,
       options: {
+        emailRedirectTo: callback.toString(),
         data: {
           display_name: displayName,
           ...(refCode ? { referral_code: refCode } : {}),
@@ -70,8 +78,16 @@ export default function SignUpPage() {
     });
     setLoading(false);
     if (error) return setErr(error.message);
-    const next = intent ? `/onboarding?intent=${intent}` : "/onboarding";
-    router.push(next);
+
+    // Supabase の挙動:
+    // - メール認証ONの場合: data.user あり but session なし → 確認メール待ちページへ
+    // - メール認証OFFの場合: data.session あり → オンボへ直行
+    if (data.user && !data.session) {
+      router.push(`/signup/confirm?email=${encodeURIComponent(email)}`);
+    } else {
+      const next = intent ? `/onboarding?intent=${intent}` : "/onboarding";
+      router.push(next);
+    }
     router.refresh();
   }
 
@@ -116,7 +132,10 @@ export default function SignUpPage() {
           </div>
         )}
 
-        <form onSubmit={onSubmit} className="card space-y-4">
+        <div className="card space-y-4">
+          <SocialAuthButtons isSignUp redirectTo="/onboarding" />
+
+          <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <label className="label">表示名</label>
             <input
@@ -202,7 +221,8 @@ export default function SignUpPage() {
             既にアカウントをお持ち？{" "}
             <Link href="/login" className="text-moai-primary font-medium hover:underline">ログイン</Link>
           </p>
-        </form>
+          </form>
+        </div>
 
         {/* Social proof */}
         <div className="mt-6 flex items-center justify-center gap-4 text-xs text-moai-muted">

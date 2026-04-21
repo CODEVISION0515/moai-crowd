@@ -4,11 +4,11 @@ export default function PrivacyPage() {
   return (
     <div className="container-app max-w-3xl py-10 space-y-6">
       <h1 className="text-2xl font-bold">プライバシーポリシー</h1>
-      <p className="text-xs text-moai-muted">最終更新: 2026年4月21日 / 運営: CODEVISION株式会社</p>
+      <p className="text-xs text-moai-muted">最終更新: 2026年4月21日 / 運営: 株式会社CODEVISION</p>
 
       <section className="prose prose-sm max-w-none space-y-4 text-sm leading-relaxed">
         <p>
-          CODEVISION株式会社（以下「当社」）は、「MOAI Crowd」（以下「本サービス」）における
+          株式会社CODEVISION（以下「当社」）は、「MOAI Crowd」（以下「本サービス」）における
           個人情報の取り扱いについて、以下のとおり定めます。
         </p>
 
@@ -66,7 +66,7 @@ export default function PrivacyPage() {
         <hr className="my-6" />
 
         <div className="text-xs text-moai-muted">
-          お問い合わせ先: CODEVISION株式会社 個人情報保護管理者<br />
+          お問い合わせ先: 株式会社CODEVISION 個人情報保護管理者<br />
           E-mail: contact@moai.okinawa
         </div>
       </section>

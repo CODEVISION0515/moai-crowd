@@ -4,11 +4,11 @@ export default function TermsPage() {
   return (
     <div className="container-app max-w-3xl py-10 space-y-6">
       <h1 className="text-2xl font-bold">利用規約</h1>
-      <p className="text-xs text-moai-muted">最終更新: 2026年4月21日 / 運営: CODEVISION株式会社</p>
+      <p className="text-xs text-moai-muted">最終更新: 2026年4月21日 / 運営: 株式会社CODEVISION</p>
 
       <section className="prose prose-sm max-w-none space-y-4 text-sm leading-relaxed">
         <p>
-          本規約は、CODEVISION株式会社（以下「当社」）が提供する
+          本規約は、株式会社CODEVISION（以下「当社」）が提供する
           クラウドソーシングサービス「MOAI Crowd」（以下「本サービス」）の利用条件を定めるものです。
           本サービスをご利用いただく場合、本規約に同意いただいたものとみなします。
         </p>
