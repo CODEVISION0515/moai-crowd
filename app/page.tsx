@@ -65,15 +65,20 @@ export default async function HomePage() {
               ) : (
                 <>
                   <Link href="/signup" className="btn-accent btn-lg">
-                    無料で始める
-                    <svg className="h-4 w-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    30秒で無料登録
+                    <svg className="h-4 w-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                   </Link>
-                  <Link href="/jobs" className="btn-outline btn-lg">案件を見る</Link>
+                  <Link href="/jobs" className="btn-outline btn-lg">まず案件を見る</Link>
                 </>
               )}
             </div>
+            {!user && (
+              <p className="mt-3 text-xs text-moai-muted">
+                登録は無料 · クレジットカード不要 · 1,000クレジット進呈
+              </p>
+            )}
 
             {/* Trust indicators */}
             <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-moai-muted">
@@ -93,6 +98,55 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ── Segment choice ── */}
+      {!user && (
+        <section className="container-app py-8 md:py-12">
+          <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+            <Link
+              href="/signup?intent=client"
+              className="group card-interactive border-2 hover:border-moai-primary/50 relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 bg-moai-primary/10 text-moai-primary text-[10px] font-bold px-2 py-1 rounded-bl-lg">
+                ローンチ期間中 手数料0%
+              </div>
+              <div className="text-3xl mb-3" aria-hidden="true">💼</div>
+              <h3 className="text-lg font-bold mb-1">仕事を頼みたい方</h3>
+              <p className="text-sm text-moai-muted leading-relaxed">
+                AI・Web・デザイン・動画など、<br />MOAI卒業生が高品質で対応。<br />
+                <strong className="text-moai-ink">発注者手数料 ローンチ6ヶ月 0%</strong>
+              </p>
+              <div className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-moai-primary group-hover:gap-2 transition-all">
+                発注者として登録
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </div>
+            </Link>
+
+            <Link
+              href="/signup?intent=worker"
+              className="group card-interactive border-2 hover:border-moai-primary/50 relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 bg-emerald-500/10 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-bl-lg">
+                卒業生は手数料5%生涯
+              </div>
+              <div className="text-3xl mb-3" aria-hidden="true">🎯</div>
+              <h3 className="text-lg font-bold mb-1">仕事を受けたい方</h3>
+              <p className="text-sm text-moai-muted leading-relaxed">
+                業界最安級手数料で、<br />あなたの手取りを最大化。<br />
+                <strong className="text-moai-ink">手数料 5〜15%（業界は5〜22%）</strong>
+              </p>
+              <div className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-moai-primary group-hover:gap-2 transition-all">
+                受注者として登録
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </div>
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* ── Stats ── */}
       <section className="border-y border-moai-border bg-white">
