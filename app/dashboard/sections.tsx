@@ -92,6 +92,172 @@ export function GreetingCardSkeleton() {
   );
 }
 
+// ── Getting started checklist ─────────────────────────
+// 新規ユーザー向けに「次にすべきこと」を可視化。完了したら自動で消える。
+
+type ChecklistItem = {
+  id: string;
+  label: string;
+  description: string;
+  href: string;
+  done: boolean;
+};
+
+export async function GettingStarted({ userId }: { userId: string }) {
+  const sb = await createClient();
+
+  const [
+    { data: profile },
+    { count: postCount },
+    { count: jobCount },
+    { count: proposalCount },
+  ] = await Promise.all([
+    sb.from("profiles").select("avatar_url, bio, skills, profile_completion, github_username, is_worker, is_client").eq("id", userId).single(),
+    sb.from("posts").select("*", { count: "exact", head: true }).eq("author_id", userId),
+    sb.from("jobs").select("*", { count: "exact", head: true }).eq("client_id", userId),
+    sb.from("proposals").select("*", { count: "exact", head: true }).eq("worker_id", userId),
+  ]);
+
+  if (!profile) return null;
+
+  const items: ChecklistItem[] = [
+    {
+      id: "avatar",
+      label: "プロフィール写真を設定",
+      description: "顔写真があると信頼度UP",
+      href: "/profile/edit",
+      done: !!profile.avatar_url,
+    },
+    {
+      id: "bio",
+      label: "自己紹介を書く",
+      description: "あなたの強みを伝えよう",
+      href: "/profile/edit",
+      done: !!profile.bio && profile.bio.trim().length >= 30,
+    },
+    {
+      id: "skills",
+      label: "スキルを追加",
+      description: "マッチング精度UP",
+      href: "/profile/edit",
+      done: Array.isArray(profile.skills) && profile.skills.length > 0,
+    },
+    ...(profile.is_worker
+      ? [{
+          id: "first_proposal",
+          label: "最初の案件に応募",
+          description: "受注実績の第一歩",
+          href: "/jobs",
+          done: (proposalCount ?? 0) > 0,
+        }]
+      : []),
+    ...(profile.is_client
+      ? [{
+          id: "first_job",
+          label: "最初の案件を投稿",
+          description: "AIで下書きが作れます",
+          href: "/jobs/new",
+          done: (jobCount ?? 0) > 0,
+        }]
+      : []),
+    {
+      id: "first_post",
+      label: "コミュニティで最初の投稿",
+      description: "自己紹介してみよう (+10 XP)",
+      href: "/community/new",
+      done: (postCount ?? 0) > 0,
+    },
+  ];
+
+  const doneCount = items.filter((i) => i.done).length;
+  const totalCount = items.length;
+  const allDone = doneCount === totalCount;
+
+  if (allDone) return null; // 全部済んだら非表示
+
+  const progressPct = Math.round((doneCount / totalCount) * 100);
+
+  return (
+    <section>
+      <div className="card border-2 border-moai-primary/20 bg-gradient-to-br from-moai-primary/[0.03] to-transparent">
+        <div className="flex items-start justify-between gap-3 mb-4">
+          <div>
+            <h2 className="font-bold text-lg flex items-center gap-2">
+              <span aria-hidden="true">🚀</span>
+              はじめてのMOAI Crowd
+            </h2>
+            <p className="text-xs text-moai-muted mt-1">
+              下のステップを完了して、サービスを最大限活用しましょう
+            </p>
+          </div>
+          <div className="text-right shrink-0">
+            <div className="text-2xl font-bold text-moai-primary">{doneCount}<span className="text-base text-moai-muted">/{totalCount}</span></div>
+            <div className="text-[10px] text-moai-muted uppercase tracking-wide">完了</div>
+          </div>
+        </div>
+
+        <div className="progress-bar mb-4">
+          <div className="progress-bar-fill" style={{ width: `${progressPct}%` }} />
+        </div>
+
+        <ul className="space-y-2">
+          {items.map((item) => (
+            <li key={item.id}>
+              <Link
+                href={item.href}
+                className={`flex items-start gap-3 p-3 rounded-lg transition-colors ${
+                  item.done
+                    ? "bg-emerald-50/50 hover:bg-emerald-50"
+                    : "bg-white hover:bg-moai-cloud border border-moai-border"
+                }`}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`shrink-0 mt-0.5 flex items-center justify-center h-5 w-5 rounded-full text-xs ${
+                    item.done
+                      ? "bg-emerald-500 text-white"
+                      : "border-2 border-moai-border bg-white"
+                  }`}
+                >
+                  {item.done && (
+                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className={`text-sm font-medium ${item.done ? "text-moai-muted line-through" : "text-moai-ink"}`}>
+                    {item.label}
+                  </div>
+                  <div className="text-xs text-moai-muted mt-0.5">{item.description}</div>
+                </div>
+                {!item.done && (
+                  <span className="text-xs text-moai-primary font-medium shrink-0 mt-1">→</span>
+                )}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+export function GettingStartedSkeleton() {
+  return (
+    <div className="card space-y-3">
+      <SkeletonLine className="h-5 w-48" />
+      <SkeletonLine className="h-3 w-32" />
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i} className="flex items-center gap-3">
+          <div className="skeleton h-5 w-5 rounded-full" />
+          <SkeletonLine className="h-4 flex-1" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ── Stats + Quick actions ─────────────────────────────
 
 export async function StatsAndActions({ userId }: { userId: string }) {

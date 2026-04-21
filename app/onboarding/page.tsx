@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { saveStep1, saveStep2, finishOnboarding } from "./actions";
+import { saveStep1, saveStep2, skipStep2, finishOnboarding } from "./actions";
 import StepForm from "./StepForm";
 
 export const dynamic = "force-dynamic";
@@ -10,13 +10,14 @@ const STEP_LABELS = ["基本情報", "プロフィール", "完了"];
 
 export default async function OnboardingPage({
   searchParams,
-}: { searchParams: Promise<{ step?: string }> }) {
-  const { step } = await searchParams;
+}: { searchParams: Promise<{ step?: string; intent?: string }> }) {
+  const { step, intent } = await searchParams;
   const currentStep = Number(step ?? "1");
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) redirect("/login");
   const { data: profile } = await sb.from("profiles").select("*").eq("id", user.id).single();
+  const defaultRole = intent === "client" ? "client_only" : intent === "worker" ? "worker_only" : "both";
 
   return (
     <div className="container-app py-10 max-w-xl pb-nav">
@@ -76,51 +77,87 @@ export default async function OnboardingPage({
       )}
 
       {currentStep === 2 && (
-        <StepForm action={saveStep2} className="card animate-slide-up space-y-5">
+        <div className="card animate-slide-up space-y-5">
           <div>
-            <h1 className="text-2xl font-bold">もう少し教えてください</h1>
-            <p className="mt-2 text-sm text-moai-muted">スキルや得意分野を入力するとマッチング精度が上がります。</p>
+            <h1 className="text-2xl font-bold">どんな使い方をしますか？</h1>
+            <p className="mt-2 text-sm text-moai-muted">あとから変更できます。スキル・自己紹介はスキップ可能です。</p>
           </div>
-          <div>
-            <label className="label">どちらの立場で利用しますか？</label>
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { v: "both", icon: "🤝", label: "両方", desc: "発注も受注も" },
-                { v: "worker_only", icon: "💪", label: "受注のみ", desc: "仕事を受ける" },
-                { v: "client_only", icon: "💼", label: "発注のみ", desc: "仕事を頼む" },
-              ].map((r) => (
-                <label key={r.v} className="cursor-pointer">
-                  <input type="radio" name="role" value={r.v} defaultChecked={r.v === "both"} className="peer sr-only" />
-                  <div className="card-flat border-2 border-moai-border rounded-xl peer-checked:border-moai-primary peer-checked:bg-moai-primary/5 text-center p-4 transition-all hover:border-slate-300">
-                    <div className="text-2xl">{r.icon}</div>
-                    <div className="mt-1.5 text-xs font-semibold">{r.label}</div>
-                    <div className="text-[10px] text-moai-muted mt-0.5">{r.desc}</div>
-                  </div>
-                </label>
-              ))}
+
+          <StepForm action={saveStep2} className="space-y-5">
+            <div>
+              <label className="label">立場を選んでください <span className="text-red-500">*</span></label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { v: "both", icon: "🤝", label: "両方", desc: "発注も受注も" },
+                  { v: "worker_only", icon: "💪", label: "受注のみ", desc: "仕事を受ける" },
+                  { v: "client_only", icon: "💼", label: "発注のみ", desc: "仕事を頼む" },
+                ].map((r) => (
+                  <label key={r.v} className="cursor-pointer">
+                    <input
+                      type="radio"
+                      name="role"
+                      value={r.v}
+                      defaultChecked={r.v === defaultRole}
+                      className="peer sr-only"
+                    />
+                    <div className="card-flat border-2 border-moai-border rounded-xl peer-checked:border-moai-primary peer-checked:bg-moai-primary/5 text-center p-4 transition-all hover:border-slate-300">
+                      <div className="text-2xl" aria-hidden="true">{r.icon}</div>
+                      <div className="mt-1.5 text-xs font-semibold">{r.label}</div>
+                      <div className="text-[10px] text-moai-muted mt-0.5">{r.desc}</div>
+                    </div>
+                  </label>
+                ))}
+              </div>
             </div>
-          </div>
-          <div>
-            <label className="label">スキル (カンマ区切り)</label>
-            <input name="skills" defaultValue={profile?.skills?.join(", ") ?? ""} className="input" placeholder="React, Figma, SEO, ライティング" />
-          </div>
-          <div>
-            <label className="label">自己紹介 (任意)</label>
-            <textarea name="bio" rows={5} defaultValue={profile?.bio ?? ""} className="input" placeholder="あなたの強み・経験・好きなことを書いてみましょう" />
-          </div>
-          <div className="flex gap-2">
-            <Link href="/onboarding?step=1" className="btn-outline btn-lg">戻る</Link>
-            <button className="btn-accent btn-lg flex-1">
-              次へ
-              <svg className="h-4 w-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5-5 5" /></svg>
+            <details className="group rounded-lg border border-moai-border p-3">
+              <summary className="cursor-pointer text-sm font-medium text-moai-muted hover:text-moai-ink">
+                ＋ スキル・自己紹介を入力する <span className="text-[10px]">(任意)</span>
+              </summary>
+              <div className="mt-3 space-y-3">
+                <div>
+                  <label className="label">スキル (カンマ区切り)</label>
+                  <input
+                    name="skills"
+                    defaultValue={profile?.skills?.join(", ") ?? ""}
+                    className="input"
+                    placeholder="React, Figma, SEO, ライティング"
+                  />
+                </div>
+                <div>
+                  <label className="label">自己紹介</label>
+                  <textarea
+                    name="bio"
+                    rows={4}
+                    defaultValue={profile?.bio ?? ""}
+                    className="input"
+                    placeholder="あなたの強み・経験・好きなことを書いてみましょう"
+                  />
+                </div>
+              </div>
+            </details>
+            <div className="flex gap-2">
+              <Link href="/onboarding?step=1" className="btn-outline btn-lg">戻る</Link>
+              <button className="btn-accent btn-lg flex-1">
+                次へ
+                <svg className="h-4 w-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5-5 5" />
+                </svg>
+              </button>
+            </div>
+          </StepForm>
+
+          <form action={skipStep2}>
+            <input type="hidden" name="intent" value={intent ?? ""} />
+            <button className="text-xs text-moai-muted hover:text-moai-ink underline w-full text-center">
+              スキップして完了 →
             </button>
-          </div>
-        </StepForm>
+          </form>
+        </div>
       )}
 
       {currentStep === 3 && (
         <div className="card animate-scale-in space-y-6 text-center">
-          <div className="text-6xl animate-bounce-subtle">🎉</div>
+          <div className="text-6xl animate-bounce-subtle" aria-hidden="true">🎉</div>
           <div>
             <h1 className="text-2xl font-bold">準備完了です！</h1>
             <p className="mt-2 text-sm text-moai-muted">
@@ -129,13 +166,26 @@ export default async function OnboardingPage({
             </p>
           </div>
           <div className="grid grid-cols-3 gap-3 text-left">
-            {[
-              { href: "/jobs", icon: "🔍", label: "案件を探す" },
-              { href: "/jobs/new", icon: "📝", label: "案件を依頼" },
-              { href: "/profile/edit", icon: "✨", label: "プロフィール充実" },
-            ].map((a) => (
+            {(intent === "client"
+              ? [
+                  { href: "/jobs/new", icon: "📝", label: "案件を依頼" },
+                  { href: "/workers", icon: "👥", label: "受注者を探す" },
+                  { href: "/profile/edit", icon: "✨", label: "プロフィール充実" },
+                ]
+              : intent === "worker"
+              ? [
+                  { href: "/jobs", icon: "🔍", label: "案件を探す" },
+                  { href: "/profile/edit", icon: "✨", label: "プロフィール充実" },
+                  { href: "/community", icon: "🌱", label: "コミュニティ" },
+                ]
+              : [
+                  { href: "/jobs", icon: "🔍", label: "案件を探す" },
+                  { href: "/jobs/new", icon: "📝", label: "案件を依頼" },
+                  { href: "/profile/edit", icon: "✨", label: "プロフィール充実" },
+                ]
+            ).map((a) => (
               <Link key={a.href} href={a.href} className="card-interactive text-center py-5 hover:border-moai-primary/30">
-                <div className="text-3xl">{a.icon}</div>
+                <div className="text-3xl" aria-hidden="true">{a.icon}</div>
                 <div className="mt-2 text-xs font-semibold">{a.label}</div>
               </Link>
             ))}

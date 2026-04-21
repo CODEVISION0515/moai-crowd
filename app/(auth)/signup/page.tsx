@@ -6,13 +6,35 @@ import { createClient } from "@/lib/supabase/client";
 
 type Referrer = { handle: string; display_name: string };
 
+const INTENT_COPY: Record<string, { tagline: string; bullets: string[] }> = {
+  client: {
+    tagline: "🚀 仕事を頼みたい方向け",
+    bullets: [
+      "ローンチ6ヶ月 手数料0%",
+      "AI・Web・デザイン・動画など幅広く対応",
+      "MOAI卒業生が品質担保",
+    ],
+  },
+  worker: {
+    tagline: "🎯 仕事を受けたい方向け",
+    bullets: [
+      "業界最安級 5〜15% 手数料",
+      "卒業生は生涯 5% 固定",
+      "初受注はメンター監修で安心",
+    ],
+  },
+};
+
 export default function SignUpPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const refCode = searchParams.get("ref") ?? "";
+  const intent = searchParams.get("intent") ?? "";
+  const intentCopy = INTENT_COPY[intent];
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [referrer, setReferrer] = useState<Referrer | null>(null);
@@ -31,6 +53,10 @@ export default function SignUpPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!agreedToTerms) {
+      setErr("利用規約とプライバシーポリシーに同意してください");
+      return;
+    }
     setLoading(true); setErr(null);
     const { error } = await createClient().auth.signUp({
       email, password,
@@ -38,12 +64,14 @@ export default function SignUpPage() {
         data: {
           display_name: displayName,
           ...(refCode ? { referral_code: refCode } : {}),
+          ...(intent ? { signup_intent: intent } : {}),
         },
       },
     });
     setLoading(false);
     if (error) return setErr(error.message);
-    router.push("/onboarding");
+    const next = intent ? `/onboarding?intent=${intent}` : "/onboarding";
+    router.push(next);
     router.refresh();
   }
 
@@ -59,6 +87,21 @@ export default function SignUpPage() {
           <h1 className="text-2xl font-bold">新規登録</h1>
           <p className="text-sm text-moai-muted mt-1">30秒で完了。完全無料。</p>
         </div>
+
+        {/* Intent banner */}
+        {intentCopy && (
+          <div className="card mb-4 border-moai-primary/30 bg-moai-primary/[0.03]">
+            <div className="text-sm font-semibold text-moai-primary mb-1.5">{intentCopy.tagline}</div>
+            <ul className="text-xs text-moai-muted space-y-0.5">
+              {intentCopy.bullets.map((b) => (
+                <li key={b} className="flex items-start gap-1.5">
+                  <span className="text-moai-primary mt-0.5" aria-hidden="true">✓</span>
+                  <span>{b}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Referrer banner */}
         {referrer && (
@@ -121,16 +164,32 @@ export default function SignUpPage() {
             )}
           </div>
 
+          <label className="flex items-start gap-2 text-xs text-moai-muted cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={agreedToTerms}
+              onChange={(e) => setAgreedToTerms(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-moai-primary focus:ring-moai-primary"
+              aria-describedby="terms-desc"
+            />
+            <span id="terms-desc">
+              <Link href="/legal/terms" target="_blank" className="text-moai-primary hover:underline">利用規約</Link>
+              {" と "}
+              <Link href="/legal/privacy" target="_blank" className="text-moai-primary hover:underline">プライバシーポリシー</Link>
+              {" に同意します"}
+            </span>
+          </label>
+
           {err && (
-            <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
-              <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2" role="alert">
+              <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               {err}
             </div>
           )}
 
-          <button type="submit" disabled={loading} className="btn-accent w-full btn-lg">
+          <button type="submit" disabled={loading || !agreedToTerms} className="btn-accent w-full btn-lg">
             {loading ? (
               <span className="flex items-center gap-2">
                 <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
