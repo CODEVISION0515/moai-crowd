@@ -1,9 +1,10 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { statefulFormAction, type ActionResult } from "@/lib/actions";
 import { onboardingStep1Schema, onboardingStep2Schema } from "@/lib/validations";
+import { sendMail, welcomeTemplate } from "@/lib/mail";
 
 export type { ActionResult };
 
@@ -18,10 +19,15 @@ export const saveStep1 = statefulFormAction(onboardingStep1Schema, async ({ sb, 
     .maybeSingle();
   if (existing) return { error: "このハンドルは既に使われています" };
 
+  // signup_intent を user_metadata から拾って profile に保存
+  const userMetaIntent = (user.user_metadata as any)?.signup_intent as string | undefined;
+  const validIntent = userMetaIntent === "client" || userMetaIntent === "worker" ? userMetaIntent : null;
+
   const { error } = await sb.from("profiles").update({
     display_name: d.display_name,
     handle,
     tagline: d.tagline,
+    ...(validIntent ? { signup_intent: validIntent } : {}),
   }).eq("id", user.id);
   if (error) return { error: error.message };
 
@@ -58,5 +64,34 @@ export async function skipStep2(formData: FormData) {
 }
 
 export async function finishOnboarding() {
+  const sb = await createClient();
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) redirect("/login");
+
+  // Welcome メール送信 (未送信の場合のみ)
+  const { data: profile } = await sb
+    .from("profiles")
+    .select("display_name, signup_intent, welcome_email_sent_at")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profile && !profile.welcome_email_sent_at && user.email) {
+    try {
+      const intent = (profile.signup_intent === "client" || profile.signup_intent === "worker")
+        ? profile.signup_intent
+        : null;
+      const html = welcomeTemplate(profile.display_name ?? "", intent);
+      await sendMail(user.email, "[MOAI Crowd] ようこそ！はじめての方向けガイド", html);
+      // admin クライアントで RLS をバイパスして記録（通常のsbでも可だが確実性のため）
+      const admin = createAdminClient();
+      await admin
+        .from("profiles")
+        .update({ welcome_email_sent_at: new Date().toISOString() })
+        .eq("id", user.id);
+    } catch (e) {
+      console.warn("[welcome-mail] failed:", e);
+    }
+  }
+
   redirect("/dashboard");
 }

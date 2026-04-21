@@ -6,9 +6,30 @@ import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import PWARegister from "@/components/PWARegister";
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://moai-crowd.vercel.app";
+
 export const metadata: Metadata = {
-  title: "MOAI Crowd | 業界最安手数料のAI特化クラウドソーシング",
-  description: "AI特化のクラウドソーシング。発注者手数料4%（ローンチ6ヶ月は0%）、MOAI卒業生が受注で品質担保。沖縄発・全国展開中。",
+  metadataBase: new URL(APP_URL),
+  title: {
+    default: "MOAI Crowd | 業界最安手数料のAI特化クラウドソーシング",
+    template: "%s | MOAI Crowd",
+  },
+  description: "AI特化のクラウドソーシング。発注者手数料4%(ローンチ6ヶ月は0%)、MOAI卒業生が受注で品質担保。沖縄発・全国展開中。",
+  keywords: ["クラウドソーシング", "AI", "副業", "フリーランス", "沖縄", "業務委託", "MOAI", "受注", "発注"],
+  authors: [{ name: "株式会社CODEVISION" }],
+  openGraph: {
+    type: "website",
+    locale: "ja_JP",
+    url: APP_URL,
+    siteName: "MOAI Crowd",
+    title: "MOAI Crowd | 業界最安手数料のAI特化クラウドソーシング",
+    description: "発注者手数料0〜4% / 受注者5〜15% / MOAI卒業生は生涯5%。沖縄発のAI特化マッチング。",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MOAI Crowd | 業界最安手数料のAI特化クラウドソーシング",
+    description: "発注者手数料0〜4% / 受注者5〜15% / MOAI卒業生は生涯5%。",
+  },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -54,7 +75,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <span className="text-[10px] text-moai-muted ml-2">業界最安手数料のAI特化クラウドソーシング</span>
               </div>
               <div className="text-xs text-moai-muted">
-                運営: CODEVISION株式会社 · © {new Date().getFullYear()} MOAI Crowd
+                運営: 株式会社CODEVISION · © {new Date().getFullYear()} MOAI Crowd
               </div>
             </div>
           </div>
