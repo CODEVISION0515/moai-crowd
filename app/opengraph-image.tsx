@@ -64,7 +64,7 @@ export default async function OGImage() {
           }}
         >
           <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#fbbf24" }} />
-          業界最安手数料 · AI特化クラウドソーシング
+          <span>業界最安手数料 · AI特化クラウドソーシング</span>
         </div>
 
         {/* ロゴ */}
@@ -83,6 +83,8 @@ export default async function OGImage() {
         {/* キャッチ */}
         <div
           style={{
+            display: "flex",
+            flexDirection: "column",
             fontSize: "60px",
             fontWeight: 800,
             lineHeight: 1.15,
@@ -90,7 +92,8 @@ export default async function OGImage() {
             maxWidth: "900px",
           }}
         >
-          一歩踏み出す、<br />AIの仕事を、沖縄から。
+          <span>一歩踏み出す、</span>
+          <span>AIの仕事を、沖縄から。</span>
         </div>
 
         {/* 下部ベネフィット */}
@@ -103,9 +106,18 @@ export default async function OGImage() {
             opacity: 0.92,
           }}
         >
-          <span>💰 発注者 <strong>0〜4%</strong></span>
-          <span>🎯 受注者 <strong>5〜15%</strong></span>
-          <span>🎓 卒業生 <strong>5%生涯</strong></span>
+          <span style={{ display: "flex", gap: "8px" }}>
+            <span>💰 発注者</span>
+            <strong>0〜4%</strong>
+          </span>
+          <span style={{ display: "flex", gap: "8px" }}>
+            <span>🎯 受注者</span>
+            <strong>5〜15%</strong>
+          </span>
+          <span style={{ display: "flex", gap: "8px" }}>
+            <span>🎓 卒業生</span>
+            <strong>5%生涯</strong>
+          </span>
         </div>
 
         {/* 右下クレジット */}

@@ -11,24 +11,24 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://moai-crowd.vercel.ap
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: {
-    default: "MOAI Crowd | 業界最安手数料のAI特化クラウドソーシング",
+    default: "MOAI Crowd｜業界最安手数料のAI特化クラウドソーシング｜沖縄発",
     template: "%s | MOAI Crowd",
   },
-  description: "AI特化のクラウドソーシング。発注者手数料4%(ローンチ6ヶ月は0%)、MOAI卒業生が受注で品質担保。沖縄発・全国展開中。",
-  keywords: ["クラウドソーシング", "AI", "副業", "フリーランス", "沖縄", "業務委託", "MOAI", "受注", "発注"],
+  description: "AI特化のクラウドソーシング。発注者手数料はローンチ6ヶ月0%（以降4%）、受注者5〜15%で業界最安級。MOAIスクール卒業生は生涯5%固定。エスクロー決済で安心、AI機能で作業時短。沖縄発・全国展開中。",
+  keywords: ["クラウドソーシング", "AI", "副業", "フリーランス", "沖縄", "業務委託", "MOAI", "受注", "発注", "エスクロー", "AI副業"],
   authors: [{ name: "株式会社CODEVISION" }],
   openGraph: {
     type: "website",
     locale: "ja_JP",
     url: APP_URL,
     siteName: "MOAI Crowd",
-    title: "MOAI Crowd | 業界最安手数料のAI特化クラウドソーシング",
-    description: "発注者手数料0〜4% / 受注者5〜15% / MOAI卒業生は生涯5%。沖縄発のAI特化マッチング。",
+    title: "MOAI Crowd｜業界最安手数料のAI特化クラウドソーシング｜沖縄発",
+    description: "AI特化のクラウドソーシング。発注者手数料はローンチ6ヶ月0%（以降4%）、受注者5〜15%で業界最安級。MOAIスクール卒業生は生涯5%固定。エスクロー決済で安心、AI機能で作業時短。",
   },
   twitter: {
     card: "summary_large_image",
-    title: "MOAI Crowd | 業界最安手数料のAI特化クラウドソーシング",
-    description: "発注者手数料0〜4% / 受注者5〜15% / MOAI卒業生は生涯5%。",
+    title: "MOAI Crowd｜業界最安手数料のAI特化クラウドソーシング｜沖縄発",
+    description: "AI特化クラウドソーシング。発注者0〜4%/受注者5〜15%/卒業生5%生涯。エスクロー決済・AI機能搭載・沖縄発で全国展開中。",
   },
   manifest: "/manifest.json",
   appleWebApp: {
