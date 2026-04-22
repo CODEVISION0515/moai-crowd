@@ -51,11 +51,13 @@ export default function Header({ userId }: { userId: string | null }) {
       >
         <div className="container-app flex items-center justify-between h-[var(--header-h)]">
           {/* Logo */}
-          <Link href="/" aria-label="MOAI Crowd ホーム" className="flex items-baseline gap-1.5 group">
+          <Link href="/" aria-label="MOAI ホーム" className="flex items-baseline gap-1.5 group">
             <span className="text-lg font-bold text-moai-primary transition-colors group-hover:text-moai-primary-800">
               MOAI
             </span>
-            <span className="text-xs font-medium text-moai-muted tracking-wide">Crowd</span>
+            <span className="text-[10px] font-medium text-moai-muted tracking-wide uppercase">
+              学び · 繋がり · 仕事
+            </span>
           </Link>
 
           {/* Desktop nav */}

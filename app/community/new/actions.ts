@@ -12,6 +12,7 @@ export const createPost = statefulFormAction(createPostSchema, async ({ sb, user
     title: d.title,
     body: d.body,
     tags: d.tags,
+    visibility: d.visibility,
   }).select("id").single();
   if (error) return { error: "投稿に失敗しました" };
 

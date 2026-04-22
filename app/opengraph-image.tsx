@@ -64,7 +64,7 @@ export default async function OGImage() {
           }}
         >
           <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#fbbf24" }} />
-          <span>業界最安手数料 · AI特化クラウドソーシング</span>
+          <span>学び · 繋がり · 仕事がひとつに</span>
         </div>
 
         {/* ロゴ */}
@@ -76,8 +76,7 @@ export default async function OGImage() {
             marginBottom: "28px",
           }}
         >
-          <span style={{ fontSize: "72px", fontWeight: 900, letterSpacing: "-0.02em" }}>MOAI</span>
-          <span style={{ fontSize: "36px", fontWeight: 500, opacity: 0.85 }}>Crowd</span>
+          <span style={{ fontSize: "96px", fontWeight: 900, letterSpacing: "-0.02em" }}>MOAI</span>
         </div>
 
         {/* キャッチ */}
@@ -85,15 +84,15 @@ export default async function OGImage() {
           style={{
             display: "flex",
             flexDirection: "column",
-            fontSize: "60px",
+            fontSize: "56px",
             fontWeight: 800,
             lineHeight: 1.15,
             letterSpacing: "-0.02em",
             maxWidth: "900px",
           }}
         >
-          <span>一歩踏み出す、</span>
-          <span>AIの仕事を、沖縄から。</span>
+          <span>AIを学び、実践し、</span>
+          <span>仕事にする場所。</span>
         </div>
 
         {/* 下部ベネフィット */}

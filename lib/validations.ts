@@ -218,6 +218,7 @@ export const createPostSchema = z.object({
   title: z.string().min(1, "タイトルは必須です").max(200),
   body: z.string().min(1, "本文は必須です"),
   tags: csvToArray,
+  visibility: z.enum(["public", "members", "school"]).default("public"),
 });
 
 // ── Refund Schema ────────────────────────────────
