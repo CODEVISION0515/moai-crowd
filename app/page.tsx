@@ -33,8 +33,51 @@ export default async function HomePage() {
   const totalJobs = jobCount ?? 0;
   const totalUsers = userCount ?? 0;
 
+  // JSON-LD 構造化データ (Google検索でリッチリザルトに)
+  const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://moai-crowd.vercel.app";
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        name: "株式会社CODEVISION",
+        url: APP_URL,
+        logo: `${APP_URL}/icon-192.png`,
+        sameAs: ["https://github.com/CODEVISION0515"],
+      },
+      {
+        "@type": "WebSite",
+        name: "MOAI Crowd",
+        url: APP_URL,
+        description: "業界最安手数料のAI特化クラウドソーシング。沖縄発・全国展開中。",
+        inLanguage: "ja-JP",
+        potentialAction: {
+          "@type": "SearchAction",
+          target: { "@type": "EntryPoint", urlTemplate: `${APP_URL}/jobs?q={search_term_string}` },
+          "query-input": "required name=search_term_string",
+        },
+      },
+      {
+        "@type": "Service",
+        serviceType: "クラウドソーシング",
+        provider: { "@type": "Organization", name: "株式会社CODEVISION" },
+        areaServed: "JP",
+        offers: [
+          { "@type": "Offer", description: "発注者手数料 (ローンチ6ヶ月)", price: "0", priceCurrency: "JPY" },
+          { "@type": "Offer", description: "発注者手数料 (2026年11月以降)", price: "4", priceCurrency: "JPY" },
+          { "@type": "Offer", description: "受注者手数料 (一般)", price: "15", priceCurrency: "JPY" },
+          { "@type": "Offer", description: "受注者手数料 (MOAI卒業生・生涯)", price: "5", priceCurrency: "JPY" },
+        ],
+      },
+    ],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* ── Hero ── */}
       <section className="relative overflow-hidden">
         {/* Background decoration */}
@@ -290,11 +333,39 @@ export default async function HomePage() {
         <div className="grid md:grid-cols-3 gap-4">
           {REASONS.map((r, i) => (
             <div key={i} className="card group hover:border-moai-primary/30 transition-all duration-200">
-              <div className="text-2xl mb-3">{r.icon}</div>
+              <div className="text-2xl mb-3" aria-hidden="true">{r.icon}</div>
               <h3 className="font-semibold text-sm">{r.title}</h3>
               <p className="mt-2 text-sm text-moai-muted leading-relaxed">{r.text}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section className="border-y border-moai-border bg-moai-cloud/30">
+        <div className="container-app max-w-3xl py-16 md:py-20">
+          <h2 className="text-center text-display-sm mb-4">よくある質問</h2>
+          <p className="text-center text-sm text-moai-muted mb-4">登録前に気になるポイントをまとめました</p>
+          <div className="text-center mb-10">
+            <Link href="/how-it-works" className="text-sm font-medium text-moai-primary hover:underline">
+              → 決済の仕組みをもっと詳しく見る
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {FAQS.map((f, i) => (
+              <details key={i} className="card group hover:shadow-md transition-shadow">
+                <summary className="cursor-pointer font-semibold text-sm flex items-center justify-between gap-4">
+                  <span>Q. {f.q}</span>
+                  <svg className="h-4 w-4 shrink-0 text-moai-muted transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </summary>
+                <div className="mt-3 pt-3 border-t border-moai-border/50 text-sm text-moai-muted leading-relaxed whitespace-pre-line">
+                  {f.a}
+                </div>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -305,13 +376,18 @@ export default async function HomePage() {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_60%)]" />
             <div className="container-app relative py-16 md:py-20 text-center">
               <h2 className="text-2xl md:text-3xl font-bold text-white">始めてみませんか？</h2>
-              <p className="mt-3 text-moai-primary-200 text-base">登録は30秒。手数料は業界の半額以下。</p>
-              <Link href="/signup" className="mt-8 inline-flex btn btn-lg bg-white text-moai-primary-900 hover:bg-moai-primary-50 font-semibold shadow-lg">
-                無料で始める
-                <svg className="h-4 w-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Link>
+              <p className="mt-3 text-moai-primary-200 text-base">
+                登録は30秒・クレジットカード不要。<br className="sm:hidden" />
+                1,000クレジット進呈 · 業界最安手数料で始めよう。
+              </p>
+              <div className="mt-8 flex gap-3 justify-center flex-wrap">
+                <Link href="/signup?intent=client" className="btn btn-lg bg-white text-moai-primary-900 hover:bg-moai-primary-50 font-semibold shadow-lg">
+                  💼 発注者として登録
+                </Link>
+                <Link href="/signup?intent=worker" className="btn btn-lg bg-moai-primary-800 text-white hover:bg-moai-primary-900 border border-white/20 font-semibold shadow-lg">
+                  🎯 受注者として登録
+                </Link>
+              </div>
             </div>
           </div>
         </section>
@@ -338,9 +414,44 @@ const STEPS = [
 ];
 
 const REASONS = [
-  { icon: "💰", title: "手数料10% — 業界最安", text: "大手は20%以上。MOAIは受注者の手取りを最優先に設計されています。" },
-  { icon: "🤖", title: "AI搭載で効率UP", text: "案件の下書き、価格相場、提案文作成、プロフィール添削をAIがアシスト。" },
-  { icon: "🏝️", title: "コミュニティ運営", text: "沖縄MOAIコミュニティ発。対面イベントやリアルなつながりも大切にしています。" },
+  { icon: "💰", title: "業界最安手数料", text: "発注者はローンチ6ヶ月0% (以降4%)、受注者は5〜15%。MOAIスクール卒業生は生涯5%。大手は最大22%。" },
+  { icon: "🤖", title: "AI搭載で効率UP", text: "案件の下書き、価格相場、提案文作成、プロフィール添削をAIがアシスト。作業時間を大幅短縮。" },
+  { icon: "🏝️", title: "沖縄発・コミュニティ運営", text: "MOAIコミュニティ発のマーケットプレイス。対面イベントやリアルなつながりも大切にしています。" },
+];
+
+const FAQS: { q: string; a: string }[] = [
+  {
+    q: "登録は本当に無料ですか？",
+    a: "はい、完全無料です。クレジットカード登録も不要。取引が成立したときに初めて手数料が発生します。",
+  },
+  {
+    q: "手数料はいくらですか？",
+    a: "【発注者】ローンチ6ヶ月（2026年5〜10月）は0%、それ以降は4%。\n【受注者】一般15% / MOAIスクール卒業生は生涯5% / 在校生は0%。業界大手は20〜22%なので、MOAIは最安級です。",
+  },
+  {
+    q: "発注者はどうやって支払うの？",
+    a: "クレジットカード決済（Stripe）です。案件を依頼する際に契約金額を前払いし、エスクロー（第三者預託）で保管されます。成果物を承認したタイミングで受注者に送金されるので、品質に満足しなかった場合は返金可能です。",
+  },
+  {
+    q: "受注者はどうやってお金を受け取るの？",
+    a: "ご自身の銀行口座に振り込まれます。はじめて受注する際に、プロフィール編集画面からStripeの本人確認・口座登録（3〜5分）を行ってください。成果物が承認されると、MOAIの手数料を差し引いた金額が自動でStripe→あなたの銀行口座に入金されます（通常1〜7日）。",
+  },
+  {
+    q: "成果物が気に入らなかったら？",
+    a: "「修正依頼」で再対応を求められます。どうしても解決しない場合は管理者が間に入り、必要に応じて返金対応も可能です。",
+  },
+  {
+    q: "個人事業主やフリーランスでも使えますか？",
+    a: "はい、個人・法人どちらでも利用可能です。源泉徴収の自動計算や請求書発行機能もあります。",
+  },
+  {
+    q: "AI機能とは具体的にどんな機能？",
+    a: "案件タイトル・本文の自動下書き、応募文の自動生成、相場価格の提案、プロフィール文の添削など。初回登録時に1,000クレジットが進呈されるので、すぐに試せます。",
+  },
+  {
+    q: "沖縄以外でも使えますか？",
+    a: "はい、全国どこからでも利用可能です。2026年11月から福岡、2027年5月から全国展開を計画しています。",
+  },
 ];
 
 /* ── Components ── */
