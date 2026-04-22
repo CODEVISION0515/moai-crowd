@@ -1,19 +1,47 @@
+import { createClient } from "@/lib/supabase/server";
 import { ToastForm } from "@/components/ToastForm";
 import { FieldError } from "@/components/FieldError";
 import { FieldInput, FieldTextarea } from "@/components/Field";
 import { createPost } from "./actions";
 
-export default function NewPostPage() {
+export default async function NewPostPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ cohort?: string; kind?: string; pinned?: string }>;
+}) {
+  const sp = await searchParams;
+  const cohortId = sp.cohort ? Number(sp.cohort) : null;
+  const defaultKind = sp.kind || "discussion";
+  const defaultPinned = sp.pinned === "1";
+
+  // cohort 指定があれば cohort 情報を取得 (存在確認用)
+  let cohortName: string | null = null;
+  if (cohortId) {
+    const sb = await createClient();
+    const { data } = await sb.from("cohorts").select("name").eq("id", cohortId).maybeSingle();
+    cohortName = data?.name ?? null;
+  }
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
-      <h1 className="text-2xl font-bold mb-6">新しい投稿</h1>
+      <h1 className="text-2xl font-bold mb-2">新しい投稿</h1>
+      {cohortName && (
+        <div className="mb-6 flex items-center gap-2 text-sm">
+          <span className="badge-accent text-[11px]">🎓 {cohortName}</span>
+          <span className="text-moai-muted">に投稿します</span>
+        </div>
+      )}
       <ToastForm action={createPost} className="card space-y-4" noValidate>
+        {cohortId && <input type="hidden" name="cohort_id" value={cohortId} />}
+        {defaultPinned && <input type="hidden" name="is_pinned" value="1" />}
+
         <div>
           <label htmlFor="post-kind" className="label">投稿タイプ</label>
-          <select id="post-kind" name="kind" className="input" defaultValue="discussion">
+          <select id="post-kind" name="kind" className="input" defaultValue={defaultKind}>
             <option value="discussion">💬 ディスカッション</option>
             <option value="question">❓ 質問</option>
             <option value="showcase">🎨 作品シェア</option>
+            {cohortId && <option value="announcement">📣 お知らせ (講師用)</option>}
           </select>
         </div>
         <div>
@@ -34,6 +62,22 @@ export default function NewPostPage() {
           <label htmlFor="post-tags" className="label">タグ (カンマ区切り)</label>
           <input id="post-tags" name="tags" className="input" placeholder="AI, 初心者, 雑談" />
         </div>
+
+        {cohortId && (
+          <div>
+            <label htmlFor="post-week" className="label">第何週 (任意)</label>
+            <input
+              id="post-week"
+              name="week_number"
+              type="number"
+              min="1"
+              max="52"
+              className="input"
+              placeholder="例: 1, 2, 3..."
+            />
+            <p className="mt-1 text-[11px] text-moai-muted">授業週ごとに整理するため (宿題・授業資料)</p>
+          </div>
+        )}
 
         {/* 公開レベル */}
         <div className="pt-2 border-t border-moai-border">

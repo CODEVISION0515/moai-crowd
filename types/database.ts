@@ -36,6 +36,21 @@ export type ReportTarget = "user" | "job" | "proposal" | "message" | "deliverabl
 export type ReportStatus = "open" | "reviewing" | "resolved" | "dismissed";
 export type PostKind = "discussion" | "question" | "showcase" | "announcement";
 export type PostVisibility = "public" | "members" | "school";
+
+export interface Cohort {
+  id: number;
+  name: string;
+  subtitle: string | null;
+  starts_at: string;
+  ends_at: string | null;
+  description: string | null;
+  cover_image_url: string | null;
+  lecturer_name: string | null;
+  is_accepting_applications: boolean;
+  application_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
 export type LikeTarget = "post" | "comment";
 export type XpReason =
   | "signup" | "profile_complete" | "first_post" | "post_created" | "comment_created"

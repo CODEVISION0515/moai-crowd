@@ -6,6 +6,7 @@ import {
   GreetingCardSkeleton,
   GettingStarted,
   GettingStartedSkeleton,
+  CohortBanner,
   StatsAndActions,
   StatsAndActionsSkeleton,
   ActiveContractsSection,
@@ -27,6 +28,10 @@ export default async function DashboardPage() {
     <div className="container-app py-6 md:py-10 pb-nav space-y-6">
       <Suspense fallback={<GreetingCardSkeleton />}>
         <GreetingCard userId={user.id} />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <CohortBanner userId={user.id} />
       </Suspense>
 
       <Suspense fallback={<GettingStartedSkeleton />}>

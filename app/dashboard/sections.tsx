@@ -92,6 +92,60 @@ export function GreetingCardSkeleton() {
   );
 }
 
+// ── Cohort banner (student/alumni/lecturer のみ) ──────
+export async function CohortBanner({ userId }: { userId: string }) {
+  const sb = await createClient();
+  const { data: profile } = await sb
+    .from("profiles")
+    .select("cohort, crowd_role")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (!profile?.cohort) return null;
+  if (!profile.crowd_role || !["student", "alumni", "lecturer"].includes(profile.crowd_role)) {
+    return null;
+  }
+
+  const { data: cohort } = await sb
+    .from("cohorts")
+    .select("id, name, subtitle")
+    .eq("id", profile.cohort)
+    .maybeSingle();
+  if (!cohort) return null;
+
+  const isStudent = profile.crowd_role === "student";
+  const label = isStudent
+    ? "あなたの受講中スペース"
+    : profile.crowd_role === "alumni"
+    ? "卒業した期のスペース"
+    : "担当スペース";
+
+  return (
+    <Link
+      href={`/school/cohort/${cohort.id}`}
+      className="card border-2 border-moai-primary/30 bg-gradient-to-br from-moai-primary/5 to-moai-accent/5 hover:shadow-md transition-all block"
+    >
+      <div className="flex items-center gap-4">
+        <div className="shrink-0 h-12 w-12 rounded-xl bg-moai-primary/10 flex items-center justify-center text-2xl" aria-hidden="true">
+          🎓
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-[11px] font-semibold text-moai-primary uppercase tracking-wider">
+            {label}
+          </div>
+          <div className="font-bold text-sm mt-0.5 truncate">{cohort.name}</div>
+          {cohort.subtitle && (
+            <div className="text-xs text-moai-muted truncate">{cohort.subtitle}</div>
+          )}
+        </div>
+        <div className="text-moai-primary text-lg shrink-0" aria-hidden="true">
+          →
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 // ── Getting started checklist ─────────────────────────
 // 新規ユーザー向けに「次にすべきこと」を可視化。完了したら自動で消える。
 
