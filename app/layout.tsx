@@ -67,16 +67,21 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <main className="flex-1">{children}</main>
         <BottomNav userId={user?.id ?? null} />
         <footer className="hidden md:block border-t border-moai-border bg-moai-cloud/50">
-          <div className="container-app py-8">
+          <div className="container-app py-8 space-y-4">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-baseline gap-1.5">
                 <span className="text-sm font-bold text-moai-primary">MOAI</span>
                 <span className="text-xs text-moai-muted">Crowd</span>
                 <span className="text-[10px] text-moai-muted ml-2">業界最安手数料のAI特化クラウドソーシング</span>
               </div>
-              <div className="text-xs text-moai-muted">
-                運営: 株式会社CODEVISION · © {new Date().getFullYear()} MOAI Crowd
-              </div>
+              <nav aria-label="フッターナビゲーション" className="flex items-center gap-4 text-xs text-moai-muted">
+                <a href="/how-it-works" className="hover:text-moai-ink transition-colors">使い方</a>
+                <a href="/legal/terms" className="hover:text-moai-ink transition-colors">利用規約</a>
+                <a href="/legal/privacy" className="hover:text-moai-ink transition-colors">プライバシー</a>
+              </nav>
+            </div>
+            <div className="text-xs text-moai-muted text-center sm:text-right pt-2 border-t border-moai-border/50">
+              運営: 株式会社CODEVISION · © {new Date().getFullYear()} MOAI Crowd
             </div>
           </div>
         </footer>

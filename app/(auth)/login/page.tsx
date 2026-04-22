@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
+import { createClient, setSessionPersistence } from "@/lib/supabase/client";
 import SocialAuthButtons from "@/components/SocialAuthButtons";
 
 export default function LoginPage() {
@@ -12,12 +12,15 @@ export default function LoginPage() {
   const urlError = params.get("error");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
   const [err, setErr] = useState<string | null>(urlError);
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true); setErr(null);
+    // signIn前にセッション保持方式を決める (localStorage or sessionStorage)
+    setSessionPersistence(rememberMe);
     const { error } = await createClient().auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) return setErr(error.message);
@@ -55,7 +58,12 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label className="label">パスワード</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="label !mb-0">パスワード</label>
+              <Link href="/forgot-password" className="text-[11px] text-moai-primary hover:underline">
+                パスワードを忘れた？
+              </Link>
+            </div>
             <input
               type="password"
               required
@@ -67,9 +75,19 @@ export default function LoginPage() {
             />
           </div>
 
+          <label className="flex items-center gap-2 text-sm text-moai-muted cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="h-4 w-4 rounded border-slate-300 text-moai-primary focus:ring-moai-primary"
+            />
+            <span>このブラウザにログイン保持（30日）</span>
+          </label>
+
           {err && (
-            <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
-              <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2" role="alert">
+              <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               {err}
