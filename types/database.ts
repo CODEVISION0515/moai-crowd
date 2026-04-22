@@ -35,6 +35,7 @@ export interface NotificationGlobalPrefs {
 export type ReportTarget = "user" | "job" | "proposal" | "message" | "deliverable";
 export type ReportStatus = "open" | "reviewing" | "resolved" | "dismissed";
 export type PostKind = "discussion" | "question" | "showcase" | "announcement";
+export type PostVisibility = "public" | "members" | "school";
 export type LikeTarget = "post" | "comment";
 export type XpReason =
   | "signup" | "profile_complete" | "first_post" | "post_created" | "comment_created"

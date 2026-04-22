@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Avatar } from "@/components/Avatar";
+import { VisibilityBadge } from "@/components/VisibilityBadge";
 import { formatDateShort } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -188,6 +189,7 @@ export default async function CommunityPage({
                   {/* Badges */}
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <span className={`badge text-[11px] ${meta.color}`}>{meta.icon} {meta.label}</span>
+                    <VisibilityBadge visibility={p.visibility} hidePublic />
                     {p.kind === "question" && p.is_solved && (
                       <span className="badge-success text-[10px]">解決済み</span>
                     )}

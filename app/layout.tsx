@@ -11,30 +11,30 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://moai-crowd.vercel.ap
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: {
-    default: "MOAI Crowd｜業界最安手数料のAI特化クラウドソーシング｜沖縄発",
-    template: "%s | MOAI Crowd",
+    default: "MOAI｜学び・繋がり・仕事がひとつに集まるAIプラットフォーム｜沖縄発",
+    template: "%s | MOAI",
   },
-  description: "AI特化のクラウドソーシング。発注者手数料はローンチ6ヶ月0%（以降4%）、受注者5〜15%で業界最安級。MOAIスクール卒業生は生涯5%固定。エスクロー決済で安心、AI機能で作業時短。沖縄発・全国展開中。",
-  keywords: ["クラウドソーシング", "AI", "副業", "フリーランス", "沖縄", "業務委託", "MOAI", "受注", "発注", "エスクロー", "AI副業"],
+  description: "MOAIは、AIを学び・実践し・仕事にできるオールインワンのプラットフォーム。スクールで学び、コミュニティで繋がり、Crowdで仕事。発注者手数料0〜4%、受注者5〜15%、卒業生5%生涯。エスクロー決済で安心。",
+  keywords: ["MOAI", "AIスクール", "クラウドソーシング", "コミュニティ", "副業", "フリーランス", "沖縄", "業務委託", "受注", "発注", "エスクロー"],
   authors: [{ name: "株式会社CODEVISION" }],
   openGraph: {
     type: "website",
     locale: "ja_JP",
     url: APP_URL,
-    siteName: "MOAI Crowd",
-    title: "MOAI Crowd｜業界最安手数料のAI特化クラウドソーシング｜沖縄発",
-    description: "AI特化のクラウドソーシング。発注者手数料はローンチ6ヶ月0%（以降4%）、受注者5〜15%で業界最安級。MOAIスクール卒業生は生涯5%固定。エスクロー決済で安心、AI機能で作業時短。",
+    siteName: "MOAI",
+    title: "MOAI｜学び・繋がり・仕事がひとつに集まるAIプラットフォーム｜沖縄発",
+    description: "AIを学び・実践し・仕事にできるオールインワン。スクール・コミュニティ・仕事マッチングまで一気通貫。発注者0〜4%・受注者5〜15%の業界最安級手数料。",
   },
   twitter: {
     card: "summary_large_image",
-    title: "MOAI Crowd｜業界最安手数料のAI特化クラウドソーシング｜沖縄発",
-    description: "AI特化クラウドソーシング。発注者0〜4%/受注者5〜15%/卒業生5%生涯。エスクロー決済・AI機能搭載・沖縄発で全国展開中。",
+    title: "MOAI｜学び・繋がり・仕事がひとつに集まるAIプラットフォーム｜沖縄発",
+    description: "AIを学び・実践し・仕事にできるオールインワン。スクール・コミュニティ・仕事マッチングまで。発注者0〜4%・受注者5〜15%。",
   },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "MOAI Crowd",
+    title: "MOAI",
   },
   icons: { icon: "/icon-192.png", apple: "/icon-192.png" },
 };
@@ -69,10 +69,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <footer className="hidden md:block border-t border-moai-border bg-moai-cloud/50">
           <div className="container-app py-8 space-y-4">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-baseline gap-1.5">
+              <div className="flex items-baseline gap-1.5 flex-wrap">
                 <span className="text-sm font-bold text-moai-primary">MOAI</span>
-                <span className="text-xs text-moai-muted">Crowd</span>
-                <span className="text-[10px] text-moai-muted ml-2">業界最安手数料のAI特化クラウドソーシング</span>
+                <span className="text-[10px] text-moai-muted ml-1">学び・繋がり・仕事がひとつに集まるAIプラットフォーム</span>
               </div>
               <nav aria-label="フッターナビゲーション" className="flex items-center gap-4 text-xs text-moai-muted">
                 <a href="/how-it-works" className="hover:text-moai-ink transition-colors">使い方</a>
@@ -81,7 +80,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               </nav>
             </div>
             <div className="text-xs text-moai-muted text-center sm:text-right pt-2 border-t border-moai-border/50">
-              運営: 株式会社CODEVISION · © {new Date().getFullYear()} MOAI Crowd
+              運営: 株式会社CODEVISION · © {new Date().getFullYear()} MOAI
             </div>
           </div>
         </footer>
