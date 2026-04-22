@@ -8,6 +8,9 @@ export const dynamic = "force-dynamic";
 
 const STEP_LABELS = ["基本情報", "プロフィール", "完了"];
 
+// 自動生成ハンドル (handle_new_user トリガー) のパターン
+const AUTO_HANDLE = /^user_[a-f0-9]{8}$/;
+
 export default async function OnboardingPage({
   searchParams,
 }: { searchParams: Promise<{ step?: string; intent?: string }> }) {
@@ -17,6 +20,14 @@ export default async function OnboardingPage({
   const { data: { user } } = await sb.auth.getUser();
   if (!user) redirect("/login");
   const { data: profile } = await sb.from("profiles").select("*").eq("id", user.id).single();
+
+  // 既にオンボーディング完了済み (handle がカスタマイズされている) → dashboard へ
+  // ただし明示的に ?step=X で来た場合は再編集を許可
+  const isAutoHandle = profile?.handle && AUTO_HANDLE.test(profile.handle);
+  if (!step && profile?.handle && !isAutoHandle) {
+    redirect("/dashboard");
+  }
+
   const defaultRole = intent === "client" ? "client_only" : intent === "worker" ? "worker_only" : "both";
 
   return (
