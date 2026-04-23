@@ -99,14 +99,16 @@ export default function Header({
             </span>
           </Link>
 
-          {/* Desktop nav */}
-          <nav aria-label="グローバルナビゲーション" className="hidden md:flex items-center gap-0.5">
-            {PUBLIC_LINKS.map((l) => (
-              <NavLink key={l.href} href={l.href} active={pathname.startsWith(l.href)}>
-                {l.label}
-              </NavLink>
-            ))}
-          </nav>
+          {/* Desktop nav: 非ログイン時のみ表示 (ログイン時はUserMenuに統合) */}
+          {!userId && (
+            <nav aria-label="グローバルナビゲーション" className="hidden md:flex items-center gap-0.5">
+              {PUBLIC_LINKS.map((l) => (
+                <NavLink key={l.href} href={l.href} active={pathname.startsWith(l.href)}>
+                  {l.label}
+                </NavLink>
+              ))}
+            </nav>
+          )}
 
           {/* Actions */}
           <div className="flex items-center gap-2">
