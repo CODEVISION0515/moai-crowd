@@ -156,6 +156,13 @@ export const createJobSchema = z.object({
   budget_max: optionalPositiveInt,
   budget_type: z.enum(["fixed", "hourly"]).default("fixed"),
   deadline: optionalString,
+  alumni_only: z
+    .union([z.literal("on"), z.string(), z.undefined()])
+    .transform((v) => v === "on"),
+  mentor_required: z
+    .union([z.literal("on"), z.string(), z.undefined()])
+    .transform((v) => v === "on"),
+  assignee_handle: optionalString,
 });
 
 export const createProposalSchema = z.object({
