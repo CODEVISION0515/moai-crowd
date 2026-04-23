@@ -124,19 +124,20 @@ export default async function HomePage() {
         <div className="absolute inset-0 bg-gradient-hero-light pointer-events-none" />
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-moai-primary/[0.03] rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
 
-        <div className="container-app relative py-16 md:py-28">
+        <div className="container-app relative py-20 md:py-32">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 badge-accent px-3 py-1 rounded-full mb-6">
+            <div className="inline-flex items-center gap-2 badge-accent px-3 py-1 rounded-full mb-8">
               <span className="h-1.5 w-1.5 rounded-full bg-moai-primary animate-pulse-dot" />
-              <span className="text-xs font-semibold">業界最安手数料 · AI特化クラウドソーシング</span>
+              <span className="text-xs font-semibold">沖縄発のAIプラットフォーム</span>
             </div>
 
             <h1 className="text-display-md md:text-display-lg">
-              一歩踏み出す、<br />AIの仕事を、沖縄から。
+              ゆんたくしながら、<br />AIと仲良くなる。
             </h1>
-            <p className="mt-5 text-lg text-moai-muted leading-relaxed max-w-lg">
-              発注者手数料<strong className="text-moai-ink">4%</strong>（ローンチ6ヶ月は<strong className="text-moai-primary">0%</strong>）、受注者<strong className="text-moai-ink">5〜15%</strong>。<br className="hidden sm:block" />
-              MOAIスクール卒業生が受注で品質担保。安心のエスクロー決済。
+            <p className="mt-6 text-lg md:text-xl text-moai-muted leading-relaxed max-w-lg">
+              仲間がいる。学びがある。仕事が生まれる。<br className="hidden sm:block" />
+              沖縄の「<strong className="text-moai-ink">模合（もあい）</strong>」から生まれた、<br className="hidden sm:block" />
+              AIを学び・実践し・仕事にするプラットフォーム。
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -194,10 +195,10 @@ export default async function HomePage() {
                 ローンチ期間中 手数料0%
               </div>
               <div className="text-3xl mb-3" aria-hidden="true">💼</div>
-              <h3 className="text-lg font-bold mb-1">仕事を頼みたい方</h3>
+              <h3 className="text-lg font-bold mb-1">お願いしたい方</h3>
               <p className="text-sm text-moai-muted leading-relaxed">
-                AI・Web・デザイン・動画など、<br />MOAI卒業生が高品質で対応。<br />
-                <strong className="text-moai-ink">発注者手数料 ローンチ6ヶ月 0%</strong>
+                「こんなの作れたら…」を、MOAIで学んだ仲間が形にします。<br />
+                <strong className="text-moai-ink">ローンチ6ヶ月 手数料0%</strong>
               </p>
               <div className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-moai-primary group-hover:gap-2 transition-all">
                 発注者として登録
@@ -215,10 +216,10 @@ export default async function HomePage() {
                 卒業生は手数料5%生涯
               </div>
               <div className="text-3xl mb-3" aria-hidden="true">🎯</div>
-              <h3 className="text-lg font-bold mb-1">仕事を受けたい方</h3>
+              <h3 className="text-lg font-bold mb-1">受けたい方</h3>
               <p className="text-sm text-moai-muted leading-relaxed">
-                業界最安級手数料で、<br />あなたの手取りを最大化。<br />
-                <strong className="text-moai-ink">手数料 5〜15%（業界は5〜22%）</strong>
+                学びながら、実践しながら、手取りを増やす。<br />
+                <strong className="text-moai-ink">卒業生は5%生涯（業界は20%超）</strong>
               </p>
               <div className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-moai-primary group-hover:gap-2 transition-all">
                 受注者として登録
@@ -512,7 +513,11 @@ export default async function HomePage() {
 
       {/* ── Why MOAI ── */}
       <section className="container-app py-16 md:py-20">
-        <h2 className="text-center text-display-sm mb-12">なぜ MOAI Crowd？</h2>
+        <h2 className="text-center text-display-sm mb-4">MOAIらしさ、3つ</h2>
+        <p className="text-center text-moai-muted mb-12 max-w-xl mx-auto">
+          先生はいない、仲間がいる。<br className="hidden sm:block" />
+          小さな学びも、小さな仕事も、MOAIでなら動き出す。
+        </p>
         <div className="grid md:grid-cols-3 gap-4">
           {REASONS.map((r, i) => (
             <div key={i} className="card group hover:border-moai-primary/30 transition-all duration-200">
@@ -591,15 +596,27 @@ const CATEGORIES = [
 ];
 
 const STEPS = [
-  { title: "無料で登録", text: "メールアドレスだけで即スタート。プロフィールはAIが添削してくれます。", icon: "✨" },
-  { title: "マッチング", text: "案件を投稿 or 応募。AIがあなたにピッタリの相手を見つけます。", icon: "🤝" },
-  { title: "安心取引", text: "エスクローで安全に取引。完了後にお互いをレビュー。", icon: "🛡️" },
+  { title: "まず覗いてみる", text: "登録なしで受講生の学び・作品・議論が見られます。楽しそうと思ったら、次へ。", icon: "👀" },
+  { title: "無料で仲間入り", text: "メールアドレスだけで30秒。プロフィールづくりはAIがお手伝いします。", icon: "✨" },
+  { title: "ゆんたく、学ぶ、動く", text: "コミュニティで話す、スクールで学ぶ、Crowdで仕事。あなたのペースで。", icon: "🌊" },
 ];
 
 const REASONS = [
-  { icon: "💰", title: "業界最安手数料", text: "発注者はローンチ6ヶ月0% (以降4%)、受注者は5〜15%。MOAIスクール卒業生は生涯5%。大手は最大22%。" },
-  { icon: "🤖", title: "AI搭載で効率UP", text: "案件の下書き、価格相場、提案文作成、プロフィール添削をAIがアシスト。作業時間を大幅短縮。" },
-  { icon: "🏝️", title: "沖縄発・コミュニティ運営", text: "MOAIコミュニティ発のマーケットプレイス。対面イベントやリアルなつながりも大切にしています。" },
+  {
+    icon: "🌊",
+    title: "仲間がいる",
+    text: "一人で悩まず、ゆんたくしながら学ぶ。先生はいない。同じ方向を向いた仲間と進む。沖縄の「模合（もあい）」の文化そのまま、学びも仕事も共有できます。",
+  },
+  {
+    icon: "🛠",
+    title: "学びがある",
+    text: "在校生の学び・作品・質問をオープンに見せる「見せる学び」設計。AI特化のカリキュラムで、明日から使える技術を手に入れる。",
+  },
+  {
+    icon: "🤝",
+    title: "仕事が生まれる",
+    text: "受講中から小さな実践案件に挑戦。卒業後は手数料5%生涯で継続受注。発注者はMOAI卒業生の品質を信頼して依頼できる。",
+  },
 ];
 
 const FAQS: { q: string; a: string }[] = [

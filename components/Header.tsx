@@ -55,8 +55,8 @@ export default function Header({ userId }: { userId: string | null }) {
             <span className="text-lg font-bold text-moai-primary transition-colors group-hover:text-moai-primary-800">
               MOAI
             </span>
-            <span className="text-[10px] font-medium text-moai-muted tracking-wide uppercase">
-              学び · 繋がり · 仕事
+            <span className="text-[10px] font-medium text-moai-muted tracking-wide hidden sm:inline">
+              ゆんたく・まなぶ・つくる
             </span>
           </Link>
 

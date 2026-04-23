@@ -11,7 +11,7 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://moai-crowd.vercel.ap
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: {
-    default: "MOAI｜学び・繋がり・仕事がひとつに集まるAIプラットフォーム｜沖縄発",
+    default: "MOAI｜ゆんたく・まなぶ・つくる — 沖縄発のAIプラットフォーム",
     template: "%s | MOAI",
   },
   description: "MOAIは、AIを学び・実践し・仕事にできるオールインワンのプラットフォーム。スクールで学び、コミュニティで繋がり、Crowdで仕事。発注者手数料0〜4%、受注者5〜15%、卒業生5%生涯。エスクロー決済で安心。",
@@ -22,12 +22,12 @@ export const metadata: Metadata = {
     locale: "ja_JP",
     url: APP_URL,
     siteName: "MOAI",
-    title: "MOAI｜学び・繋がり・仕事がひとつに集まるAIプラットフォーム｜沖縄発",
+    title: "MOAI｜ゆんたく・まなぶ・つくる — 沖縄発のAIプラットフォーム",
     description: "AIを学び・実践し・仕事にできるオールインワン。スクール・コミュニティ・仕事マッチングまで一気通貫。発注者0〜4%・受注者5〜15%の業界最安級手数料。",
   },
   twitter: {
     card: "summary_large_image",
-    title: "MOAI｜学び・繋がり・仕事がひとつに集まるAIプラットフォーム｜沖縄発",
+    title: "MOAI｜ゆんたく・まなぶ・つくる — 沖縄発のAIプラットフォーム",
     description: "AIを学び・実践し・仕事にできるオールインワン。スクール・コミュニティ・仕事マッチングまで。発注者0〜4%・受注者5〜15%。",
   },
   manifest: "/manifest.json",
@@ -71,7 +71,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-baseline gap-1.5 flex-wrap">
                 <span className="text-sm font-bold text-moai-primary">MOAI</span>
-                <span className="text-[10px] text-moai-muted ml-1">学び・繋がり・仕事がひとつに集まるAIプラットフォーム</span>
+                <span className="text-[10px] text-moai-muted ml-1">ゆんたく・まなぶ・つくる — 沖縄発のAIプラットフォーム</span>
               </div>
               <nav aria-label="フッターナビゲーション" className="flex items-center gap-4 text-xs text-moai-muted">
                 <a href="/how-it-works" className="hover:text-moai-ink transition-colors">使い方</a>

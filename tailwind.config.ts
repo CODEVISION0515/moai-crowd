@@ -54,14 +54,15 @@ export default {
         "4xl": "2rem",
       },
       boxShadow: {
-        soft: "0 1px 2px 0 rgb(0 0 0 / 0.04)",
-        card: "0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.03)",
-        md: "0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04)",
-        hover: "0 8px 24px -4px rgb(0 0 0 / 0.08), 0 2px 8px -2px rgb(0 0 0 / 0.04)",
-        lg: "0 12px 32px -4px rgb(0 0 0 / 0.10), 0 4px 12px -2px rgb(0 0 0 / 0.05)",
-        xl: "0 20px 48px -8px rgb(0 0 0 / 0.12), 0 8px 16px -4px rgb(0 0 0 / 0.06)",
-        glow: "0 0 20px -4px rgb(15 118 110 / 0.25)",
-        "inner-soft": "inset 0 1px 2px 0 rgb(0 0 0 / 0.04)",
+        // MOAI風: フラット寄り、シャドウは控えめ。本家サイトの空気感に合わせる
+        soft: "0 1px 2px 0 rgb(0 0 0 / 0.02)",
+        card: "0 1px 2px 0 rgb(0 0 0 / 0.03)",
+        md: "0 2px 4px 0 rgb(0 0 0 / 0.04)",
+        hover: "0 4px 12px -2px rgb(0 0 0 / 0.05), 0 2px 4px -1px rgb(0 0 0 / 0.03)",
+        lg: "0 6px 16px -3px rgb(0 0 0 / 0.06), 0 3px 6px -2px rgb(0 0 0 / 0.03)",
+        xl: "0 10px 24px -6px rgb(0 0 0 / 0.08), 0 4px 10px -2px rgb(0 0 0 / 0.04)",
+        glow: "0 0 16px -4px rgb(15 118 110 / 0.18)",
+        "inner-soft": "inset 0 1px 2px 0 rgb(0 0 0 / 0.03)",
       },
       animation: {
         "fade-in": "fadeIn 0.2s ease-out",

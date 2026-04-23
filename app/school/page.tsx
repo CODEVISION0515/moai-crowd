@@ -47,11 +47,11 @@ export default async function SchoolTopPage() {
           <span className="text-xs font-semibold">MOAIスクール</span>
         </div>
         <h1 className="text-display-md md:text-display-lg">
-          AIを学び、実践し、<br />仕事にする場所。
+          先生はいない。<br />仲間がいる。
         </h1>
         <p className="text-lg text-moai-muted max-w-2xl mx-auto leading-relaxed">
-          オフライン授業 × アプリでの実践課題 × 同期とのコミュニティ。<br className="hidden sm:block" />
-          学ぶ→作る→受注する、までを一気通貫で。
+          毎週の対面授業 × 期のコミュニティ × 実践案件で、<br className="hidden sm:block" />
+          AIを学び、作り、仕事にするまでを一緒に歩む。
         </p>
         {activeApplication && (
           <div className="pt-2">
@@ -64,6 +64,24 @@ export default async function SchoolTopPage() {
           </div>
         )}
       </header>
+
+      {/* 模合（もあい）の語源セクション */}
+      <section className="card bg-gradient-to-br from-moai-primary/5 to-transparent border-moai-primary/20">
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="inline-block text-6xl font-display font-black text-moai-primary/30 mb-2 tracking-tighter">
+            模合
+          </div>
+          <h2 className="text-xl font-bold mb-3">沖縄の「模合（もあい）」から生まれた学び場</h2>
+          <p className="text-sm md:text-base text-moai-muted leading-relaxed">
+            「模合」とは、仲間でお金を持ち寄って支え合う沖縄の相互扶助文化。<br className="hidden sm:block" />
+            MOAIはその精神をAI時代に引き継ぎ、<strong className="text-moai-ink">知恵と時間を持ち寄り、みんなで前に進む</strong>コミュニティです。
+          </p>
+          <p className="mt-3 text-sm text-moai-muted leading-relaxed">
+            一人で悩まず、ゆんたくしながら。<br />
+            小さな挑戦を、仲間が見守る。
+          </p>
+        </div>
+      </section>
 
       {/* Quick showcase nav */}
       <nav aria-label="ショーケースナビ" className="grid grid-cols-3 gap-3">
