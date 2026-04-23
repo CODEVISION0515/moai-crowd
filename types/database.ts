@@ -51,6 +51,25 @@ export interface Cohort {
   created_at: string;
   updated_at: string;
 }
+
+export interface Interview {
+  id: string;
+  slug: string;
+  subject_user_id: string | null;
+  cohort_id: number | null;
+  title: string;
+  summary: string | null;
+  body: string;
+  hero_image_url: string | null;
+  before_text: string | null;
+  after_text: string | null;
+  is_published: boolean;
+  published_at: string | null;
+  view_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export type LikeTarget = "post" | "comment";
 export type XpReason =
   | "signup" | "profile_complete" | "first_post" | "post_created" | "comment_created"

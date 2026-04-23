@@ -10,6 +10,7 @@ const LINKS = [
   { href: "/admin/contracts", label: "契約" },
   { href: "/admin/transactions", label: "取引" },
   { href: "/admin/credits", label: "🪙 クレジット" },
+  { href: "/admin/interviews", label: "🎙 記事" },
 ];
 
 export default function AdminNav() {
