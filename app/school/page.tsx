@@ -65,6 +65,25 @@ export default async function SchoolTopPage() {
         )}
       </header>
 
+      {/* Quick showcase nav */}
+      <nav aria-label="ショーケースナビ" className="grid grid-cols-3 gap-3">
+        <Link href="/school/gallery" className="card-interactive text-center py-5">
+          <div className="text-3xl mb-2" aria-hidden="true">🎨</div>
+          <div className="font-semibold text-sm">作品ギャラリー</div>
+          <div className="text-[10px] text-moai-muted mt-0.5 hidden sm:block">受講生の作品を一覧</div>
+        </Link>
+        <Link href="/school/interviews" className="card-interactive text-center py-5">
+          <div className="text-3xl mb-2" aria-hidden="true">🎙</div>
+          <div className="font-semibold text-sm">受講生の声</div>
+          <div className="text-[10px] text-moai-muted mt-0.5 hidden sm:block">Before / After</div>
+        </Link>
+        <Link href={`/school/showcase/${cohorts?.[0]?.id ?? 1}`} className="card-interactive text-center py-5">
+          <div className="text-3xl mb-2" aria-hidden="true">🏆</div>
+          <div className="font-semibold text-sm">卒業発表</div>
+          <div className="text-[10px] text-moai-muted mt-0.5 hidden sm:block">期ごとの成果</div>
+        </Link>
+      </nav>
+
       {/* Cohorts list */}
       <section>
         <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
