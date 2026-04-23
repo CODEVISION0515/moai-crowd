@@ -6,6 +6,7 @@ import FollowButton from "@/components/FollowButton";
 import { Avatar } from "@/components/Avatar";
 import { EmptyState } from "@/components/EmptyState";
 import { MoaiBadge } from "@/components/MoaiBadge";
+import { RankBadge } from "@/components/RankBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -88,6 +89,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
               </div>
               {profile.tagline && <p className="mt-2 text-slate-700">{profile.tagline}</p>}
               <div className="mt-3 flex items-center gap-3 text-sm flex-wrap">
+                <RankBadge rank={profile.rank} size="md" />
                 <span className="badge bg-moai-accent text-white">Lv.{profile.level}</span>
                 <span>★ {Number(profile.rating_avg).toFixed(1)} ({profile.rating_count})</span>
                 <span className="text-moai-muted">{profile.follower_count ?? 0} フォロワー</span>

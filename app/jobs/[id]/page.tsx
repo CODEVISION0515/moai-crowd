@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import ProposalForm from "./ProposalForm";
 import { acceptProposal } from "./actions";
 import { EmptyState } from "@/components/EmptyState";
+import { RankBadge } from "@/components/RankBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +28,7 @@ export default async function JobDetailPage({
   // 応募一覧 (オーナー or 自分の応募のみRLSで絞られる)
   const { data: proposals } = await supabase
     .from("proposals")
-    .select("*, profiles:worker_id(handle, display_name, avatar_url, rating_avg, rating_count)")
+    .select("*, profiles:worker_id(handle, display_name, avatar_url, rating_avg, rating_count, rank, crowd_role)")
     .eq("job_id", id)
     .order("created_at", { ascending: false });
 
@@ -101,7 +102,10 @@ export default async function JobDetailPage({
               <div key={p.id} className="card">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-semibold">{p.profiles?.display_name}</div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-semibold">{p.profiles?.display_name}</span>
+                      <RankBadge rank={p.profiles?.rank} size="xs" showLabel={false} />
+                    </div>
                     <div className="text-xs text-slate-500">
                       ★ {Number(p.profiles?.rating_avg || 0).toFixed(1)} ({p.profiles?.rating_count})
                     </div>
