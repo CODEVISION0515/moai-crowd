@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import ConnectStatus from "@/components/ConnectStatus";
 import LineLink from "@/components/LineLink";
 import AvatarUpload from "@/components/AvatarUpload";
 import { ToastForm } from "@/components/ToastForm";
@@ -391,7 +390,32 @@ export default async function ProfileEditPage() {
         </details>
       </section>
 
-      <ConnectStatus />
+      {/* 振込先口座（Stripe Connect）は /bank-setup ページへ誘導 */}
+      <section className="card">
+        <div className="flex items-start gap-4">
+          <div
+            className="shrink-0 h-12 w-12 rounded-full bg-moai-cloud flex items-center justify-center text-2xl"
+            aria-hidden="true"
+          >
+            🏦
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold">振込先口座（報酬の受け取り）</h3>
+            {profile?.stripe_account_id ? (
+              <p className="mt-1 text-sm text-moai-muted">
+                登録済み。状態の確認・更新は専用ページから行えます。
+              </p>
+            ) : (
+              <p className="mt-1 text-sm text-moai-muted">
+                案件を受注して報酬を受け取るには、振込先口座の登録が必要です（約3〜5分）。
+              </p>
+            )}
+            <Link href="/bank-setup" className="btn-outline btn-sm mt-3">
+              {profile?.stripe_account_id ? "口座情報を確認する →" : "振込先口座を登録する →"}
+            </Link>
+          </div>
+        </div>
+      </section>
       <LineLink linked={!!profile?.line_user_id} />
     </div>
   );

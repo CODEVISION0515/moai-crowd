@@ -1,10 +1,17 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 
-export default function ProposalForm({ jobId }: { jobId: string }) {
+export default function ProposalForm({
+  jobId,
+  bankSetupDone = true,
+}: {
+  jobId: string;
+  bankSetupDone?: boolean;
+}) {
   const router = useRouter();
   const [coverLetter, setCoverLetter] = useState("");
   const [amount, setAmount] = useState<number>(0);
@@ -64,6 +71,25 @@ export default function ProposalForm({ jobId }: { jobId: string }) {
 
   return (
     <form onSubmit={onSubmit} className="card space-y-4" noValidate>
+      {!bankSetupDone && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50/70 p-3 flex items-start gap-3">
+          <span aria-hidden="true" className="text-xl shrink-0">🏦</span>
+          <div className="flex-1 min-w-0 text-sm">
+            <div className="font-semibold text-amber-900">
+              応募前に振込先口座の登録がおすすめ
+            </div>
+            <p className="mt-0.5 text-xs text-amber-900/80 leading-relaxed">
+              契約時に必須となります。今のうちに済ませておくと、採用後すぐ案件を開始できます（約3〜5分）。
+            </p>
+            <Link
+              href="/bank-setup"
+              className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-amber-900 underline hover:text-amber-950"
+            >
+              振込先口座を登録する →
+            </Link>
+          </div>
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-lg">この案件に応募する</h3>
         <button
