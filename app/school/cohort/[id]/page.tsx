@@ -1,6 +1,7 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { isSchoolMemberProfile } from "@/lib/auth";
 import { Avatar } from "@/components/Avatar";
 import { MoaiBadge } from "@/components/MoaiBadge";
 import { VisibilityBadge } from "@/components/VisibilityBadge";
@@ -27,6 +28,19 @@ export default async function CohortSpacePage({
 
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
+
+  // 受講メンバーのみ立入可。非メンバーは /school へ (showcase は別URLで公開済み)
+  if (!user) {
+    redirect(`/login?redirect=/school/cohort/${cohortId}`);
+  }
+  const { data: gateProfile } = await sb
+    .from("profiles")
+    .select("role, crowd_role")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (!isSchoolMemberProfile(gateProfile)) {
+    redirect(`/school?gate=members&cohort=${cohortId}`);
+  }
 
   const [
     { data: cohort },

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { isSchoolMemberProfile } from "@/lib/auth";
 import { Avatar } from "@/components/Avatar";
 import { EmptyState } from "@/components/EmptyState";
 import { formatDateJP } from "@/lib/utils";
@@ -13,8 +14,21 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function SchoolTopPage() {
+export default async function SchoolTopPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ gate?: string; cohort?: string }>;
+}) {
+  const sp = await searchParams;
+  const showGateBanner = sp.gate === "members";
+  const gateCohort = sp.cohort ? Number(sp.cohort) : null;
+
   const sb = await createClient();
+  const { data: { user } } = await sb.auth.getUser();
+  const { data: profile } = user
+    ? await sb.from("profiles").select("role, crowd_role, cohort").eq("id", user.id).maybeSingle()
+    : { data: null };
+  const isMember = isSchoolMemberProfile(profile);
 
   const [{ data: cohorts }, { data: recentPosts }, { data: schoolWorks }] = await Promise.all([
     sb
@@ -40,11 +54,41 @@ export default async function SchoolTopPage() {
 
   return (
     <div className="container-app max-w-5xl py-10 md:py-16 space-y-12">
+      {/* Gate banner: 受講生エリアから弾かれて来た場合 */}
+      {showGateBanner && (
+        <div className="card border-2 border-amber-200 bg-amber-50/60">
+          <div className="flex items-start gap-3">
+            <span aria-hidden="true" className="text-2xl shrink-0">🔒</span>
+            <div className="flex-1">
+              <h2 className="font-bold">受講生エリアは会員限定です</h2>
+              <p className="mt-1 text-sm text-amber-900/80 leading-relaxed">
+                {gateCohort ? `第${gateCohort}期のスペース` : "このエリア"}は
+                MOAIスクールの在校生・卒業生・講師のみがアクセスできます。
+                受講を検討中の方は、下の「コミュニティ」で在校生と気軽に話せます。
+              </p>
+              <div className="mt-3 flex gap-2 flex-wrap">
+                <Link href="/community" className="btn-outline btn-sm">
+                  🌱 コミュニティを見る
+                </Link>
+                {cohorts?.[0]?.id && (
+                  <Link href={`/school/showcase/${cohorts[0].id}`} className="btn-outline btn-sm">
+                    🏆 卒業発表を見る
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero */}
       <header className="text-center space-y-4">
         <div className="inline-flex items-center gap-2 badge-accent px-3 py-1 rounded-full">
           <span className="h-1.5 w-1.5 rounded-full bg-moai-primary animate-pulse-dot" />
-          <span className="text-xs font-semibold">MOAIスクール</span>
+          <span className="text-xs font-semibold">
+            MOAIスクール
+            {isMember && <span className="ml-1.5 text-moai-ink">· ようこそ</span>}
+          </span>
         </div>
         <h1 className="text-display-md md:text-display-lg">
           先生はいない。<br />仲間がいる。
@@ -83,61 +127,110 @@ export default async function SchoolTopPage() {
         </div>
       </section>
 
-      {/* Quick showcase nav */}
-      <nav aria-label="ショーケースナビ" className="grid grid-cols-3 gap-3">
-        <Link href="/school/gallery" className="card-interactive text-center py-5">
-          <div className="text-3xl mb-2" aria-hidden="true">🎨</div>
-          <div className="font-semibold text-sm">作品ギャラリー</div>
-          <div className="text-[10px] text-moai-muted mt-0.5 hidden sm:block">受講生の作品を一覧</div>
-        </Link>
-        <Link href="/school/interviews" className="card-interactive text-center py-5">
-          <div className="text-3xl mb-2" aria-hidden="true">🎙</div>
-          <div className="font-semibold text-sm">受講生の声</div>
-          <div className="text-[10px] text-moai-muted mt-0.5 hidden sm:block">Before / After</div>
-        </Link>
-        <Link href={`/school/showcase/${cohorts?.[0]?.id ?? 1}`} className="card-interactive text-center py-5">
-          <div className="text-3xl mb-2" aria-hidden="true">🏆</div>
-          <div className="font-semibold text-sm">卒業発表</div>
-          <div className="text-[10px] text-moai-muted mt-0.5 hidden sm:block">期ごとの成果</div>
-        </Link>
-      </nav>
+      {/* Member fast-track (在校生・卒業生用) */}
+      {isMember && profile?.cohort && (
+        <div className="card bg-gradient-to-br from-moai-primary/10 to-moai-accent/5 border-moai-primary/30">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="text-3xl shrink-0" aria-hidden="true">
+                {profile.crowd_role === "alumni" ? "🎓" : "🌱"}
+              </div>
+              <div className="min-w-0">
+                <div className="text-xs font-semibold text-moai-primary">
+                  {profile.crowd_role === "alumni" ? "卒業生" : "在校生"}
+                </div>
+                <div className="font-bold">あなたの期のスペースへ</div>
+              </div>
+            </div>
+            <Link href={`/school/cohort/${profile.cohort}`} className="btn-primary btn-sm">
+              第{profile.cohort}期のスペースを開く →
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* 見学できるもの: 非メンバー向け (and members too, link still works) */}
+      <section>
+        <div className="mb-4">
+          <h2 className="text-lg font-bold flex items-center gap-2">
+            <span aria-hidden="true">👀</span>誰でも見学できる
+          </h2>
+          <p className="text-xs text-moai-muted mt-0.5">
+            受講を検討中の方も、ここから在校生の学びや作品をのぞけます
+          </p>
+        </div>
+        <nav aria-label="ショーケースナビ" className="grid grid-cols-3 gap-3">
+          <Link href="/school/gallery" className="card-interactive text-center py-5">
+            <div className="text-3xl mb-2" aria-hidden="true">🎨</div>
+            <div className="font-semibold text-sm">作品ギャラリー</div>
+            <div className="text-[10px] text-moai-muted mt-0.5 hidden sm:block">受講生の作品を一覧</div>
+          </Link>
+          <Link href="/school/interviews" className="card-interactive text-center py-5">
+            <div className="text-3xl mb-2" aria-hidden="true">🎙</div>
+            <div className="font-semibold text-sm">受講生の声</div>
+            <div className="text-[10px] text-moai-muted mt-0.5 hidden sm:block">Before / After</div>
+          </Link>
+          <Link href={`/school/showcase/${cohorts?.[0]?.id ?? 1}`} className="card-interactive text-center py-5">
+            <div className="text-3xl mb-2" aria-hidden="true">🏆</div>
+            <div className="font-semibold text-sm">卒業発表</div>
+            <div className="text-[10px] text-moai-muted mt-0.5 hidden sm:block">期ごとの成果</div>
+          </Link>
+        </nav>
+      </section>
 
       {/* Cohorts list */}
       <section>
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-          <span aria-hidden="true">🎓</span>期一覧
-        </h2>
+        <div className="mb-6 flex items-center justify-between flex-wrap gap-2">
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <span aria-hidden="true">🎓</span>期一覧
+          </h2>
+          {!isMember && (
+            <span className="text-[11px] text-moai-muted">
+              🔒 詳細は受講生エリア（在校生・卒業生限定）
+            </span>
+          )}
+        </div>
         {cohorts && cohorts.length > 0 ? (
           <div className="grid md:grid-cols-2 gap-4">
-            {cohorts.map((c) => (
-              <Link
-                key={c.id}
-                href={`/school/cohort/${c.id}`}
-                className="card-hover group relative overflow-hidden"
-              >
-                {c.is_accepting_applications && (
-                  <span className="absolute top-3 right-3 badge-success text-[10px]">
-                    募集中
-                  </span>
-                )}
-                <h3 className="font-bold text-lg">{c.name}</h3>
-                {c.subtitle && (
-                  <div className="text-xs text-moai-primary font-medium mt-1">{c.subtitle}</div>
-                )}
-                <div className="text-xs text-moai-muted mt-2">
-                  {formatDateJP(c.starts_at)} {c.ends_at ? `〜 ${formatDateJP(c.ends_at)}` : "〜"}
-                  {c.lecturer_name && <> · 講師: {c.lecturer_name}</>}
-                </div>
-                {c.description && (
-                  <p className="mt-3 text-sm text-moai-muted line-clamp-3 leading-relaxed">
-                    {c.description}
-                  </p>
-                )}
-                <div className="mt-4 text-sm font-medium text-moai-primary group-hover:underline">
-                  スペースを見る →
-                </div>
-              </Link>
-            ))}
+            {cohorts.map((c) => {
+              const isMyCohort = profile?.cohort === c.id;
+              const gated = !isMember;
+              return (
+                <Link
+                  key={c.id}
+                  href={gated ? `/school/showcase/${c.id}` : `/school/cohort/${c.id}`}
+                  className="card-hover group relative overflow-hidden"
+                >
+                  <div className="absolute top-3 right-3 flex items-center gap-1.5">
+                    {isMyCohort && (
+                      <span className="badge text-[10px] bg-moai-primary text-white">あなたの期</span>
+                    )}
+                    {c.is_accepting_applications && (
+                      <span className="badge-success text-[10px]">募集中</span>
+                    )}
+                    {gated && (
+                      <span className="text-[10px] text-moai-muted">🔒</span>
+                    )}
+                  </div>
+                  <h3 className="font-bold text-lg">{c.name}</h3>
+                  {c.subtitle && (
+                    <div className="text-xs text-moai-primary font-medium mt-1">{c.subtitle}</div>
+                  )}
+                  <div className="text-xs text-moai-muted mt-2">
+                    {formatDateJP(c.starts_at)} {c.ends_at ? `〜 ${formatDateJP(c.ends_at)}` : "〜"}
+                    {c.lecturer_name && <> · 講師: {c.lecturer_name}</>}
+                  </div>
+                  {c.description && (
+                    <p className="mt-3 text-sm text-moai-muted line-clamp-3 leading-relaxed">
+                      {c.description}
+                    </p>
+                  )}
+                  <div className="mt-4 text-sm font-medium text-moai-primary group-hover:underline">
+                    {gated ? "卒業発表を見る →" : "スペースを見る →"}
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         ) : (
           <EmptyState icon="🎓" title="期情報はまだありません" description="近日中に第1期情報を公開します" />
@@ -212,6 +305,23 @@ export default async function SchoolTopPage() {
           </div>
         </section>
       )}
+
+      {/* Cross-link: Community */}
+      <section className="card bg-gradient-to-br from-emerald-50 to-transparent border-emerald-200">
+        <div className="flex items-start gap-4">
+          <div className="text-3xl shrink-0" aria-hidden="true">🌱</div>
+          <div className="flex-1 min-w-0">
+            <h2 className="font-bold">まずは気軽に、ゆんたくから</h2>
+            <p className="mt-1 text-sm text-moai-muted">
+              受講するか迷っている方も、コミュニティなら誰でも参加できます。
+              在校生・卒業生の投稿を見たり、質問したり。まずは空気を感じてみてください。
+            </p>
+            <Link href="/community" className="btn-outline btn-sm mt-3">
+              コミュニティを見る →
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* CTA */}
       {activeApplication && (
