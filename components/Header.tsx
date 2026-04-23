@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 import SignOutButton from "@/components/SignOutButton";
 import NotificationBell from "@/components/NotificationBell";
 import CreditsBadge from "@/components/CreditsBadge";
+import UserMenu from "@/components/UserMenu";
 
 const PUBLIC_LINKS = [
   { href: "/school", label: "スクール" },
@@ -25,7 +26,19 @@ const AUTH_LINKS = [
   { href: "/leaderboard", label: "ランキング", icon: "🏆" },
 ];
 
-export default function Header({ userId }: { userId: string | null }) {
+type HeaderProfile = {
+  display_name: string | null;
+  handle: string | null;
+  avatar_url: string | null;
+};
+
+export default function Header({
+  userId,
+  profile,
+}: {
+  userId: string | null;
+  profile?: HeaderProfile | null;
+}) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -74,6 +87,20 @@ export default function Header({ userId }: { userId: string | null }) {
             {userId ? (
               <>
                 <Link
+                  href="/dashboard"
+                  aria-current={pathname.startsWith("/dashboard") ? "page" : undefined}
+                  className={`hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                    pathname.startsWith("/dashboard")
+                      ? "bg-moai-cloud text-moai-ink"
+                      : "text-moai-muted hover:text-moai-ink hover:bg-moai-cloud/60"
+                  }`}
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10" />
+                  </svg>
+                  マイページ
+                </Link>
+                <Link
                   href="/jobs/new"
                   className="hidden md:inline-flex btn-accent btn-sm gap-1"
                 >
@@ -97,7 +124,13 @@ export default function Header({ userId }: { userId: string | null }) {
                       : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />}
                   </svg>
                 </button>
-                <div className="hidden md:block"><SignOutButton /></div>
+                <div className="hidden md:block">
+                  <UserMenu
+                    displayName={profile?.display_name ?? null}
+                    handle={profile?.handle ?? null}
+                    avatarUrl={profile?.avatar_url ?? null}
+                  />
+                </div>
               </>
             ) : (
               <>
