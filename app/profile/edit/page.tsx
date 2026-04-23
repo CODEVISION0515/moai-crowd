@@ -9,7 +9,7 @@ import { FieldError } from "@/components/FieldError";
 import { FieldInput } from "@/components/Field";
 import ProfileCoach from "./ProfileCoach";
 import {
-  updateBasic, updateSocial,
+  updateBasic, updateSocial, updateBusiness,
   addPortfolio, deletePortfolio,
   addWorkExp, deleteWorkExp,
   addEducation, deleteEducation,
@@ -182,6 +182,96 @@ export default async function ProfileEditPage() {
         </div>
 
         <button className="btn-primary">基本情報を保存</button>
+      </ToastForm>
+
+      {/* 法人 / 個人 区分 */}
+      <ToastForm action={updateBusiness} className="card space-y-4">
+        <div>
+          <h2 className="font-semibold flex items-center gap-2">
+            <span aria-hidden="true">{profile?.account_type === "corporate" ? "🏢" : "👤"}</span>
+            法人 / 個人の区分
+          </h2>
+          <p className="mt-1 text-xs text-moai-muted">
+            後から変更できます。法人として請求書を発行する場合、会社名などの詳細情報も入力してください。
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { v: "individual", icon: "👤", label: "個人", desc: "フリーランス・副業" },
+            { v: "corporate", icon: "🏢", label: "法人", desc: "会社・団体として" },
+          ].map((r) => (
+            <label key={r.v} className="cursor-pointer">
+              <input
+                type="radio"
+                name="account_type"
+                value={r.v}
+                defaultChecked={(profile?.account_type ?? "individual") === r.v}
+                className="peer sr-only"
+              />
+              <div className="card-flat border-2 border-moai-border rounded-xl peer-checked:border-moai-primary peer-checked:bg-moai-primary/5 text-center p-4 transition-all hover:border-slate-300">
+                <div className="text-2xl" aria-hidden="true">{r.icon}</div>
+                <div className="mt-1 text-sm font-semibold">{r.label}</div>
+                <div className="text-[10px] text-moai-muted mt-0.5">{r.desc}</div>
+              </div>
+            </label>
+          ))}
+        </div>
+
+        <details open={profile?.account_type === "corporate"} className="border border-moai-border rounded-lg">
+          <summary className="cursor-pointer px-3 py-2.5 text-sm font-medium text-moai-ink hover:bg-moai-cloud/40">
+            法人情報 <span className="text-[10px] text-moai-muted">(任意・後から入力可能)</span>
+          </summary>
+          <div className="p-3 space-y-3 border-t border-moai-border">
+            <div>
+              <label className="label">会社名・屋号</label>
+              <input
+                name="company_name"
+                defaultValue={profile?.company_name ?? ""}
+                className="input"
+                placeholder="例: 株式会社CODEVISION"
+              />
+            </div>
+            <div>
+              <label className="label">登記住所または本社所在地</label>
+              <input
+                name="company_address"
+                defaultValue={profile?.company_address ?? ""}
+                className="input"
+                placeholder="沖縄県本部町..."
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="label">代表者名</label>
+                <input
+                  name="representative_name"
+                  defaultValue={profile?.representative_name ?? ""}
+                  className="input"
+                  placeholder="山田 太郎"
+                />
+              </div>
+              <div>
+                <label className="label">
+                  インボイス登録番号
+                  <span className="text-[10px] text-moai-muted ml-1">(T+13桁)</span>
+                </label>
+                <input
+                  name="invoice_registration_number"
+                  defaultValue={profile?.invoice_registration_number ?? ""}
+                  className="input"
+                  placeholder="T1234567890123"
+                  pattern="^T[0-9]{13}$"
+                />
+              </div>
+            </div>
+            <p className="text-[11px] text-moai-muted">
+              ※ これらの情報は請求書発行時や発注者として法人名義で取引する際に使用されます。
+            </p>
+          </div>
+        </details>
+
+        <button className="btn-primary">法人/個人区分を保存</button>
       </ToastForm>
 
       {/* SNS */}

@@ -120,6 +120,34 @@ export default async function OnboardingPage({
                 ))}
               </div>
             </div>
+
+            <div>
+              <label className="label">個人 or 法人 <span className="text-red-500">*</span></label>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { v: "individual", icon: "👤", label: "個人", desc: "フリーランス・副業" },
+                  { v: "corporate", icon: "🏢", label: "法人", desc: "会社・団体として" },
+                ].map((r) => (
+                  <label key={r.v} className="cursor-pointer">
+                    <input
+                      type="radio"
+                      name="account_type"
+                      value={r.v}
+                      defaultChecked={r.v === (profile?.account_type ?? "individual")}
+                      className="peer sr-only"
+                    />
+                    <div className="card-flat border-2 border-moai-border rounded-xl peer-checked:border-moai-primary peer-checked:bg-moai-primary/5 text-center p-4 transition-all hover:border-slate-300">
+                      <div className="text-2xl" aria-hidden="true">{r.icon}</div>
+                      <div className="mt-1.5 text-xs font-semibold">{r.label}</div>
+                      <div className="text-[10px] text-moai-muted mt-0.5">{r.desc}</div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+              <p className="mt-2 text-[11px] text-moai-muted">
+                会社名や登記情報は、発注や請求書発行時に入力できます。今は選ぶだけでOK。
+              </p>
+            </div>
             <details className="group rounded-lg border border-moai-border p-3">
               <summary className="cursor-pointer text-sm font-medium text-moai-muted hover:text-moai-ink">
                 ＋ スキル・自己紹介を入力する <span className="text-[10px]">(任意)</span>
@@ -159,6 +187,7 @@ export default async function OnboardingPage({
 
           <form action={skipStep2}>
             <input type="hidden" name="intent" value={intent ?? ""} />
+            <input type="hidden" name="account_type" value={profile?.account_type ?? "individual"} />
             <button className="text-xs text-moai-muted hover:text-moai-ink underline w-full text-center">
               スキップして完了 →
             </button>
