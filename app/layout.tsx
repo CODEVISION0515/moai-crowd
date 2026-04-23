@@ -50,6 +50,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
+  let profile: { display_name: string | null; handle: string | null; avatar_url: string | null } | null = null;
+  if (user) {
+    const { data } = await supabase
+      .from("profiles")
+      .select("display_name, handle, avatar_url")
+      .eq("id", user.id)
+      .maybeSingle();
+    profile = data ?? null;
+  }
+
   return (
     <html lang="ja">
       <body className="min-h-screen flex flex-col bg-white">
@@ -63,7 +73,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             duration: 4000,
           }}
         />
-        <Header userId={user?.id ?? null} />
+        <Header userId={user?.id ?? null} profile={profile} />
         <main className="flex-1">{children}</main>
         <BottomNav userId={user?.id ?? null} />
         <footer className="hidden md:block border-t border-moai-border bg-moai-cloud/50">
