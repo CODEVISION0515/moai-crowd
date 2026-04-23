@@ -39,11 +39,11 @@ export default function ConfirmEmailPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-var(--header-h))] flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md animate-slide-up">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-moai-primary/10 mb-4" aria-hidden="true">
-            <svg className="h-8 w-8 text-moai-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div className="min-h-[calc(100vh-var(--header-h))] bg-moai-cloud/30 py-10 md:py-14">
+      <div className="mx-auto w-full max-w-md px-4 animate-slide-up">
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-moai-primary/10 mb-4" aria-hidden="true">
+            <svg className="h-7 w-7 text-moai-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
@@ -68,7 +68,7 @@ export default function ConfirmEmailPage() {
             </li>
             <li className="flex items-start gap-2.5">
               <span className="shrink-0 h-5 w-5 rounded-full bg-moai-primary/10 text-moai-primary flex items-center justify-center text-[11px] font-bold">2</span>
-              <span>「MOAI Crowd」からのメールを開く</span>
+              <span>「MOAI」からのメールを開く</span>
             </li>
             <li className="flex items-start gap-2.5">
               <span className="shrink-0 h-5 w-5 rounded-full bg-moai-primary/10 text-moai-primary flex items-center justify-center text-[11px] font-bold">3</span>
@@ -98,7 +98,7 @@ export default function ConfirmEmailPage() {
           </button>
         </div>
 
-        <p className="text-sm text-center text-moai-muted mt-6">
+        <p className="text-sm text-center mt-6">
           メールアドレスを間違えた？{" "}
           <Link href="/signup" className="text-moai-primary font-medium hover:underline">
             登録をやり直す

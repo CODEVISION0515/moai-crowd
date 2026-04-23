@@ -53,23 +53,19 @@ export default function ResetPasswordPage() {
 
   if (verifying) {
     return (
-      <div className="min-h-[calc(100vh-var(--header-h))] flex items-center justify-center px-4 py-12">
+      <div className="min-h-[calc(100vh-var(--header-h))] bg-moai-cloud/30 flex items-center justify-center px-4 py-12">
         <p className="text-sm text-moai-muted">確認中…</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-[calc(100vh-var(--header-h))] flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md animate-slide-up">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <span className="text-2xl font-bold text-moai-primary">MOAI</span>
-            <span className="text-sm text-moai-muted">Crowd</span>
-          </div>
-          <h1 className="text-2xl font-bold">新しいパスワードを設定</h1>
-          <p className="text-sm text-moai-muted mt-1">8文字以上の安全なパスワードを入力してください</p>
-        </div>
+    <div className="min-h-[calc(100vh-var(--header-h))] bg-moai-cloud/30 py-10 md:py-14">
+      <div className="mx-auto w-full max-w-md px-4 animate-slide-up">
+        <h1 className="text-2xl md:text-3xl font-bold mb-2">新しいパスワードを設定</h1>
+        <p className="text-sm text-moai-muted mb-6">
+          8文字以上の安全なパスワードを入力してください
+        </p>
 
         <form onSubmit={onSubmit} className="card space-y-4">
           <div>
@@ -123,13 +119,13 @@ export default function ResetPasswordPage() {
           <button type="submit" disabled={loading} className="btn-accent w-full btn-lg">
             {loading ? "更新中…" : "パスワードを更新"}
           </button>
-
-          <p className="text-sm text-center text-moai-muted pt-2">
-            <Link href="/login" className="text-moai-primary font-medium hover:underline">
-              ログイン画面に戻る
-            </Link>
-          </p>
         </form>
+
+        <p className="text-sm text-center mt-6">
+          <Link href="/login" className="text-moai-primary font-medium hover:underline">
+            ← ログイン画面に戻る
+          </Link>
+        </p>
       </div>
     </div>
   );
