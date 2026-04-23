@@ -64,8 +64,15 @@ export const addPortfolio = formAction(addPortfolioSchema, async ({ sb, user, da
     tags: d.tags,
     client_name: d.client_name,
     completed_at: d.completed_at,
+    is_school_work: d.is_school_work,
+    cohort: d.cohort,
+    school_project_name: d.school_project_name,
   });
   revalidateEdit();
+  if (d.is_school_work) {
+    revalidatePath("/school/gallery");
+    if (d.cohort) revalidatePath(`/school/showcase/${d.cohort}`);
+  }
 });
 
 export const deletePortfolio = formAction(deleteByIdSchema, async ({ sb, data }) => {
