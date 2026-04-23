@@ -33,6 +33,17 @@ export default async function JobDetailPage({
 
   const myProposal = proposals?.find((p: any) => p.worker_id === user?.id);
 
+  // 応募時の口座登録状態チェック（応募者本人の場合のみ）
+  let bankSetupDone = true;
+  if (user && !isOwner && !myProposal) {
+    const { data: me } = await supabase
+      .from("profiles")
+      .select("stripe_account_id")
+      .eq("id", user.id)
+      .maybeSingle();
+    bankSetupDone = !!me?.stripe_account_id;
+  }
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       <Link href="/jobs" className="text-sm text-moai-primary hover:underline">← 一覧に戻る</Link>
@@ -69,7 +80,7 @@ export default async function JobDetailPage({
               </div>
             </div>
           ) : (
-            <ProposalForm jobId={job.id} />
+            <ProposalForm jobId={job.id} bankSetupDone={bankSetupDone} />
           )}
         </div>
       )}

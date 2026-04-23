@@ -29,8 +29,8 @@ export async function POST() {
   const origin = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const link = await stripe.accountLinks.create({
     account: accountId,
-    refresh_url: `${origin}/profile/edit?stripe=refresh`,
-    return_url: `${origin}/profile/edit?stripe=return`,
+    refresh_url: `${origin}/bank-setup?stripe=refresh`,
+    return_url: `${origin}/bank-setup?stripe=return`,
     type: "account_onboarding",
   });
 

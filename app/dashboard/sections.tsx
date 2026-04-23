@@ -92,6 +92,52 @@ export function GreetingCardSkeleton() {
   );
 }
 
+// ── Bank setup banner (受注者で未設定の人に表示) ──────
+export async function BankSetupBanner({ userId }: { userId: string }) {
+  const sb = await createClient();
+  const { data: profile } = await sb
+    .from("profiles")
+    .select("is_worker, stripe_account_id")
+    .eq("id", userId)
+    .maybeSingle();
+
+  // 受注者でない、または既に設定済みなら非表示
+  if (!profile?.is_worker) return null;
+
+  // stripe_account_id がない = 未開始
+  // stripe_account_id があっても details_submitted=false の可能性あるが、
+  // ここでは重い fetch は避け、id の有無だけで暫定判定。完全な状態チェックは /bank-setup ページで。
+  if (profile.stripe_account_id) return null;
+
+  return (
+    <Link
+      href="/bank-setup"
+      className="card border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50/50 hover:shadow-md transition-all block"
+    >
+      <div className="flex items-center gap-4">
+        <div
+          className="shrink-0 h-12 w-12 rounded-xl bg-amber-500 text-white flex items-center justify-center text-2xl"
+          aria-hidden="true"
+        >
+          🏦
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-[11px] font-semibold text-amber-700 uppercase tracking-wider">
+            受注準備
+          </div>
+          <div className="font-bold text-sm mt-0.5">振込先の銀行口座を登録しましょう</div>
+          <div className="text-xs text-amber-900 mt-0.5">
+            3〜5分で完了 · 案件を受注する前に必要です
+          </div>
+        </div>
+        <div className="text-amber-700 text-lg shrink-0" aria-hidden="true">
+          →
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 // ── Cohort banner (student/alumni/lecturer のみ) ──────
 export async function CohortBanner({ userId }: { userId: string }) {
   const sb = await createClient();
@@ -166,7 +212,7 @@ export async function GettingStarted({ userId }: { userId: string }) {
     { count: jobCount },
     { count: proposalCount },
   ] = await Promise.all([
-    sb.from("profiles").select("avatar_url, bio, skills, profile_completion, github_username, is_worker, is_client").eq("id", userId).single(),
+    sb.from("profiles").select("avatar_url, bio, skills, profile_completion, github_username, is_worker, is_client, stripe_account_id").eq("id", userId).single(),
     sb.from("posts").select("*", { count: "exact", head: true }).eq("author_id", userId),
     sb.from("jobs").select("*", { count: "exact", head: true }).eq("client_id", userId),
     sb.from("proposals").select("*", { count: "exact", head: true }).eq("worker_id", userId),
@@ -197,13 +243,22 @@ export async function GettingStarted({ userId }: { userId: string }) {
       done: Array.isArray(profile.skills) && profile.skills.length > 0,
     },
     ...(profile.is_worker
-      ? [{
-          id: "first_proposal",
-          label: "最初の案件に応募",
-          description: "受注実績の第一歩",
-          href: "/jobs",
-          done: (proposalCount ?? 0) > 0,
-        }]
+      ? [
+          {
+            id: "bank_setup",
+            label: "振込先口座を登録",
+            description: "受注する前に必要 · 3〜5分で完了",
+            href: "/bank-setup",
+            done: !!profile.stripe_account_id,
+          },
+          {
+            id: "first_proposal",
+            label: "最初の案件に応募",
+            description: "受注実績の第一歩",
+            href: "/jobs",
+            done: (proposalCount ?? 0) > 0,
+          },
+        ]
       : []),
     ...(profile.is_client
       ? [{
