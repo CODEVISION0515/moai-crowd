@@ -32,10 +32,9 @@ export default function SignUpPage() {
   const refCode = searchParams.get("ref") ?? "";
   const intent = searchParams.get("intent") ?? "";
   const intentCopy = INTENT_COPY[intent];
-  const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [referrer, setReferrer] = useState<Referrer | null>(null);
@@ -54,11 +53,8 @@ export default function SignUpPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!agreedToTerms) {
-      setErr("利用規約とプライバシーポリシーに同意してください");
-      return;
-    }
-    setLoading(true); setErr(null);
+    setLoading(true);
+    setErr(null);
     const base = typeof window !== "undefined" ? window.location.origin : "";
     const callback = new URL("/auth/callback", base);
     callback.searchParams.set("new", "1");
@@ -66,11 +62,11 @@ export default function SignUpPage() {
     else callback.searchParams.set("next", "/onboarding");
 
     const { data, error } = await createClient().auth.signUp({
-      email, password,
+      email,
+      password,
       options: {
         emailRedirectTo: callback.toString(),
         data: {
-          display_name: displayName,
           ...(refCode ? { referral_code: refCode } : {}),
           ...(intent ? { signup_intent: intent } : {}),
         },
@@ -79,9 +75,6 @@ export default function SignUpPage() {
     setLoading(false);
     if (error) return setErr(error.message);
 
-    // Supabase の挙動:
-    // - メール認証ONの場合: data.user あり but session なし → 確認メール待ちページへ
-    // - メール認証OFFの場合: data.session あり → オンボへ直行
     if (data.user && !data.session) {
       router.push(`/signup/confirm?email=${encodeURIComponent(email)}`);
     } else {
@@ -91,20 +84,18 @@ export default function SignUpPage() {
     router.refresh();
   }
 
+  // 逆インテントへの誘導 (ランサーズの「仕事を発注したい方はこちら」相当)
+  const flipIntent =
+    intent === "client"
+      ? { label: "仕事を受注したい方はこちら", href: "/signup?intent=worker" }
+      : { label: "仕事を発注したい方はこちら", href: "/signup?intent=client" };
+
   return (
     <div className="min-h-[calc(100vh-var(--header-h))] bg-moai-cloud/30 py-10 md:py-14">
-      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-        <div className="grid lg:grid-cols-[minmax(0,1fr)_1.1fr] gap-8 lg:gap-10 items-start">
-          <div className="w-full max-w-md mx-auto lg:max-w-none animate-slide-up">
-            <h1 className="text-2xl md:text-3xl font-bold mb-2">新規会員登録</h1>
-            <p className="text-sm text-moai-muted mb-6">
-              30秒で完了・完全無料。すでにアカウントをお持ちの方は{" "}
-              <Link href="/login" className="text-moai-primary hover:underline font-medium">
-                ログインはこちら
-              </Link>
-            </p>
+      <div className="mx-auto w-full max-w-md px-4 animate-slide-up">
+        <h1 className="text-2xl md:text-3xl font-bold text-center mb-8">新規会員登録</h1>
 
-        {/* Intent banner */}
+        {/* Intent banner (cf. ?intent=client|worker) */}
         {intentCopy && (
           <div className="card mb-4 border-moai-primary/30 bg-moai-primary/[0.03]">
             <div className="text-sm font-semibold text-moai-primary mb-1.5">{intentCopy.tagline}</div>
@@ -125,144 +116,149 @@ export default function SignUpPage() {
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-moai-primary/10 flex items-center justify-center text-lg">🎁</div>
               <div>
-                <div className="text-sm font-medium">@{referrer.handle}（{referrer.display_name}）からの紹介</div>
-                <div className="text-xs text-moai-muted mt-0.5">登録完了で <span className="font-semibold text-moai-primary">+500クレジット</span> 獲得</div>
+                <div className="text-sm font-medium">
+                  @{referrer.handle}（{referrer.display_name}）からの紹介
+                </div>
+                <div className="text-xs text-moai-muted mt-0.5">
+                  登録完了で <span className="font-semibold text-moai-primary">+500クレジット</span> 獲得
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        <div className="card space-y-4">
+        <div className="card space-y-5">
+          <p className="text-xs text-moai-muted text-center leading-relaxed">
+            <Link href="/legal/privacy" target="_blank" className="text-moai-primary hover:underline">
+              プライバシーポリシー
+            </Link>
+            {" · "}
+            <Link href="/legal/terms" target="_blank" className="text-moai-primary hover:underline">
+              利用規約
+            </Link>
+            {" に同意して"}
+          </p>
+
+          <div>
+            <div className="text-sm font-semibold mb-3">メールアドレスで登録する</div>
+            <form onSubmit={onSubmit} className="space-y-3">
+              <input
+                type="email"
+                required
+                className="input"
+                placeholder="例: info@moai.okinawa"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  minLength={8}
+                  className="input pr-10"
+                  placeholder="パスワード (8文字以上)"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute inset-y-0 right-0 px-3 flex items-center text-moai-muted hover:text-moai-ink"
+                  aria-label={showPassword ? "パスワードを隠す" : "パスワードを表示"}
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </svg>
+                  ) : (
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+              {password.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 flex gap-1">
+                    {[1, 2, 3].map((level) => (
+                      <div
+                        key={level}
+                        className={`h-1 flex-1 rounded-full transition-colors ${pwStrength >= level ? pwColor : "bg-slate-100"}`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-[11px] text-moai-muted">{pwLabel}</span>
+                </div>
+              )}
+
+              {err && (
+                <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2" role="alert">
+                  <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  {err}
+                </div>
+              )}
+
+              <button type="submit" disabled={loading} className="btn-accent w-full btn-lg">
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    作成中...
+                  </span>
+                ) : (
+                  "無料で会員登録する"
+                )}
+              </button>
+            </form>
+          </div>
+
+          <div className="text-center">
+            <Link href={flipIntent.href} className="text-sm text-moai-primary hover:underline">
+              {flipIntent.label}
+            </Link>
+          </div>
+
+          <div className="relative flex items-center py-1">
+            <div className="flex-1 border-t border-moai-border" />
+            <span className="px-3 text-[11px] text-moai-muted">または同意して</span>
+            <div className="flex-1 border-t border-moai-border" />
+          </div>
+
           <SocialAuthButtons isSignUp redirectTo="/onboarding" />
 
-          <form onSubmit={onSubmit} className="space-y-4">
-          <div>
-            <label className="label">表示名</label>
-            <input
-              required
-              className="input"
-              placeholder="あなたの名前"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              autoComplete="name"
-            />
-          </div>
-          <div>
-            <label className="label">メールアドレス</label>
-            <input
-              type="email"
-              required
-              className="input"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-            />
-          </div>
-          <div>
-            <label className="label">パスワード</label>
-            <input
-              type="password"
-              required
-              minLength={8}
-              className="input"
-              placeholder="8文字以上"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password"
-            />
-            {password.length > 0 && (
-              <div className="mt-2 flex items-center gap-2">
-                <div className="flex-1 flex gap-1">
-                  {[1, 2, 3].map((level) => (
-                    <div key={level} className={`h-1 flex-1 rounded-full transition-colors ${pwStrength >= level ? pwColor : "bg-slate-100"}`} />
-                  ))}
-                </div>
-                <span className="text-[11px] text-moai-muted">{pwLabel}</span>
-              </div>
-            )}
-          </div>
+          <p className="text-[11px] text-moai-muted text-center">
+            ※ MOAIが許可なくSNS等に投稿することはありません
+          </p>
+        </div>
 
-          <label className="flex items-start gap-2 text-xs text-moai-muted cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={agreedToTerms}
-              onChange={(e) => setAgreedToTerms(e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-moai-primary focus:ring-moai-primary"
-              aria-describedby="terms-desc"
-            />
-            <span id="terms-desc">
-              <Link href="/legal/terms" target="_blank" className="text-moai-primary hover:underline">利用規約</Link>
-              {" と "}
-              <Link href="/legal/privacy" target="_blank" className="text-moai-primary hover:underline">プライバシーポリシー</Link>
-              {" に同意します"}
-            </span>
-          </label>
-
-          {err && (
-            <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2" role="alert">
-              <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {err}
-            </div>
-          )}
-
-          <button type="submit" disabled={loading || !agreedToTerms} className="btn-accent w-full btn-lg">
-            {loading ? (
-              <span className="flex items-center gap-2">
-                <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
-                作成中...
-              </span>
-            ) : "アカウント作成"}
-          </button>
-
-          </form>
+        <div className="mt-6 text-center">
+          <Link href="/login" className="text-sm text-moai-primary hover:underline">
+            すでに登録済みの方はこちら
+          </Link>
         </div>
 
         {/* Social proof */}
-        <div className="mt-6 flex items-center justify-center gap-4 text-xs text-moai-muted">
+        <div className="mt-8 flex items-center justify-center gap-3 text-[11px] text-moai-muted flex-wrap">
           <span className="flex items-center gap-1">
-            <svg className="h-3.5 w-3.5 text-moai-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+            <svg className="h-3.5 w-3.5 text-moai-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
             エスクロー決済で安心
           </span>
           <span className="text-moai-border">|</span>
-          <span>手数料10%</span>
+          <span>手数料0〜15%</span>
           <span className="text-moai-border">|</span>
           <span>AI機能無料</span>
         </div>
       </div>
-
-      {/* Right: Service teaser cards */}
-      <aside className="hidden lg:block">
-        <div className="text-xs font-semibold text-moai-muted uppercase tracking-wider mb-3">
-          登録するとできること
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            { icon: "🎓", title: "AIスクールで学ぶ", subtitle: "週1回の授業＋仲間", gradient: "from-moai-primary/10 to-moai-primary/5" },
-            { icon: "💼", title: "案件を依頼する", subtitle: "発注者手数料0〜4%", gradient: "from-amber-100 to-amber-50" },
-            { icon: "🔍", title: "案件を探す", subtitle: "卒業生は生涯5%固定", gradient: "from-emerald-100 to-emerald-50" },
-            { icon: "🌱", title: "ゆんたく広場", subtitle: "沖縄発の温かいコミュニティ", gradient: "from-cyan-100 to-cyan-50" },
-            { icon: "🏆", title: "ランク制度で実績を可視化", subtitle: "受注率がぐっと上がる", gradient: "from-yellow-100 to-yellow-50" },
-            { icon: "🎁", title: "招待で+500クレジット", subtitle: "今なら歓迎特典", gradient: "from-rose-100 to-rose-50" },
-          ].map((c, i) => (
-            <div
-              key={i}
-              className={`relative overflow-hidden rounded-xl border border-moai-border bg-gradient-to-br ${c.gradient} p-4`}
-            >
-              <div className="text-2xl mb-2" aria-hidden="true">{c.icon}</div>
-              <h3 className="font-bold text-sm text-moai-ink leading-tight">{c.title}</h3>
-              <p className="text-[11px] text-moai-muted mt-1 leading-snug">{c.subtitle}</p>
-            </div>
-          ))}
-        </div>
-        <p className="mt-6 text-[11px] text-moai-muted leading-relaxed">
-          MOAIは沖縄発のAIプラットフォーム。スクール・コミュニティ・Crowdが一つに。
-        </p>
-      </aside>
     </div>
-  </div>
-  </div>
   );
 }
