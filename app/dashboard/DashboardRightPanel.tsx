@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { RankBadge } from "@/components/RankBadge";
+import { RANK_META, progressToNextRank, type Rank } from "@/lib/ranks";
 
 type ActiveMode = "worker" | "client";
 
@@ -133,6 +135,73 @@ async function StatsMini({ userId, activeMode }: { userId: string; activeMode: A
   );
 }
 
+// ── Rank Mini (ランク制度) ────────────────────────────
+async function RankMini({ userId }: { userId: string }) {
+  const sb = await createClient();
+  const { data: profile } = await sb
+    .from("profiles")
+    .select("rank, profile_completion, rating_count, rating_avg")
+    .eq("id", userId)
+    .maybeSingle();
+  if (!profile) return null;
+
+  const rank = (profile.rank ?? "regular") as Rank;
+  const meta = RANK_META[rank];
+  const progress = progressToNextRank(rank, {
+    profile_completion: profile.profile_completion ?? 0,
+    rating_count: profile.rating_count ?? 0,
+    rating_avg: Number(profile.rating_avg ?? 0),
+  });
+
+  return (
+    <section className="card">
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <div className="min-w-0">
+          <h3 className="text-sm font-bold">あなたのランク</h3>
+          <div className="mt-1 flex items-center gap-1.5">
+            <span className="text-2xl" aria-hidden="true">{meta.icon}</span>
+            <span className="font-bold">{meta.label}</span>
+          </div>
+        </div>
+        <RankBadge rank={rank} size="xs" />
+      </div>
+      <p className="text-[11px] text-moai-muted leading-relaxed">{meta.description}</p>
+
+      {progress.next ? (
+        <>
+          <div className="mt-3 flex items-center justify-between text-[10px] text-moai-muted">
+            <span>次: {RANK_META[progress.next].label}</span>
+            <span className="font-semibold text-moai-primary">{progress.progress}%</span>
+          </div>
+          <div className="progress-bar mt-1">
+            <div
+              className="progress-bar-fill"
+              style={{ width: `${progress.progress}%` }}
+            />
+          </div>
+          {progress.missing.length > 0 && (
+            <ul className="mt-2 space-y-1">
+              {progress.missing.map((m, i) => (
+                <li key={i} className="flex items-center justify-between text-[11px]">
+                  <span className="text-moai-muted">{m.label}</span>
+                  <span>
+                    <span className="text-moai-ink font-medium">{m.current}</span>
+                    <span className="text-moai-muted"> / {m.required}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      ) : (
+        <div className="mt-3 rounded-lg bg-cyan-50 text-cyan-800 text-xs text-center py-2 font-semibold">
+          ✨ 最上位ランク到達
+        </div>
+      )}
+    </section>
+  );
+}
+
 // ── Cohort Mini (学生/卒業生向け) ─────────────────────
 async function CohortMini({ userId }: { userId: string }) {
   const sb = await createClient();
@@ -228,6 +297,7 @@ export default async function DashboardRightPanel({
   return (
     <aside className="hidden lg:block lg:sticky lg:top-[calc(var(--header-h)+16px)] lg:self-start w-72 space-y-4">
       <ProfileCompletionMini userId={userId} />
+      <RankMini userId={userId} />
       <StatsMini userId={userId} activeMode={activeMode} />
       <CohortMini userId={userId} />
       <CommunityMini />
