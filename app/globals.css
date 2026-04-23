@@ -51,10 +51,10 @@
     min-height: 36px;
   }
   .btn-primary {
-    @apply btn bg-moai-ink text-white hover:bg-gray-800 shadow-soft hover:shadow-card;
+    @apply btn bg-moai-ink text-white hover:bg-gray-800;
   }
   .btn-accent {
-    @apply btn bg-moai-primary text-white hover:bg-moai-primary-800 shadow-soft hover:shadow-card;
+    @apply btn bg-moai-primary text-white hover:bg-moai-primary-800;
   }
   .btn-outline {
     @apply btn border border-moai-border bg-white text-moai-ink hover:bg-moai-cloud hover:border-gray-300;
@@ -96,15 +96,15 @@
     @apply block text-xs font-medium text-moai-muted mb-1.5;
   }
 
-  /* ── Cards ── */
+  /* ── Cards (MOAI風: フラット寄り・控えめ角丸) ── */
   .card {
-    @apply rounded-xl border border-moai-border bg-white p-5 shadow-soft transition-all duration-200;
+    @apply rounded-lg border border-moai-border bg-white p-5 transition-all duration-200;
   }
   .card-hover {
-    @apply card cursor-pointer hover:shadow-hover hover:-translate-y-0.5 hover:border-slate-300;
+    @apply card cursor-pointer hover:shadow-hover hover:border-slate-300;
   }
   .card-flat {
-    @apply rounded-xl bg-white p-5;
+    @apply rounded-lg bg-white p-5;
   }
   .card-featured {
     @apply card border-l-[3px] border-l-moai-primary bg-gradient-card;
@@ -113,7 +113,7 @@
     @apply card border-l-[3px] border-l-amber-400 bg-amber-50/30;
   }
   .card-interactive {
-    @apply card cursor-pointer active:scale-[0.99] hover:shadow-hover hover:-translate-y-0.5;
+    @apply card cursor-pointer active:scale-[0.99] hover:shadow-hover;
   }
 
   /* ── Badges ── */
