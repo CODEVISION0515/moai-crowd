@@ -45,7 +45,7 @@ export default async function CommunityPage({
   } else {
     // Regular mode
     let query = sb.from("posts")
-      .select("*, author:author_id(handle, display_name, avatar_url, level)")
+      .select("*, author:author_id(handle, display_name, avatar_url, level, crowd_role), cohort:cohort_id(id, name)")
       .limit(50);
     if (kind) query = query.eq("kind", kind);
     if (sort === "hot") {
@@ -61,7 +61,7 @@ export default async function CommunityPage({
       const authorIds = [...new Set(posts.map((p: any) => p.author_id))];
       if (authorIds.length > 0) {
         const { data: authors } = await sb.from("profiles")
-          .select("id, handle, display_name, avatar_url, level")
+          .select("id, handle, display_name, avatar_url, level, crowd_role")
           .in("id", authorIds);
         const authorMap = new Map((authors ?? []).map((a) => [a.id, a]));
         posts = posts.map((p: any) => ({ ...p, author: authorMap.get(p.author_id) }));
@@ -82,10 +82,16 @@ export default async function CommunityPage({
   return (
     <div className="container-app max-w-4xl py-8 pb-nav">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">コミュニティ</h1>
-          <p className="text-sm text-moai-muted mt-1">ナレッジを共有し、仲間とつながる</p>
+      <div className="flex items-start justify-between mb-6 gap-4 flex-wrap">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <span aria-hidden="true">🌱</span>
+            コミュニティ
+            <span className="badge text-[10px] bg-emerald-50 text-emerald-700">誰でも参加OK</span>
+          </h1>
+          <p className="text-sm text-moai-muted mt-1">
+            ゆんたく広場。スクール受講生・卒業生・これから学ぶ人が集まる場所
+          </p>
         </div>
         <Link href="/community/new" className="btn-accent gap-1">
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,6 +196,11 @@ export default async function CommunityPage({
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <span className={`badge text-[11px] ${meta.color}`}>{meta.icon} {meta.label}</span>
                     <VisibilityBadge visibility={p.visibility} hidePublic />
+                    {p.cohort?.id && (
+                      <span className="badge text-[10px] bg-moai-primary/10 text-moai-primary border border-moai-primary/20">
+                        🎓 スクール発・{p.cohort.name ?? `第${p.cohort.id}期`}
+                      </span>
+                    )}
                     {p.kind === "question" && p.is_solved && (
                       <span className="badge-success text-[10px]">解決済み</span>
                     )}
@@ -226,6 +237,23 @@ export default async function CommunityPage({
           </div>
         )}
       </div>
+
+      {/* Cross-link CTA: School */}
+      <section className="mt-10 card bg-gradient-to-br from-moai-primary/[0.04] to-transparent border-moai-primary/20">
+        <div className="flex items-start gap-4">
+          <div className="text-3xl shrink-0" aria-hidden="true">🎓</div>
+          <div className="flex-1 min-w-0">
+            <h2 className="font-bold">もっと深く学びたい人へ</h2>
+            <p className="mt-1 text-sm text-moai-muted">
+              MOAIスクールでは、週1回の授業 + 仲間との制作で、AIの活用力を一気に伸ばせます。
+              受講生専用のクラスでメンターと同期と一緒に進みましょう。
+            </p>
+            <Link href="/school" className="btn-outline btn-sm mt-3">
+              スクールを見る →
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
