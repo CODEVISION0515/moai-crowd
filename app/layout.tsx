@@ -50,11 +50,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  let profile: { display_name: string | null; handle: string | null; avatar_url: string | null } | null = null;
+  let profile: {
+    display_name: string | null;
+    handle: string | null;
+    avatar_url: string | null;
+    active_mode: "worker" | "client" | null;
+  } | null = null;
   if (user) {
     const { data } = await supabase
       .from("profiles")
-      .select("display_name, handle, avatar_url")
+      .select("display_name, handle, avatar_url, active_mode")
       .eq("id", user.id)
       .maybeSingle();
     profile = data ?? null;

@@ -45,7 +45,15 @@ export async function GreetingCard({ userId }: { userId: string }) {
           <Avatar src={profile?.avatar_url} name={profile?.display_name} size={64} priority />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-xs text-white/70">{greeting}</div>
+          <div className="text-xs text-white/70 flex items-center gap-2">
+            <span>{greeting}</span>
+            <span
+              className="bg-white/20 backdrop-blur-sm text-[10px] px-2 py-0.5 rounded-full font-semibold tracking-wide"
+              aria-label={`現在のモード: ${profile?.active_mode === "client" ? "発注者" : "受注者"}`}
+            >
+              {profile?.active_mode === "client" ? "💼 発注者モード" : "🛠️ 受注者モード"}
+            </span>
+          </div>
           <div className="text-xl font-bold mt-0.5">{profile?.display_name}さん</div>
           <div className="mt-1.5 flex items-center gap-2.5 text-xs">
             <span className="bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded-full font-semibold">Lv.{profile?.level ?? 1}</span>
@@ -212,7 +220,7 @@ export async function GettingStarted({ userId }: { userId: string }) {
     { count: jobCount },
     { count: proposalCount },
   ] = await Promise.all([
-    sb.from("profiles").select("avatar_url, bio, skills, profile_completion, github_username, is_worker, is_client, stripe_account_id").eq("id", userId).single(),
+    sb.from("profiles").select("avatar_url, bio, skills, profile_completion, github_username, is_worker, is_client, stripe_account_id, active_mode").eq("id", userId).single(),
     sb.from("posts").select("*", { count: "exact", head: true }).eq("author_id", userId),
     sb.from("jobs").select("*", { count: "exact", head: true }).eq("client_id", userId),
     sb.from("proposals").select("*", { count: "exact", head: true }).eq("worker_id", userId),
@@ -220,7 +228,9 @@ export async function GettingStarted({ userId }: { userId: string }) {
 
   if (!profile) return null;
 
-  const items: ChecklistItem[] = [
+  const activeMode = (profile.active_mode ?? "worker") as "worker" | "client";
+
+  const commonItems: ChecklistItem[] = [
     {
       id: "avatar",
       label: "プロフィール写真を設定",
@@ -242,41 +252,48 @@ export async function GettingStarted({ userId }: { userId: string }) {
       href: "/profile/edit",
       done: Array.isArray(profile.skills) && profile.skills.length > 0,
     },
-    ...(profile.is_worker
-      ? [
-          {
-            id: "bank_setup",
-            label: "振込先口座を登録",
-            description: "受注する前に必要 · 3〜5分で完了",
-            href: "/bank-setup",
-            done: !!profile.stripe_account_id,
-          },
-          {
-            id: "first_proposal",
-            label: "最初の案件に応募",
-            description: "受注実績の第一歩",
-            href: "/jobs",
-            done: (proposalCount ?? 0) > 0,
-          },
-        ]
-      : []),
-    ...(profile.is_client
-      ? [{
-          id: "first_job",
-          label: "最初の案件を投稿",
-          description: "AIで下書きが作れます",
-          href: "/jobs/new",
-          done: (jobCount ?? 0) > 0,
-        }]
-      : []),
+  ];
+
+  const workerItems: ChecklistItem[] = [
     {
-      id: "first_post",
-      label: "コミュニティで最初の投稿",
-      description: "自己紹介してみよう (+10 XP)",
-      href: "/community/new",
-      done: (postCount ?? 0) > 0,
+      id: "bank_setup",
+      label: "振込先口座を登録",
+      description: "受注する前に必要 · 3〜5分で完了",
+      href: "/bank-setup",
+      done: !!profile.stripe_account_id,
+    },
+    {
+      id: "first_proposal",
+      label: "最初の案件に応募",
+      description: "受注実績の第一歩",
+      href: "/jobs",
+      done: (proposalCount ?? 0) > 0,
     },
   ];
+
+  const clientItems: ChecklistItem[] = [
+    {
+      id: "first_job",
+      label: "最初の案件を投稿",
+      description: "AIで下書きが作れます",
+      href: "/jobs/new",
+      done: (jobCount ?? 0) > 0,
+    },
+  ];
+
+  const communityItem: ChecklistItem = {
+    id: "first_post",
+    label: "コミュニティで最初の投稿",
+    description: "自己紹介してみよう (+10 XP)",
+    href: "/community/new",
+    done: (postCount ?? 0) > 0,
+  };
+
+  // アクティブモードに応じた並び順: 現モード→共通→反対モード→コミュニティ
+  const items: ChecklistItem[] =
+    activeMode === "client"
+      ? [...clientItems, ...commonItems, ...workerItems, communityItem]
+      : [...workerItems, ...commonItems, ...clientItems, communityItem];
 
   const doneCount = items.filter((i) => i.done).length;
   const totalCount = items.length;
@@ -293,10 +310,12 @@ export async function GettingStarted({ userId }: { userId: string }) {
           <div>
             <h2 className="font-bold text-lg flex items-center gap-2">
               <span aria-hidden="true">🚀</span>
-              はじめてのMOAI Crowd
+              {activeMode === "client" ? "発注者として始める" : "受注者として始める"}
             </h2>
             <p className="text-xs text-moai-muted mt-1">
-              下のステップを完了して、サービスを最大限活用しましょう
+              {activeMode === "client"
+                ? "案件を投稿して、仲間に手伝ってもらおう"
+                : "下のステップを完了して、初受注までの道を進もう"}
             </p>
           </div>
           <div className="text-right shrink-0">

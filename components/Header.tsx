@@ -30,6 +30,7 @@ type HeaderProfile = {
   display_name: string | null;
   handle: string | null;
   avatar_url: string | null;
+  active_mode?: "worker" | "client" | null;
 };
 
 export default function Header({
@@ -39,6 +40,7 @@ export default function Header({
   userId: string | null;
   profile?: HeaderProfile | null;
 }) {
+  const activeMode = (profile?.active_mode ?? "worker") as "worker" | "client";
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -99,16 +101,38 @@ export default function Header({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10" />
                   </svg>
                   マイページ
+                  <span
+                    className={`ml-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-full leading-none ${
+                      activeMode === "client"
+                        ? "bg-amber-100 text-amber-800"
+                        : "bg-moai-primary/10 text-moai-primary"
+                    }`}
+                    aria-hidden="true"
+                  >
+                    {activeMode === "client" ? "発注者" : "受注者"}
+                  </span>
                 </Link>
-                <Link
-                  href="/jobs/new"
-                  className="hidden md:inline-flex btn-accent btn-sm gap-1"
-                >
-                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-                  </svg>
-                  依頼する
-                </Link>
+                {activeMode === "client" ? (
+                  <Link
+                    href="/jobs/new"
+                    className="hidden md:inline-flex btn-accent btn-sm gap-1"
+                  >
+                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                    </svg>
+                    依頼する
+                  </Link>
+                ) : (
+                  <Link
+                    href="/jobs"
+                    className="hidden md:inline-flex btn-accent btn-sm gap-1"
+                  >
+                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
+                    </svg>
+                    案件を探す
+                  </Link>
+                )}
                 <CreditsBadge userId={userId} />
                 <NotificationBell userId={userId} />
                 <button
@@ -129,6 +153,7 @@ export default function Header({
                     displayName={profile?.display_name ?? null}
                     handle={profile?.handle ?? null}
                     avatarUrl={profile?.avatar_url ?? null}
+                    activeMode={activeMode}
                   />
                 </div>
               </>
