@@ -107,6 +107,17 @@ export const addPortfolioSchema = z.object({
   tags: csvToArray,
   client_name: optionalString,
   completed_at: optionalString,
+  is_school_work: z
+    .union([z.literal("on"), z.string(), z.undefined()])
+    .transform((v) => v === "on"),
+  cohort: z
+    .union([z.string(), z.number(), z.literal(""), z.undefined()])
+    .transform((v) => {
+      if (v === undefined || v === "") return null;
+      const n = Number(v);
+      return Number.isInteger(n) && n > 0 ? n : null;
+    }),
+  school_project_name: optionalString,
 });
 
 export const addWorkExpSchema = z.object({

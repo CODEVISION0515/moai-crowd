@@ -69,9 +69,21 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
                   </h1>
                   <div className="text-sm text-slate-500">@{profile.handle}</div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className={`px-3 py-1 rounded-full text-xs font-medium ${av.color}`}>{av.label}</span>
-                  {user && !isOwnProfile && <FollowButton targetUserId={profile.id} initiallyFollowing={isFollowing} />}
+                  {user && !isOwnProfile && (
+                    <>
+                      <FollowButton targetUserId={profile.id} initiallyFollowing={isFollowing} />
+                      {profile.is_worker && (
+                        <Link
+                          href={`/jobs/new?assignee=${profile.handle}`}
+                          className="btn-accent btn-sm"
+                        >
+                          💼 この人に依頼
+                        </Link>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
               {profile.tagline && <p className="mt-2 text-slate-700">{profile.tagline}</p>}
@@ -164,12 +176,101 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
         </div>
       )}
 
-      {/* ポートフォリオ */}
-      {portfolios && portfolios.length > 0 && (
+      {/* MOAI歴セクション (在校生・卒業生・講師のみ) */}
+      {profile.crowd_role && ["student", "alumni", "lecturer"].includes(profile.crowd_role) && (
+        <section className="mt-8 card bg-gradient-to-br from-moai-primary/5 to-moai-accent/5 border-moai-primary/20">
+          <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+            <span aria-hidden="true">🎓</span>MOAI歴
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div>
+              <div className="text-xs text-moai-muted">ロール</div>
+              <div className="font-semibold text-sm mt-0.5">
+                {profile.crowd_role === "alumni" ? "🎓 卒業生" : profile.crowd_role === "student" ? "🌱 在校生" : "🏛 講師"}
+              </div>
+            </div>
+            {profile.cohort && (
+              <div>
+                <div className="text-xs text-moai-muted">期</div>
+                <div className="font-semibold text-sm mt-0.5">第{profile.cohort}期</div>
+              </div>
+            )}
+            {profile.enrollment_date && (
+              <div>
+                <div className="text-xs text-moai-muted">入学日</div>
+                <div className="font-semibold text-sm mt-0.5">{profile.enrollment_date}</div>
+              </div>
+            )}
+            {profile.graduation_date && (
+              <div>
+                <div className="text-xs text-moai-muted">卒業日</div>
+                <div className="font-semibold text-sm mt-0.5">{profile.graduation_date}</div>
+              </div>
+            )}
+          </div>
+          {profile.cohort && (
+            <div className="mt-4 pt-4 border-t border-moai-primary/20">
+              <Link href={`/school/cohort/${profile.cohort}`} className="text-sm text-moai-primary hover:underline">
+                → 第{profile.cohort}期のスペースを見る
+              </Link>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* MOAIスクール作品 (優先表示) */}
+      {portfolios && portfolios.some((p: any) => p.is_school_work) && (
+        <div className="mt-8">
+          <div className="flex items-end justify-between mb-3">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <span aria-hidden="true">🎓</span>MOAIスクールで制作した作品
+            </h2>
+            <Link href="/school/gallery" className="text-xs text-moai-primary hover:underline">
+              ギャラリー全体を見る →
+            </Link>
+          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            {portfolios.filter((p: any) => p.is_school_work).map((p: any) => (
+              <a
+                key={p.id}
+                href={p.external_url || "#"}
+                target={p.external_url ? "_blank" : undefined}
+                className="card-hover border-l-4 border-l-moai-primary"
+              >
+                {p.image_url && (
+                  <div className="relative w-full h-40 rounded-lg overflow-hidden bg-moai-cloud">
+                    <Image
+                      src={p.image_url}
+                      alt={p.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+                <div className="mt-3 flex items-center gap-2 flex-wrap">
+                  {p.cohort && <span className="badge-accent text-[10px]">第{p.cohort}期</span>}
+                  {p.school_project_name && (
+                    <span className="text-[10px] text-moai-primary font-medium">{p.school_project_name}</span>
+                  )}
+                </div>
+                <h3 className="mt-1 font-semibold">{p.title}</h3>
+                {p.description && <p className="mt-1 text-sm text-slate-600 line-clamp-3">{p.description}</p>}
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {p.tags?.map((t: string) => <span key={t} className="badge text-xs">{t}</span>)}
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 通常のポートフォリオ */}
+      {portfolios && portfolios.filter((p: any) => !p.is_school_work).length > 0 && (
         <div className="mt-8">
           <h2 className="text-lg font-semibold mb-3">🎨 ポートフォリオ</h2>
           <div className="grid md:grid-cols-2 gap-4">
-            {portfolios.map((p: any) => (
+            {portfolios.filter((p: any) => !p.is_school_work).map((p: any) => (
               <a key={p.id} href={p.external_url || "#"} target={p.external_url ? "_blank" : undefined} className="card hover:shadow-md transition">
                 {p.image_url && (
                   <div className="relative w-full h-40 rounded-lg overflow-hidden bg-moai-cloud">

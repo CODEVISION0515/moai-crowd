@@ -260,6 +260,38 @@ export default async function ProfileEditPage() {
               <input name="client_name" className="input" placeholder="クライアント名" />
               <input name="completed_at" type="date" className="input" />
             </div>
+
+            {/* MOAIスクール作品 */}
+            <div className="rounded-lg border border-moai-primary/20 bg-moai-primary/[0.03] p-3 space-y-3">
+              <label className="flex items-start gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="is_school_work"
+                  className="mt-0.5 h-4 w-4 rounded border-slate-300 text-moai-primary focus:ring-moai-primary"
+                />
+                <div>
+                  <div className="text-sm font-medium">🎓 MOAIスクールで制作した作品</div>
+                  <div className="text-[11px] text-moai-muted mt-0.5">
+                    チェックすると /school/gallery や期の卒業発表ページに掲載され、発注者の目にとまりやすくなります
+                  </div>
+                </div>
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="label text-[11px]">期</label>
+                  <input name="cohort" type="number" min="1" className="input text-sm" placeholder="例: 1" />
+                </div>
+                <div>
+                  <label className="label text-[11px]">課題・プロジェクト名</label>
+                  <input
+                    name="school_project_name"
+                    className="input text-sm"
+                    placeholder="例: 第1週目課題、卒業制作"
+                  />
+                </div>
+              </div>
+            </div>
+
             <button className="btn-primary">追加</button>
           </form>
         </details>
