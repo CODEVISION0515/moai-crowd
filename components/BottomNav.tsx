@@ -10,9 +10,13 @@ const ITEMS = [
   { href: "/dashboard", label: "マイ", icon: UserIcon },
 ];
 
+const AUTH_PATHS = ["/login", "/signup", "/signup/confirm", "/forgot-password", "/auth/reset-password"];
+
 export default function BottomNav({ userId }: { userId: string | null }) {
   const pathname = usePathname();
   if (!userId) return null;
+  // 認証ページでは非表示
+  if (AUTH_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return null;
 
   return (
     <nav

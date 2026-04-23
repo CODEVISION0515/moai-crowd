@@ -92,17 +92,17 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-var(--header-h))] flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md animate-slide-up">
-        {/* Branding */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <span className="text-2xl font-bold text-moai-primary">MOAI</span>
-            <span className="text-sm text-moai-muted">Crowd</span>
-          </div>
-          <h1 className="text-2xl font-bold">新規登録</h1>
-          <p className="text-sm text-moai-muted mt-1">30秒で完了。完全無料。</p>
-        </div>
+    <div className="min-h-[calc(100vh-var(--header-h))] bg-moai-cloud/30 py-10 md:py-14">
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+        <div className="grid lg:grid-cols-[minmax(0,1fr)_1.1fr] gap-8 lg:gap-10 items-start">
+          <div className="w-full max-w-md mx-auto lg:max-w-none animate-slide-up">
+            <h1 className="text-2xl md:text-3xl font-bold mb-2">新規会員登録</h1>
+            <p className="text-sm text-moai-muted mb-6">
+              30秒で完了・完全無料。すでにアカウントをお持ちの方は{" "}
+              <Link href="/login" className="text-moai-primary hover:underline font-medium">
+                ログインはこちら
+              </Link>
+            </p>
 
         {/* Intent banner */}
         {intentCopy && (
@@ -217,17 +217,13 @@ export default function SignUpPage() {
             ) : "アカウント作成"}
           </button>
 
-          <p className="text-sm text-center text-moai-muted pt-2">
-            既にアカウントをお持ち？{" "}
-            <Link href="/login" className="text-moai-primary font-medium hover:underline">ログイン</Link>
-          </p>
           </form>
         </div>
 
         {/* Social proof */}
         <div className="mt-6 flex items-center justify-center gap-4 text-xs text-moai-muted">
           <span className="flex items-center gap-1">
-            <svg className="h-3.5 w-3.5 text-moai-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+            <svg className="h-3.5 w-3.5 text-moai-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
             エスクロー決済で安心
           </span>
           <span className="text-moai-border">|</span>
@@ -236,6 +232,37 @@ export default function SignUpPage() {
           <span>AI機能無料</span>
         </div>
       </div>
+
+      {/* Right: Service teaser cards */}
+      <aside className="hidden lg:block">
+        <div className="text-xs font-semibold text-moai-muted uppercase tracking-wider mb-3">
+          登録するとできること
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { icon: "🎓", title: "AIスクールで学ぶ", subtitle: "週1回の授業＋仲間", gradient: "from-moai-primary/10 to-moai-primary/5" },
+            { icon: "💼", title: "案件を依頼する", subtitle: "発注者手数料0〜4%", gradient: "from-amber-100 to-amber-50" },
+            { icon: "🔍", title: "案件を探す", subtitle: "卒業生は生涯5%固定", gradient: "from-emerald-100 to-emerald-50" },
+            { icon: "🌱", title: "ゆんたく広場", subtitle: "沖縄発の温かいコミュニティ", gradient: "from-cyan-100 to-cyan-50" },
+            { icon: "🏆", title: "ランク制度で実績を可視化", subtitle: "受注率がぐっと上がる", gradient: "from-yellow-100 to-yellow-50" },
+            { icon: "🎁", title: "招待で+500クレジット", subtitle: "今なら歓迎特典", gradient: "from-rose-100 to-rose-50" },
+          ].map((c, i) => (
+            <div
+              key={i}
+              className={`relative overflow-hidden rounded-xl border border-moai-border bg-gradient-to-br ${c.gradient} p-4`}
+            >
+              <div className="text-2xl mb-2" aria-hidden="true">{c.icon}</div>
+              <h3 className="font-bold text-sm text-moai-ink leading-tight">{c.title}</h3>
+              <p className="text-[11px] text-moai-muted mt-1 leading-snug">{c.subtitle}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-6 text-[11px] text-moai-muted leading-relaxed">
+          MOAIは沖縄発のAIプラットフォーム。スクール・コミュニティ・Crowdが一つに。
+        </p>
+      </aside>
     </div>
+  </div>
+  </div>
   );
 }

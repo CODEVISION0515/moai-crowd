@@ -33,6 +33,12 @@ type HeaderProfile = {
   active_mode?: "worker" | "client" | null;
 };
 
+const AUTH_PATHS = ["/login", "/signup", "/signup/confirm", "/forgot-password", "/auth/reset-password"];
+
+function isAuthPath(pathname: string): boolean {
+  return AUTH_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
 export default function Header({
   userId,
   profile,
@@ -42,6 +48,24 @@ export default function Header({
 }) {
   const activeMode = (profile?.active_mode ?? "worker") as "worker" | "client";
   const pathname = usePathname();
+
+  // 認証ページではロゴだけのミニマルヘッダーに
+  if (isAuthPath(pathname)) {
+    return (
+      <header className="sticky top-0 z-40 bg-white border-b border-moai-border">
+        <div className="container-app flex items-center h-[var(--header-h)]">
+          <Link href="/" aria-label="MOAI ホーム" className="flex items-baseline gap-1.5 group">
+            <span className="text-lg font-bold text-moai-primary transition-colors group-hover:text-moai-primary-800">
+              MOAI
+            </span>
+            <span className="text-[10px] font-medium text-moai-muted tracking-wide hidden sm:inline">
+              ゆんたく・まなぶ・つくる
+            </span>
+          </Link>
+        </div>
+      </header>
+    );
+  }
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
