@@ -40,6 +40,9 @@ export const saveStep2 = statefulFormAction(onboardingStep2Schema, async ({ sb, 
     bio: d.bio,
     is_worker: d.role !== "client_only",
     is_client: d.role !== "worker_only",
+    account_type: d.account_type,
+    // 登録時にclient_only を選んだ＆法人 なら最初から発注者モードで開始する
+    active_mode: d.role === "client_only" ? "client" : "worker",
   }).eq("id", user.id);
   if (error) return { error: error.message };
 
@@ -56,9 +59,14 @@ export async function skipStep2(formData: FormData) {
   if (!user) redirect("/login");
   const intent = String(formData.get("intent") ?? "");
   const role = intent === "client" ? "client_only" : intent === "worker" ? "worker_only" : "both";
+  // account_type は形式だけ (hidden input) 受け取る。なければ individual
+  const rawAccountType = String(formData.get("account_type") ?? "individual");
+  const account_type = rawAccountType === "corporate" ? "corporate" : "individual";
   await sb.from("profiles").update({
     is_worker: role !== "client_only",
     is_client: role !== "worker_only",
+    account_type,
+    active_mode: role === "client_only" ? "client" : "worker",
   }).eq("id", user.id);
   redirect("/onboarding?step=3");
 }

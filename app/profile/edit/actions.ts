@@ -5,6 +5,7 @@ import { formAction, statefulFormAction } from "@/lib/actions";
 import {
   updateBasicSchema,
   updateSocialSchema,
+  updateBusinessSchema,
   addPortfolioSchema,
   addWorkExpSchema,
   addEducationSchema,
@@ -36,6 +37,19 @@ export const updateBasic = statefulFormAction(updateBasicSchema, async ({ sb, us
   if (error) return { error: "保存に失敗しました。ハンドル名の重複などをご確認ください。" };
   revalidateEdit();
   return { success: "基本情報を保存しました" };
+});
+
+export const updateBusiness = statefulFormAction(updateBusinessSchema, async ({ sb, user, data: d }) => {
+  const { error } = await sb.from("profiles").update({
+    account_type: d.account_type,
+    company_name: d.account_type === "corporate" ? d.company_name : null,
+    company_address: d.account_type === "corporate" ? d.company_address : null,
+    representative_name: d.account_type === "corporate" ? d.representative_name : null,
+    invoice_registration_number: d.account_type === "corporate" ? d.invoice_registration_number : null,
+  }).eq("id", user.id);
+  if (error) return { error: "法人情報の保存に失敗しました" };
+  revalidateEdit();
+  return { success: "法人/個人区分を保存しました" };
 });
 
 export const updateSocial = statefulFormAction(updateSocialSchema, async ({ sb, user, data: d }) => {

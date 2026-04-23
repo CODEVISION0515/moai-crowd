@@ -99,6 +99,19 @@ export const updateSocialSchema = z.object({
 });
 export type UpdateSocialInput = z.infer<typeof updateSocialSchema>;
 
+/**
+ * 法人/個人の区分と法人情報の更新。
+ * account_type は必須。法人選択時でも会社情報は任意入力（後出しOK）。
+ */
+export const updateBusinessSchema = z.object({
+  account_type: z.enum(["individual", "corporate"]).default("individual"),
+  company_name: optionalString,
+  company_address: optionalString,
+  representative_name: optionalString,
+  invoice_registration_number: optionalString,
+});
+export type UpdateBusinessInput = z.infer<typeof updateBusinessSchema>;
+
 export const addPortfolioSchema = z.object({
   title: z.string().min(1, "タイトルは必須です").max(200),
   description: optionalString,
@@ -198,6 +211,7 @@ export const onboardingStep2Schema = z.object({
   skills: csvToArray,
   bio: optionalString,
   role: z.enum(["both", "worker_only", "client_only"]).default("both"),
+  account_type: z.enum(["individual", "corporate"]).default("individual"),
 });
 
 // ── AI Schemas ───────────────────────────────────
