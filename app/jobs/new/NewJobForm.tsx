@@ -8,13 +8,22 @@ import { FormToast } from "@/components/FormToast";
 
 type Category = { slug: string; label: string };
 
-export default function NewJobForm({ categories }: { categories: Category[] }) {
+export default function NewJobForm({
+  categories,
+  assigneeHandle,
+  assigneeDisplayName,
+}: {
+  categories: Category[];
+  assigneeHandle?: string | null;
+  assigneeDisplayName?: string | null;
+}) {
   const [state, action] = useActionState(createJob, null);
   const errors = state && "fieldErrors" in state ? state.fieldErrors : undefined;
 
   return (
     <form action={action} className="card space-y-5" noValidate>
       <FormToast state={state} />
+      {assigneeHandle && <input type="hidden" name="assignee_handle" value={assigneeHandle} />}
       <div>
         <label htmlFor="title" className="label">
           タイトル <span className="text-red-500">*</span>
@@ -96,6 +105,38 @@ export default function NewJobForm({ categories }: { categories: Category[] }) {
           <input id="deadline" name="deadline" type="date" className="input" />
         </div>
       </div>
+
+      {/* MOAI 対象者絞り込み (assignee 指名時は非表示) */}
+      {!assigneeHandle && (
+        <div className="pt-3 border-t border-moai-border space-y-2">
+          <span className="label">応募者の絞り込み (任意)</span>
+          <label className="flex items-start gap-2 p-3 rounded-lg border border-moai-border hover:bg-moai-cloud cursor-pointer">
+            <input type="checkbox" name="alumni_only" className="mt-0.5 h-4 w-4 text-moai-primary" />
+            <div>
+              <div className="text-sm font-medium">🎓 MOAI卒業生からの応募のみ受け付ける</div>
+              <div className="text-[11px] text-moai-muted mt-0.5">
+                品質担保・手数料5%の卒業生に限定。一般応募を弾きます
+              </div>
+            </div>
+          </label>
+          <label className="flex items-start gap-2 p-3 rounded-lg border border-moai-border hover:bg-moai-cloud cursor-pointer">
+            <input type="checkbox" name="mentor_required" className="mt-0.5 h-4 w-4 text-moai-primary" />
+            <div>
+              <div className="text-sm font-medium">👨‍🏫 メンター監修つき</div>
+              <div className="text-[11px] text-moai-muted mt-0.5">
+                在校生・新人受注者の案件で、メンターが品質チェックします
+              </div>
+            </div>
+          </label>
+        </div>
+      )}
+
+      {assigneeHandle && assigneeDisplayName && (
+        <p className="text-xs text-moai-muted text-center">
+          📌 この案件は <strong>{assigneeDisplayName}</strong> さんに通知され、本人のみ応募可能になります
+        </p>
+      )}
+
       <SubmitButton />
     </form>
   );

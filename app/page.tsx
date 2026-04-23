@@ -11,7 +11,16 @@ export default async function HomePage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [{ data: jobs }, { data: workers }, { count: jobCount }, { count: userCount }] = await Promise.all([
+  const [
+    { data: jobs },
+    { data: workers },
+    { count: jobCount },
+    { count: userCount },
+    { data: activeCohort },
+    { data: schoolWorks },
+    { data: interviews },
+    { data: schoolPosts },
+  ] = await Promise.all([
     supabase
       .from("jobs")
       .select("id, title, category, budget_min_jpy, budget_max_jpy, proposal_count, created_at, profiles:client_id(display_name)")
@@ -28,10 +37,41 @@ export default async function HomePage() {
       .limit(6),
     supabase.from("jobs").select("*", { count: "exact", head: true }),
     supabase.from("profiles").select("*", { count: "exact", head: true }).eq("is_suspended", false),
+    supabase
+      .from("cohorts")
+      .select("id, name, subtitle, starts_at, ends_at, description, is_accepting_applications, application_url")
+      .eq("is_accepting_applications", true)
+      .order("id", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("portfolios")
+      .select("id, title, image_url, external_url, cohort, user:user_id(handle, display_name, avatar_url)")
+      .eq("is_school_work", true)
+      .order("created_at", { ascending: false })
+      .limit(4),
+    supabase
+      .from("interviews")
+      .select("id, slug, title, summary, hero_image_url, subject:subject_user_id(display_name, avatar_url)")
+      .eq("is_published", true)
+      .order("published_at", { ascending: false })
+      .limit(3),
+    supabase
+      .from("posts")
+      .select("id, title, kind, created_at, author:author_id(handle, display_name, avatar_url)")
+      .not("cohort_id", "is", null)
+      .eq("visibility", "public")
+      .order("created_at", { ascending: false })
+      .limit(4),
   ]);
 
   const totalJobs = jobCount ?? 0;
   const totalUsers = userCount ?? 0;
+  const hasSchoolContent =
+    (schoolWorks?.length ?? 0) > 0 ||
+    (interviews?.length ?? 0) > 0 ||
+    (schoolPosts?.length ?? 0) > 0 ||
+    !!activeCohort;
 
   // JSON-LD 構造化データ (Google検索でリッチリザルトに)
   const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://moai-crowd.vercel.app";
@@ -202,6 +242,149 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ── MOAIスクールの見せる学び ── */}
+      {hasSchoolContent && (
+        <section className="bg-gradient-to-br from-moai-primary/5 to-moai-accent/5 border-y border-moai-border">
+          <div className="container-app py-12 md:py-16 space-y-8">
+            <div className="text-center">
+              <div className="inline-flex items-center gap-2 badge-accent px-3 py-1 rounded-full mb-3">
+                <span className="text-xs font-semibold">🎓 MOAIスクール</span>
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold">見える学び、見せる成長</h2>
+              <p className="mt-3 text-sm md:text-base text-moai-muted max-w-2xl mx-auto">
+                受講生の学びの軌跡、作品、成長ストーリーをすべて公開。<br className="hidden sm:block" />
+                「こんなことができるようになるんだ」を体感してください。
+              </p>
+              {activeCohort && (
+                <div className="mt-5">
+                  <Link
+                    href={activeCohort.application_url ?? `/school/apply/${activeCohort.id}`}
+                    className="btn-accent btn-lg"
+                  >
+                    🎯 {activeCohort.name} 募集中
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* School highlights 3 cards */}
+            <div className="grid md:grid-cols-3 gap-4">
+              <Link href="/school/gallery" className="card-interactive">
+                <div className="text-3xl mb-2" aria-hidden="true">🎨</div>
+                <h3 className="font-bold text-sm">作品ギャラリー</h3>
+                <p className="mt-1 text-xs text-moai-muted">受講生が制作した作品一覧。気に入った作者に直接依頼できる</p>
+              </Link>
+              <Link href="/school/interviews" className="card-interactive">
+                <div className="text-3xl mb-2" aria-hidden="true">🎙</div>
+                <h3 className="font-bold text-sm">受講生の声</h3>
+                <p className="mt-1 text-xs text-moai-muted">Before/Afterのリアルな変化をインタビュー形式で</p>
+              </Link>
+              <Link href={`/school/cohort/${activeCohort?.id ?? 1}`} className="card-interactive">
+                <div className="text-3xl mb-2" aria-hidden="true">💬</div>
+                <h3 className="font-bold text-sm">受講スペース</h3>
+                <p className="mt-1 text-xs text-moai-muted">講師からの告知・宿題・同期との議論がリアルタイムで</p>
+              </Link>
+            </div>
+
+            {/* Recent school posts / works */}
+            {((schoolPosts?.length ?? 0) > 0 || (schoolWorks?.length ?? 0) > 0) && (
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* 最新のスクール投稿 */}
+                {schoolPosts && schoolPosts.length > 0 && (
+                  <div>
+                    <h3 className="section-title mb-3 flex items-center gap-2">
+                      <span aria-hidden="true">📝</span>最新の学び
+                    </h3>
+                    <div className="space-y-2">
+                      {schoolPosts.map((p: any) => (
+                        <Link key={p.id} href={`/community/${p.id}`} className="card-hover block">
+                          <h4 className="font-semibold text-sm line-clamp-1">{p.title}</h4>
+                          <div className="mt-1 text-xs text-moai-muted flex items-center gap-2">
+                            {p.author && <Avatar src={p.author.avatar_url} name={p.author.display_name} size={16} />}
+                            <span>{p.author?.display_name}</span>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 最新の作品 */}
+                {schoolWorks && schoolWorks.length > 0 && (
+                  <div>
+                    <h3 className="section-title mb-3 flex items-center gap-2">
+                      <span aria-hidden="true">🎨</span>最新の作品
+                    </h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      {schoolWorks.slice(0, 4).map((w: any) => (
+                        <a
+                          key={w.id}
+                          href={w.external_url || "#"}
+                          target={w.external_url ? "_blank" : undefined}
+                          rel="noreferrer"
+                          className="card-hover p-2 block"
+                        >
+                          {w.image_url ? (
+                            <div className="aspect-square bg-moai-cloud rounded overflow-hidden relative">
+                              <img src={w.image_url} alt={w.title} className="w-full h-full object-cover" />
+                              {w.cohort && (
+                                <span className="absolute top-1 right-1 badge-accent text-[9px]">第{w.cohort}期</span>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="aspect-square bg-moai-cloud rounded flex items-center justify-center text-2xl" aria-hidden="true">
+                              🎨
+                            </div>
+                          )}
+                          <div className="mt-1 text-[11px] font-medium line-clamp-1">{w.title}</div>
+                          {w.user && (
+                            <div className="text-[10px] text-moai-muted line-clamp-1">by {w.user.display_name}</div>
+                          )}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Interview teaser */}
+            {interviews && interviews.length > 0 && (
+              <div>
+                <h3 className="section-title mb-3 flex items-center gap-2">
+                  <span aria-hidden="true">🎙</span>受講生インタビュー
+                </h3>
+                <div className="grid md:grid-cols-3 gap-3">
+                  {interviews.map((iv: any) => (
+                    <Link key={iv.id} href={`/school/interviews/${iv.slug}`} className="card-hover block">
+                      {iv.hero_image_url && (
+                        <div className="h-28 -m-5 mb-2 bg-moai-cloud rounded-t-xl overflow-hidden">
+                          <img src={iv.hero_image_url} alt={iv.title} className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                      <h4 className="font-semibold text-sm line-clamp-2">{iv.title}</h4>
+                      {iv.summary && <p className="mt-1 text-xs text-moai-muted line-clamp-2">{iv.summary}</p>}
+                      {iv.subject && (
+                        <div className="mt-2 flex items-center gap-1.5 text-xs text-moai-muted">
+                          <Avatar src={iv.subject.avatar_url} name={iv.subject.display_name} size={16} />
+                          <span>{iv.subject.display_name}</span>
+                        </div>
+                      )}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="text-center">
+              <Link href="/school" className="text-sm font-medium text-moai-primary hover:underline">
+                → MOAIスクールをもっと見る
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── カテゴリ ── */}
       <section className="container-app py-12 md:py-16">
