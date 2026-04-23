@@ -7,10 +7,10 @@ import NotificationBell from "@/components/NotificationBell";
 import CreditsBadge from "@/components/CreditsBadge";
 
 const PUBLIC_LINKS = [
+  { href: "/school", label: "スクール" },
   { href: "/jobs", label: "案件" },
-  { href: "/workers", label: "メンバー" },
   { href: "/community", label: "コミュニティ" },
-  { href: "/events", label: "イベント" },
+  { href: "/workers", label: "メンバー" },
 ];
 
 const AUTH_LINKS = [

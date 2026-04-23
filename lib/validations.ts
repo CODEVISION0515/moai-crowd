@@ -214,11 +214,28 @@ export const creditCheckoutSchema = z.object({
 // ── Post Schema ──────────────────────────────────
 
 export const createPostSchema = z.object({
-  kind: z.enum(["discussion", "question", "showcase"]).default("discussion"),
+  kind: z.enum(["discussion", "question", "showcase", "announcement"]).default("discussion"),
   title: z.string().min(1, "タイトルは必須です").max(200),
   body: z.string().min(1, "本文は必須です"),
   tags: csvToArray,
   visibility: z.enum(["public", "members", "school"]).default("public"),
+  cohort_id: z
+    .union([z.string(), z.number(), z.undefined(), z.literal("")])
+    .transform((v) => {
+      if (v === undefined || v === "") return null;
+      const n = Number(v);
+      return Number.isInteger(n) && n > 0 ? n : null;
+    }),
+  week_number: z
+    .union([z.string(), z.number(), z.undefined(), z.literal("")])
+    .transform((v) => {
+      if (v === undefined || v === "") return null;
+      const n = Number(v);
+      return Number.isInteger(n) && n > 0 ? n : null;
+    }),
+  is_pinned: z
+    .union([z.literal("1"), z.literal("on"), z.string(), z.undefined()])
+    .transform((v) => v === "1" || v === "on"),
 });
 
 // ── Refund Schema ────────────────────────────────
