@@ -28,8 +28,8 @@ export default async function NewJobPage({
   const assignee: any = assigneeRes.data;
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
-      <h1 className="text-2xl font-bold mb-6">案件を投稿する</h1>
+    <div className="container-app max-w-2xl py-6 md:py-10">
+      <h1 className="text-2xl md:text-3xl font-bold mb-6">案件を投稿する</h1>
 
       {/* Assignee ヒント (指名の場合) */}
       {assignee && (

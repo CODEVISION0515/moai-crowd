@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { SubmitButton } from "@/components/SubmitButton";
 
 async function createEvent(formData: FormData) {
   "use server";
@@ -29,8 +30,8 @@ async function createEvent(formData: FormData) {
 
 export default function NewEventPage() {
   return (
-    <div className="mx-auto max-w-xl px-4 py-10">
-      <h1 className="text-2xl font-bold mb-6">イベントを作成</h1>
+    <div className="container-app max-w-xl py-6 md:py-10">
+      <h1 className="text-2xl md:text-3xl font-bold mb-6">イベントを作成</h1>
       <form action={createEvent} className="card space-y-4">
         <div>
           <label className="label">タイトル *</label>
@@ -68,7 +69,7 @@ export default function NewEventPage() {
             <input name="tags" className="input" placeholder="勉強会,AI" />
           </div>
         </div>
-        <button className="btn-primary w-full">作成する</button>
+        <SubmitButton block pendingLabel="作成中…">作成する</SubmitButton>
       </form>
     </div>
   );

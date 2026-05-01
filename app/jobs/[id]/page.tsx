@@ -5,6 +5,7 @@ import ProposalForm from "./ProposalForm";
 import { acceptProposal } from "./actions";
 import { EmptyState } from "@/components/EmptyState";
 import { RankBadge } from "@/components/RankBadge";
+import { SubmitButton } from "@/components/SubmitButton";
 
 export const dynamic = "force-dynamic";
 
@@ -46,7 +47,7 @@ export default async function JobDetailPage({
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
+    <div className="container-app max-w-4xl py-6 md:py-10">
       <Link href="/jobs" className="text-sm text-moai-primary hover:underline">← 一覧に戻る</Link>
       <div className="card mt-4">
         <span className="badge">{job.category}</span>
@@ -119,7 +120,7 @@ export default async function JobDetailPage({
                 {p.status === "pending" && job.status === "open" && (
                   <form action={acceptProposal} className="mt-3">
                     <input type="hidden" name="proposal_id" value={p.id} />
-                    <button className="btn-primary">この応募を承諾する</button>
+                    <SubmitButton pendingLabel="承諾中…">この応募を承諾する</SubmitButton>
                   </form>
                 )}
                 {p.status !== "pending" && (

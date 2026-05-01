@@ -14,9 +14,9 @@ export default async function EventsPage() {
     .limit(50);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10">
+    <div className="container-app py-6 md:py-10">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">イベント</h1>
+        <h1 className="text-2xl md:text-3xl font-bold">イベント</h1>
         <Link href="/events/new" className="btn-primary">+ イベント作成</Link>
       </div>
       <div className="grid md:grid-cols-2 gap-4">

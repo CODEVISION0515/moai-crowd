@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Link from "next/link";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { createClient } from "@/lib/supabase/server";
@@ -89,9 +90,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <span className="text-[10px] text-moai-muted ml-1">ゆんたく・まなぶ・つくる — 沖縄発のAIプラットフォーム</span>
               </div>
               <nav aria-label="フッターナビゲーション" className="flex items-center gap-4 text-xs text-moai-muted">
-                <a href="/how-it-works" className="hover:text-moai-ink transition-colors">使い方</a>
-                <a href="/legal/terms" className="hover:text-moai-ink transition-colors">利用規約</a>
-                <a href="/legal/privacy" className="hover:text-moai-ink transition-colors">プライバシー</a>
+                <Link href="/how-it-works" className="hover:text-moai-ink transition-colors">使い方</Link>
+                <Link href="/legal/terms" className="hover:text-moai-ink transition-colors">利用規約</Link>
+                <Link href="/legal/privacy" className="hover:text-moai-ink transition-colors">プライバシー</Link>
               </nav>
             </div>
             <div className="text-xs text-moai-muted text-center sm:text-right pt-2 border-t border-moai-border/50">

@@ -51,7 +51,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
   const av = AVAILABILITY[profile.availability ?? "available"];
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
+    <div className="container-app max-w-4xl py-6 md:py-10">
       {/* ヒーローカード */}
       <div className="card relative overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-br from-moai-primary to-teal-700" />
@@ -342,7 +342,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
                   {c.issuer && <span className="text-slate-500"> · {c.issuer}</span>}
                   {c.issued_date && <span className="text-xs text-slate-400 ml-2">{c.issued_date}</span>}
                   {c.credential_url && (
-                    <a href={c.credential_url} target="_blank" className="ml-2 text-xs text-moai-primary hover:underline">証明 →</a>
+                    <a href={c.credential_url} target="_blank" rel="noopener noreferrer" className="ml-2 text-xs text-moai-primary hover:underline">証明 →</a>
                   )}
                 </li>
               ))}
@@ -390,7 +390,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
 
 function SocialLink({ href, label }: { href: string; label: string }) {
   return (
-    <a href={href} target="_blank" className="text-xs px-3 py-1 rounded-full bg-slate-100 hover:bg-moai-primary hover:text-white transition">
+    <a href={href} target="_blank" rel="noopener noreferrer" className="text-xs px-3 py-1 rounded-full bg-slate-100 hover:bg-moai-primary hover:text-white transition">
       {label}
     </a>
   );

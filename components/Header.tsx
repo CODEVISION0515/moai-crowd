@@ -39,6 +39,16 @@ function isAuthPath(pathname: string): boolean {
   return AUTH_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 
+/**
+ * ナビゲーションのアクティブ判定。
+ * `pathname.startsWith(href)` を素朴に使うと `/jobs` が `/jobs/new` でも反応してしまうので、
+ * 完全一致 or `${href}/` 始まり を見る。
+ */
+function isNavActive(href: string, pathname: string): boolean {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export default function Header({
   userId,
   profile,
@@ -48,6 +58,20 @@ export default function Header({
 }) {
   const activeMode = (profile?.active_mode ?? "worker") as "worker" | "client";
   const pathname = usePathname();
+
+  // hooks は常に同じ順序で呼ぶ必要があるため、早期 return より前に宣言する
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => { setOpen(false); }, [pathname]);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const close = useCallback(() => setOpen(false), []);
 
   // 認証ページではロゴだけのミニマルヘッダーに
   if (isAuthPath(pathname)) {
@@ -66,18 +90,6 @@ export default function Header({
       </header>
     );
   }
-  const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => { setOpen(false); }, [pathname]);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  const close = useCallback(() => setOpen(false), []);
 
   return (
     <>
@@ -102,7 +114,7 @@ export default function Header({
           {/* Desktop nav */}
           <nav aria-label="グローバルナビゲーション" className="hidden md:flex items-center gap-0.5">
             {PUBLIC_LINKS.map((l) => (
-              <NavLink key={l.href} href={l.href} active={pathname.startsWith(l.href)}>
+              <NavLink key={l.href} href={l.href} active={isNavActive(l.href, pathname)}>
                 {l.label}
               </NavLink>
             ))}
@@ -114,9 +126,9 @@ export default function Header({
               <>
                 <Link
                   href="/dashboard"
-                  aria-current={pathname.startsWith("/dashboard") ? "page" : undefined}
+                  aria-current={isNavActive("/dashboard", pathname) ? "page" : undefined}
                   className={`hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                    pathname.startsWith("/dashboard")
+                    isNavActive("/dashboard", pathname)
                       ? "bg-moai-cloud text-moai-ink"
                       : "text-moai-muted hover:text-moai-ink hover:bg-moai-cloud/60"
                   }`}
@@ -208,7 +220,7 @@ export default function Header({
           <div id="mobile-menu" className="md:hidden border-t border-moai-border bg-white animate-slide-down">
             <nav aria-label="モバイルナビゲーション" className="container-app py-3 space-y-1">
               {PUBLIC_LINKS.map((l) => {
-                const active = pathname.startsWith(l.href);
+                const active = isNavActive(l.href, pathname);
                 return (
                   <Link
                     key={l.href}
@@ -227,7 +239,7 @@ export default function Header({
                   <div className="divider my-2" />
                   <p className="px-3 pt-1 pb-1 text-[10px] font-semibold text-moai-muted uppercase tracking-wider">マイメニュー</p>
                   {AUTH_LINKS.map((l) => {
-                    const active = pathname.startsWith(l.href);
+                    const active = isNavActive(l.href, pathname);
                     return (
                       <Link
                         key={l.href}

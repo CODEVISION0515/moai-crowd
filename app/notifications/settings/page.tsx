@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ToastForm } from "@/components/ToastForm";
+import { SubmitButton } from "@/components/SubmitButton";
 import { saveGlobalPrefs, savePerKindPrefs } from "./actions";
 import type { NotificationKind } from "@/types/database";
 
@@ -84,9 +85,9 @@ export default async function NotificationSettingsPage() {
   const digestFreq = gp?.digest_frequency ?? "immediate";
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 space-y-6">
+    <div className="container-app max-w-3xl py-6 md:py-10 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">通知設定</h1>
+        <h1 className="text-2xl md:text-3xl font-bold">通知設定</h1>
         <Link href="/notifications" className="text-sm text-moai-primary hover:underline">← 通知一覧</Link>
       </div>
 
@@ -208,7 +209,9 @@ export default async function NotificationSettingsPage() {
           </div>
         </div>
 
-        <button className="btn-primary w-full sm:w-auto">全体設定を保存</button>
+        <SubmitButton className="w-full sm:w-auto" pendingLabel="保存中…">
+          全体設定を保存
+        </SubmitButton>
       </ToastForm>
 
       {/* ── 種別ごとの詳細 ──────────────────── */}
@@ -277,7 +280,9 @@ export default async function NotificationSettingsPage() {
           </section>
         ))}
 
-        <button className="btn-primary w-full sm:w-auto">種別設定を保存</button>
+        <SubmitButton className="w-full sm:w-auto" pendingLabel="保存中…">
+          種別設定を保存
+        </SubmitButton>
       </ToastForm>
 
       <p className="text-xs text-moai-muted text-center">
