@@ -2,10 +2,18 @@
 // - 署名検証
 // - stripe_event_id による冪等性チェック（同じ event を二重処理しない）
 // - 各ハンドラーは独立してログ可能に
+//
+// App Router の Route Handler では署名検証用に raw body を `await req.text()` で取得する。
+// （Pages Router の `export const config = { api: { bodyParser: false } }` は無効）
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/server";
+
+// Node.js ランタイム必須（Stripe SDK / 署名検証は Edge では動かない）
+export const runtime = "nodejs";
+// Webhook は常に最新を処理する
+export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature");
@@ -46,6 +54,8 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ received: true });
 }
+
+// Stripe 署名検証は raw body（文字列）必須。`req.text()` で取得しているため bodyParser 設定は不要。
 
 async function handleCheckoutCompleted(
   admin: ReturnType<typeof createAdminClient>,
@@ -147,5 +157,3 @@ async function handlePaymentFailed(
     });
   }
 }
-
-export const config = { api: { bodyParser: false } };
