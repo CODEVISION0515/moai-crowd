@@ -48,22 +48,30 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
+  // Supabase 接続失敗（env 未設定 / ネットワーク異常）でレイアウト全体が
+  // 500 になるのを防ぐため、try/catch で握りつぶし、ヘッダーは未ログイン状態で描画する。
+  let user: { id: string } | null = null;
   let profile: {
     display_name: string | null;
     handle: string | null;
     avatar_url: string | null;
     active_mode: "worker" | "client" | null;
   } | null = null;
-  if (user) {
-    const { data } = await supabase
-      .from("profiles")
-      .select("display_name, handle, avatar_url, active_mode")
-      .eq("id", user.id)
-      .maybeSingle();
-    profile = data ?? null;
+
+  try {
+    const supabase = await createClient();
+    const { data: authData } = await supabase.auth.getUser();
+    user = authData.user;
+    if (user) {
+      const { data } = await supabase
+        .from("profiles")
+        .select("display_name, handle, avatar_url, active_mode")
+        .eq("id", user.id)
+        .maybeSingle();
+      profile = data ?? null;
+    }
+  } catch (e) {
+    console.error("[RootLayout] Supabase init/auth failed; rendering as anonymous", e);
   }
 
   return (
