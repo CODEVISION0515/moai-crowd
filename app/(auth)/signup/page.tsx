@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -26,7 +26,17 @@ const INTENT_COPY: Record<string, { tagline: string; bullets: string[] }> = {
   },
 };
 
+// Next.js 15 では useSearchParams() は Suspense 配下でないと prerender エラーになる。
+// 内側の Inner に切り出して Suspense でラップする。
 export default function SignUpPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[calc(100vh-var(--header-h))] flex items-center justify-center text-sm text-moai-muted">読み込み中…</div>}>
+      <SignUpPageInner />
+    </Suspense>
+  );
+}
+
+function SignUpPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const refCode = searchParams.get("ref") ?? "";
