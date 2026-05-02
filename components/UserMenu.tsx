@@ -37,20 +37,50 @@ export default function UserMenu({
   handle,
   avatarUrl,
   activeMode = "worker",
+  userId,
 }: {
   displayName: string | null;
   handle: string | null;
   avatarUrl: string | null;
   activeMode?: ActiveMode;
+  userId?: string | null;
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const [isPending, startTransition] = useTransition();
+  const [creditsBalance, setCreditsBalance] = useState<number | null>(null);
 
   const menuLinks = activeMode === "client" ? CLIENT_LINKS : WORKER_LINKS;
   const otherMode: ActiveMode = activeMode === "client" ? "worker" : "client";
+
+  // クレジット残高をリアルタイム購読 (Header から CreditsBadge を撤去したため、ここで表示する)
+  useEffect(() => {
+    if (!userId) return;
+    const sb = createClient();
+    let cancelled = false;
+    sb.from("profiles")
+      .select("credits_balance")
+      .eq("id", userId)
+      .single()
+      .then(({ data }) => {
+        if (!cancelled) setCreditsBalance(data?.credits_balance ?? 0);
+      });
+    const ch = sb
+      .channel(`credits:${userId}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${userId}` },
+        (payload: { new: { credits_balance?: number } }) =>
+          setCreditsBalance(payload.new.credits_balance ?? 0),
+      )
+      .subscribe();
+    return () => {
+      cancelled = true;
+      sb.removeChannel(ch);
+    };
+  }, [userId]);
 
   function switchMode() {
     startTransition(async () => {
@@ -156,6 +186,21 @@ export default function UserMenu({
                 {activeMode === "client" ? "発注者" : "受注者"}
               </span>
             </div>
+
+            {/* クレジット残高 (Header の CreditsBadge を撤去した代替) */}
+            {creditsBalance !== null && (
+              <Link
+                href="/credits"
+                className="mt-3 flex items-center justify-between gap-2 rounded-lg bg-moai-accent/10 hover:bg-moai-accent/20 px-3 py-2 text-xs font-semibold text-moai-accent-600 transition-colors"
+                aria-label={`クレジット残高 ${creditsBalance.toLocaleString()} pt`}
+              >
+                <span className="flex items-center gap-1.5">
+                  <span aria-hidden="true">🪙</span>
+                  <span>クレジット残高</span>
+                </span>
+                <span className="tabular-nums">{creditsBalance.toLocaleString()} pt</span>
+              </Link>
+            )}
           </div>
 
           {/* Mode switch (Lancers-style): at the very top */}
