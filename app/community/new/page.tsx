@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ToastForm } from "@/components/ToastForm";
 import { FieldError } from "@/components/FieldError";
 import { FieldInput, FieldTextarea } from "@/components/Field";
+import { SubmitButton } from "@/components/SubmitButton";
 import { createPost } from "./actions";
 
 export default async function NewPostPage({
@@ -23,8 +24,8 @@ export default async function NewPostPage({
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
-      <h1 className="text-2xl font-bold mb-2">新しい投稿</h1>
+    <div className="container-app max-w-2xl py-6 md:py-10">
+      <h1 className="text-2xl md:text-3xl font-bold mb-2">新しい投稿</h1>
       {cohortName && (
         <div className="mb-6 flex items-center gap-2 text-sm">
           <span className="badge-accent text-[11px]">🎓 {cohortName}</span>
@@ -110,7 +111,7 @@ export default async function NewPostPage({
           </div>
         </div>
 
-        <button className="btn-primary w-full">投稿する</button>
+        <SubmitButton block pendingLabel="投稿中…">投稿する</SubmitButton>
       </ToastForm>
     </div>
   );

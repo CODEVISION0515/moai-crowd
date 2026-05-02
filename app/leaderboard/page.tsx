@@ -48,8 +48,8 @@ export default async function LeaderboardPage({
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-2xl font-bold mb-2">🏆 リーダーボード</h1>
+    <div className="container-app max-w-3xl py-6 md:py-10">
+      <h1 className="text-2xl md:text-3xl font-bold mb-2">🏆 リーダーボード</h1>
       <p className="text-sm text-slate-600 mb-6">MOAIコミュニティで輝く仲間たち</p>
 
       {/* Scope tabs */}

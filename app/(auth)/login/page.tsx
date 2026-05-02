@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient, setSessionPersistence } from "@/lib/supabase/client";
@@ -50,7 +50,17 @@ const TEASER_CARDS = [
   },
 ];
 
+// Next.js 15 では useSearchParams() は Suspense 配下でないと prerender エラーになる。
+// 内側の Inner に切り出して Suspense でラップする。
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[calc(100vh-var(--header-h))] flex items-center justify-center text-sm text-moai-muted">読み込み中…</div>}>
+      <LoginPageInner />
+    </Suspense>
+  );
+}
+
+function LoginPageInner() {
   const router = useRouter();
   const params = useSearchParams();
   const redirect = params.get("redirect") || "/dashboard";

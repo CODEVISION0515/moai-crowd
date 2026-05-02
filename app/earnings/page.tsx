@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatCurrency } from "@/lib/utils";
 
@@ -10,7 +11,7 @@ export default async function EarningsPage({
   const year = Number(yearParam) || new Date().getFullYear();
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
-  if (!user) return null;
+  if (!user) redirect("/login?redirect=/earnings");
 
   const from = `${year}-01-01`;
   const to = `${year + 1}-01-01`;
@@ -32,8 +33,8 @@ export default async function EarningsPage({
   const net = sum("net_payout_jpy");
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="text-2xl font-bold mb-2">💴 収益レポート</h1>
+    <div className="container-app max-w-4xl py-6 md:py-10">
+      <h1 className="text-2xl md:text-3xl font-bold mb-2">💴 収益レポート</h1>
       <p className="text-sm text-slate-600 mb-6">確定申告の参考情報として使えます</p>
 
       <form className="card mb-6 flex items-center gap-2">

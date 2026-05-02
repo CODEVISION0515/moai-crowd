@@ -7,63 +7,114 @@ import { formatCurrency } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-export default async function HomePage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+/** TS への型ヒント用のスタブ（実際は HomePage 内で getUser 結果から推論） */
+async function getUserSafely() {
+  return null as { id: string; email?: string | null } | null;
+}
 
-  const [
-    { data: jobs },
-    { data: workers },
-    { count: jobCount },
-    { count: userCount },
-    { data: activeCohort },
-    { data: schoolWorks },
-    { data: interviews },
-    { data: schoolPosts },
-  ] = await Promise.all([
-    supabase
-      .from("jobs")
-      .select("id, title, category, budget_min_jpy, budget_max_jpy, proposal_count, created_at, profiles:client_id(display_name)")
-      .eq("status", "open")
-      .order("created_at", { ascending: false })
-      .limit(6),
-    supabase
-      .from("profiles")
-      .select("id, handle, display_name, tagline, avatar_url, skills, rating_avg, rating_count, level")
-      .eq("is_worker", true)
-      .eq("is_suspended", false)
-      .gte("profile_completion", 30)
-      .order("rating_avg", { ascending: false })
-      .limit(6),
-    supabase.from("jobs").select("*", { count: "exact", head: true }),
-    supabase.from("profiles").select("*", { count: "exact", head: true }).eq("is_suspended", false),
-    supabase
-      .from("cohorts")
-      .select("id, name, subtitle, starts_at, ends_at, description, is_accepting_applications, application_url")
-      .eq("is_accepting_applications", true)
-      .order("id", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-    supabase
-      .from("portfolios")
-      .select("id, title, image_url, external_url, cohort, user:user_id(handle, display_name, avatar_url)")
-      .eq("is_school_work", true)
-      .order("created_at", { ascending: false })
-      .limit(4),
-    supabase
-      .from("interviews")
-      .select("id, slug, title, summary, hero_image_url, subject:subject_user_id(display_name, avatar_url)")
-      .eq("is_published", true)
-      .order("published_at", { ascending: false })
-      .limit(3),
-    supabase
-      .from("posts")
-      .select("id, title, kind, created_at, author:author_id(handle, display_name, avatar_url)")
-      .not("cohort_id", "is", null)
-      .eq("visibility", "public")
-      .order("created_at", { ascending: false })
-      .limit(4),
-  ]);
+/** Promise を allSettled し、reject 時はフォールバック値を返す */
+async function safe<T>(p: PromiseLike<T>, fallback: T): Promise<T> {
+  try {
+    return await p;
+  } catch (e) {
+    console.error("[HomePage] supabase query failed", e);
+    return fallback;
+  }
+}
+
+export default async function HomePage() {
+  // Supabase が未設定 / 接続失敗してもトップページは描画する。
+  // 各クエリは個別に try/catch して、失敗したセクションは空として扱う。
+  let user: Awaited<ReturnType<typeof getUserSafely>> = null;
+  let jobs: any[] = [];
+  let workers: any[] = [];
+  let jobCount: number | null = 0;
+  let userCount: number | null = 0;
+  let activeCohort: any = null;
+  let schoolWorks: any[] = [];
+  let interviews: any[] = [];
+  let schoolPosts: any[] = [];
+
+  try {
+    const supabase = await createClient();
+    user = (await safe(supabase.auth.getUser(), { data: { user: null } } as any)).data.user;
+
+    const results = await Promise.all([
+      safe(
+        supabase
+          .from("jobs")
+          .select("id, title, category, budget_min_jpy, budget_max_jpy, proposal_count, created_at, profiles:client_id(display_name)")
+          .eq("status", "open")
+          .order("created_at", { ascending: false })
+          .limit(6),
+        { data: [] as any[] } as any,
+      ),
+      safe(
+        supabase
+          .from("profiles")
+          .select("id, handle, display_name, tagline, avatar_url, skills, rating_avg, rating_count, level")
+          .eq("is_worker", true)
+          .eq("is_suspended", false)
+          .gte("profile_completion", 30)
+          .order("rating_avg", { ascending: false })
+          .limit(6),
+        { data: [] as any[] } as any,
+      ),
+      safe(supabase.from("jobs").select("*", { count: "exact", head: true }), { count: 0 } as any),
+      safe(
+        supabase.from("profiles").select("*", { count: "exact", head: true }).eq("is_suspended", false),
+        { count: 0 } as any,
+      ),
+      safe(
+        supabase
+          .from("cohorts")
+          .select("id, name, subtitle, starts_at, ends_at, description, is_accepting_applications, application_url")
+          .eq("is_accepting_applications", true)
+          .order("id", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        { data: null } as any,
+      ),
+      safe(
+        supabase
+          .from("portfolios")
+          .select("id, title, image_url, external_url, cohort, user:user_id(handle, display_name, avatar_url)")
+          .eq("is_school_work", true)
+          .order("created_at", { ascending: false })
+          .limit(4),
+        { data: [] as any[] } as any,
+      ),
+      safe(
+        supabase
+          .from("interviews")
+          .select("id, slug, title, summary, hero_image_url, subject:subject_user_id(display_name, avatar_url)")
+          .eq("is_published", true)
+          .order("published_at", { ascending: false })
+          .limit(3),
+        { data: [] as any[] } as any,
+      ),
+      safe(
+        supabase
+          .from("posts")
+          .select("id, title, kind, created_at, author:author_id(handle, display_name, avatar_url)")
+          .not("cohort_id", "is", null)
+          .eq("visibility", "public")
+          .order("created_at", { ascending: false })
+          .limit(4),
+        { data: [] as any[] } as any,
+      ),
+    ]);
+    jobs = results[0].data ?? [];
+    workers = results[1].data ?? [];
+    jobCount = results[2].count ?? 0;
+    userCount = results[3].count ?? 0;
+    activeCohort = results[4].data;
+    schoolWorks = results[5].data ?? [];
+    interviews = results[6].data ?? [];
+    schoolPosts = results[7].data ?? [];
+  } catch (e) {
+    console.error("[HomePage] Supabase client init failed; rendering with empty data", e);
+  }
 
   const totalJobs = jobCount ?? 0;
   const totalUsers = userCount ?? 0;

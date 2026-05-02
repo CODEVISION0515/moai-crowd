@@ -1,11 +1,31 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 
+/**
+ * Next.js 15 では useSearchParams() は Suspense 配下でないとビルド時に prerender エラーになる。
+ * 内側の Inner コンポーネントに切り出し、外側で Suspense でラップする。
+ */
 export default function ConfirmEmailPage() {
+  return (
+    <Suspense fallback={<ConfirmFallback />}>
+      <ConfirmEmailInner />
+    </Suspense>
+  );
+}
+
+function ConfirmFallback() {
+  return (
+    <div className="min-h-[calc(100vh-var(--header-h))] flex items-center justify-center px-4 py-12">
+      <div className="text-sm text-moai-muted">読み込み中…</div>
+    </div>
+  );
+}
+
+function ConfirmEmailInner() {
   const params = useSearchParams();
   const email = params.get("email") ?? "";
   const [cooldown, setCooldown] = useState(0);

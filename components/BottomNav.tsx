@@ -4,13 +4,31 @@ import { usePathname } from "next/navigation";
 
 const ITEMS = [
   { href: "/", label: "ホーム", icon: HomeIcon },
-  { href: "/jobs", label: "案件", icon: BriefcaseIcon },
+  { href: "/jobs", label: "案件", icon: BriefcaseIcon, exclude: ["/jobs/new"] },
   { href: "/jobs/new", label: "依頼", icon: PlusIcon, primary: true },
   { href: "/messages", label: "DM", icon: ChatIcon },
   { href: "/dashboard", label: "マイ", icon: UserIcon },
-];
+] satisfies ReadonlyArray<{
+  href: string;
+  label: string;
+  icon: (props: React.SVGProps<SVGSVGElement>) => React.JSX.Element;
+  primary?: boolean;
+  exclude?: readonly string[];
+}>;
 
 const AUTH_PATHS = ["/login", "/signup", "/signup/confirm", "/forgot-password", "/auth/reset-password"];
+
+/**
+ * パスのアクティブ判定。
+ * - "/" は完全一致のみ
+ * - それ以外は href の完全一致 or `${href}/` で始まる場合に active
+ *   ただし exclude に該当するパスはスキップ（例: /jobs は /jobs/new を active 扱いしない）
+ */
+function isActive(href: string, pathname: string, exclude?: readonly string[]): boolean {
+  if (href === "/") return pathname === "/";
+  if (exclude?.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return false;
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export default function BottomNav({ userId }: { userId: string | null }) {
   const pathname = usePathname();
@@ -25,7 +43,7 @@ export default function BottomNav({ userId }: { userId: string | null }) {
     >
       <ul className="grid grid-cols-5 h-[var(--bottomnav-h)] safe-bottom">
         {ITEMS.map((item) => {
-          const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+          const active = isActive(item.href, pathname, item.exclude);
           const Icon = item.icon;
 
           if (item.primary) {

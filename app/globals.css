@@ -95,6 +95,14 @@
   .label {
     @apply block text-xs font-medium text-moai-muted mb-1.5;
   }
+  /* フォーム項目のエラー表示（input 直下に置く） */
+  .form-error {
+    @apply mt-1 text-xs text-red-600;
+  }
+  /* フォーム項目のヒント（任意・形式説明など） */
+  .form-hint {
+    @apply mt-1 text-xs text-moai-muted;
+  }
 
   /* ── Cards (MOAI風: フラット寄り・控えめ角丸) ── */
   .card {
