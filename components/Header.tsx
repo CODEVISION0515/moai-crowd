@@ -4,7 +4,6 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import SignOutButton from "@/components/SignOutButton";
 import NotificationBell from "@/components/NotificationBell";
-import CreditsBadge from "@/components/CreditsBadge";
 import UserMenu from "@/components/UserMenu";
 
 const PUBLIC_LINKS = [
@@ -124,30 +123,7 @@ export default function Header({
           <div className="flex items-center gap-2">
             {userId ? (
               <>
-                <Link
-                  href="/dashboard"
-                  aria-current={isNavActive("/dashboard", pathname) ? "page" : undefined}
-                  className={`hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                    isNavActive("/dashboard", pathname)
-                      ? "bg-moai-cloud text-moai-ink"
-                      : "text-moai-muted hover:text-moai-ink hover:bg-moai-cloud/60"
-                  }`}
-                >
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10" />
-                  </svg>
-                  マイページ
-                  <span
-                    className={`ml-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-full leading-none ${
-                      activeMode === "client"
-                        ? "bg-amber-100 text-amber-800"
-                        : "bg-moai-primary/10 text-moai-primary"
-                    }`}
-                    aria-hidden="true"
-                  >
-                    {activeMode === "client" ? "発注者" : "受注者"}
-                  </span>
-                </Link>
+                {/* 主 CTA（モードに応じて変化）: マイページ・クレジット残高は UserMenu 内に集約済み */}
                 {activeMode === "client" ? (
                   <Link
                     href="/jobs/new"
@@ -169,7 +145,6 @@ export default function Header({
                     案件を探す
                   </Link>
                 )}
-                <CreditsBadge userId={userId} />
                 <NotificationBell userId={userId} />
                 <button
                   onClick={() => setOpen(!open)}
@@ -186,6 +161,7 @@ export default function Header({
                 </button>
                 <div className="hidden md:block">
                   <UserMenu
+                    userId={userId}
                     displayName={profile?.display_name ?? null}
                     handle={profile?.handle ?? null}
                     avatarUrl={profile?.avatar_url ?? null}
