@@ -9,6 +9,11 @@ import PWARegister from "@/components/PWARegister";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://moai-crowd.vercel.app";
 
+// レイアウトで auth.getUser() を使うため動的レンダリング必須。
+// try/catch で握りつぶすと Next.js の自動推論が静的に倒れるので明示する。
+// これがないと /signup/confirm 等の useSearchParams ページが prerender エラーで落ちる。
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: {
