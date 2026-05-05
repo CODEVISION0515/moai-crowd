@@ -152,8 +152,32 @@ export default function DashboardSidebar({ activeMode }: { activeMode: ActiveMod
           );
         })}
 
+        {/* Explore: MOAI全体のエリア */}
+        <div className="mt-2 pt-4 border-t border-moai-border">
+          <div className="px-3 mb-1.5 text-[10px] uppercase tracking-wider text-moai-muted font-semibold">
+            MOAIを探す
+          </div>
+          <ul className="space-y-0.5">
+            {[
+              { href: "/school", label: "スクール", icon: "🎓" },
+              { href: "/community", label: "コミュニティ", icon: "🌱" },
+              { href: "/workers", label: "メンバー", icon: "👥" },
+            ].map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-moai-ink hover:bg-moai-cloud/70 transition-colors"
+                >
+                  <span className="shrink-0 text-base" aria-hidden="true">{item.icon}</span>
+                  <span className="truncate">{item.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
         {/* Footer: help link */}
-        <div className="mt-6 pt-4 border-t border-moai-border">
+        <div className="mt-4 pt-3 border-t border-moai-border">
           <Link
             href="/how-it-works"
             className="flex items-center gap-2 px-3 py-2 text-xs text-moai-muted hover:text-moai-primary transition-colors"

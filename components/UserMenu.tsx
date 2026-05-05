@@ -32,6 +32,14 @@ const CLIENT_LINKS = [
   { href: "/leaderboard", label: "ランキング", icon: "🏆" },
 ];
 
+// サイト全体のエリア。ログイン時はHeaderから消してここに集約
+const EXPLORE_LINKS = [
+  { href: "/school", label: "スクール", icon: "🎓" },
+  { href: "/jobs", label: "案件", icon: "🔍" },
+  { href: "/community", label: "コミュニティ", icon: "🌱" },
+  { href: "/workers", label: "メンバー", icon: "👥" },
+];
+
 export default function UserMenu({
   displayName,
   handle,
@@ -244,6 +252,26 @@ export default function UserMenu({
           {/* Secondary */}
           <div className="py-1 max-h-[60vh] overflow-y-auto">
             {menuLinks.filter((l) => !l.primary).map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                role="menuitem"
+                className="flex items-center gap-3 px-4 py-2 text-sm text-moai-ink hover:bg-moai-cloud/60 transition-colors"
+              >
+                <span className="text-base" aria-hidden="true">{l.icon}</span>
+                {l.label}
+              </Link>
+            ))}
+          </div>
+
+          <div className="border-t border-moai-border" />
+
+          {/* Explore: MOAIの他のエリア (Headerから移動) */}
+          <div className="py-1">
+            <div className="px-4 pt-1 pb-0.5 text-[10px] uppercase tracking-wider text-moai-muted font-semibold">
+              MOAIを探す
+            </div>
+            {EXPLORE_LINKS.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}

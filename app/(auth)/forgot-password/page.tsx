@@ -25,14 +25,14 @@ export default function ForgotPasswordPage() {
 
   if (sent) {
     return (
-      <div className="min-h-[calc(100vh-var(--header-h))] flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md animate-slide-up">
-          <div className="text-center mb-8">
+      <div className="min-h-[calc(100vh-var(--header-h))] bg-moai-cloud/30 py-10 md:py-14">
+        <div className="mx-auto w-full max-w-md px-4 animate-slide-up">
+          <div className="text-center mb-6">
             <div
-              className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-moai-primary/10 mb-4"
+              className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-moai-primary/10 mb-4"
               aria-hidden="true"
             >
-              <svg className="h-8 w-8 text-moai-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-7 w-7 text-moai-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
             </div>
@@ -50,7 +50,7 @@ export default function ForgotPasswordPage() {
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="shrink-0 h-5 w-5 rounded-full bg-moai-primary/10 text-moai-primary flex items-center justify-center text-[11px] font-bold">2</span>
-                <span>「MOAI Crowd」からのメールを開く</span>
+                <span>「MOAI」からのメールを開く</span>
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="shrink-0 h-5 w-5 rounded-full bg-moai-primary/10 text-moai-primary flex items-center justify-center text-[11px] font-bold">3</span>
@@ -75,7 +75,7 @@ export default function ForgotPasswordPage() {
               もう一度送信
             </button>
           </div>
-          <p className="text-sm text-center text-moai-muted mt-6">
+          <p className="text-sm text-center mt-6">
             <Link href="/login" className="text-moai-primary font-medium hover:underline">
               ← ログイン画面に戻る
             </Link>
@@ -86,19 +86,12 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-var(--header-h))] flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md animate-slide-up">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <span className="text-2xl font-bold text-moai-primary">MOAI</span>
-            <span className="text-sm text-moai-muted">Crowd</span>
-          </div>
-          <h1 className="text-2xl font-bold">パスワードをリセット</h1>
-          <p className="text-sm text-moai-muted mt-1">
-            登録したメールアドレスを入力してください。<br />
-            再設定用のリンクをお送りします。
-          </p>
-        </div>
+    <div className="min-h-[calc(100vh-var(--header-h))] bg-moai-cloud/30 py-10 md:py-14">
+      <div className="mx-auto w-full max-w-md px-4 animate-slide-up">
+        <h1 className="text-2xl md:text-3xl font-bold mb-2">パスワードをリセット</h1>
+        <p className="text-sm text-moai-muted mb-6">
+          登録したメールアドレスを入力してください。再設定用のリンクをお送りします。
+        </p>
 
         <form onSubmit={onSubmit} className="card space-y-4">
           <div>
@@ -108,7 +101,7 @@ export default function ForgotPasswordPage() {
               type="email"
               required
               className="input"
-              placeholder="you@example.com"
+              placeholder="例: info@moai.okinawa"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
@@ -128,13 +121,13 @@ export default function ForgotPasswordPage() {
               "リセットリンクを送信"
             )}
           </button>
-
-          <p className="text-sm text-center text-moai-muted pt-2">
-            <Link href="/login" className="text-moai-primary font-medium hover:underline">
-              ← ログインに戻る
-            </Link>
-          </p>
         </form>
+
+        <p className="text-sm text-center mt-6">
+          <Link href="/login" className="text-moai-primary font-medium hover:underline">
+            ← ログインに戻る
+          </Link>
+        </p>
       </div>
     </div>
   );

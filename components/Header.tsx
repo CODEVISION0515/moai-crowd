@@ -7,10 +7,15 @@ import NotificationBell from "@/components/NotificationBell";
 import UserMenu from "@/components/UserMenu";
 
 const PUBLIC_LINKS = [
-  { href: "/school", label: "スクール" },
-  { href: "/jobs", label: "案件" },
+  { href: "/jobs", label: "仕事を探す" },
+  { href: "/workers", label: "ワーカーを探す" },
+  { href: "/pricing", label: "料金" },
+  { href: "/how-it-works", label: "使い方" },
+];
+
+const SECONDARY_LINKS = [
+  { href: "/school", label: "MOAIスクール" },
   { href: "/community", label: "コミュニティ" },
-  { href: "/workers", label: "メンバー" },
 ];
 
 const AUTH_LINKS = [
@@ -36,6 +41,19 @@ const AUTH_PATHS = ["/login", "/signup", "/signup/confirm", "/forgot-password", 
 
 function isAuthPath(pathname: string): boolean {
   return AUTH_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
+function Logo() {
+  return (
+    <Link href="/" aria-label="MOAI Crowd ホーム" className="flex items-baseline gap-1.5 group shrink-0">
+      <span className="text-lg font-bold text-moai-primary transition-colors group-hover:text-moai-primary-800 tracking-tight">
+        MOAI
+      </span>
+      <span className="text-sm font-semibold text-moai-ink/80 group-hover:text-moai-ink transition-colors">
+        Crowd
+      </span>
+    </Link>
+  );
 }
 
 /**
@@ -77,14 +95,7 @@ export default function Header({
     return (
       <header className="sticky top-0 z-40 bg-white border-b border-moai-border">
         <div className="container-app flex items-center h-[var(--header-h)]">
-          <Link href="/" aria-label="MOAI ホーム" className="flex items-baseline gap-1.5 group">
-            <span className="text-lg font-bold text-moai-primary transition-colors group-hover:text-moai-primary-800">
-              MOAI
-            </span>
-            <span className="text-[10px] font-medium text-moai-muted tracking-wide hidden sm:inline">
-              ゆんたく・まなぶ・つくる
-            </span>
-          </Link>
+          <Logo />
         </div>
       </header>
     );
@@ -95,23 +106,16 @@ export default function Header({
       <header
         className={`sticky top-0 z-40 transition-all duration-200 ${
           scrolled
-            ? "bg-white/80 backdrop-blur-md shadow-soft border-b border-transparent"
+            ? "bg-white/85 backdrop-blur-md shadow-soft border-b border-transparent"
             : "bg-white border-b border-moai-border"
         }`}
       >
-        <div className="container-app flex items-center justify-between h-[var(--header-h)]">
+        <div className="container-wide flex items-center justify-between h-[var(--header-h)] gap-4">
           {/* Logo */}
-          <Link href="/" aria-label="MOAI ホーム" className="flex items-baseline gap-1.5 group">
-            <span className="text-lg font-bold text-moai-primary transition-colors group-hover:text-moai-primary-800">
-              MOAI
-            </span>
-            <span className="text-[10px] font-medium text-moai-muted tracking-wide hidden sm:inline">
-              ゆんたく・まなぶ・つくる
-            </span>
-          </Link>
+          <Logo />
 
-          {/* Desktop nav */}
-          <nav aria-label="グローバルナビゲーション" className="hidden md:flex items-center gap-0.5">
+          {/* Desktop nav: 全ユーザー共通でクラウドソーシング動線を表示 */}
+          <nav aria-label="グローバルナビゲーション" className="hidden md:flex items-center gap-0.5 flex-1">
             {PUBLIC_LINKS.map((l) => (
               <NavLink key={l.href} href={l.href} active={isNavActive(l.href, pathname)}>
                 {l.label}
@@ -129,9 +133,6 @@ export default function Header({
                     href="/jobs/new"
                     className="hidden md:inline-flex btn-accent btn-sm gap-1"
                   >
-                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-                    </svg>
                     依頼する
                   </Link>
                 ) : (
@@ -139,10 +140,7 @@ export default function Header({
                     href="/jobs"
                     className="hidden md:inline-flex btn-accent btn-sm gap-1"
                   >
-                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
-                    </svg>
-                    案件を探す
+                    仕事を探す
                   </Link>
                 )}
                 <NotificationBell userId={userId} />
@@ -172,6 +170,7 @@ export default function Header({
             ) : (
               <>
                 <Link href="/login" className="hidden sm:inline-flex btn-ghost btn-sm">ログイン</Link>
+                <Link href="/jobs/new" className="hidden md:inline-flex btn-outline btn-sm">依頼する</Link>
                 <Link href="/signup" className="btn-accent btn-sm">無料で始める</Link>
                 <button
                   onClick={() => setOpen(!open)}
@@ -238,6 +237,17 @@ export default function Header({
                   <div className="px-3 py-2"><SignOutButton /></div>
                 </>
               )}
+              <div className="divider my-2" />
+              <p className="px-3 pt-1 pb-1 text-[10px] font-semibold text-moai-muted uppercase tracking-wider">関連サービス</p>
+              {SECONDARY_LINKS.map((l) => (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-moai-muted hover:bg-moai-cloud hover:text-moai-ink transition-colors"
+                >
+                  {l.label}
+                </Link>
+              ))}
             </nav>
           </div>
         )}

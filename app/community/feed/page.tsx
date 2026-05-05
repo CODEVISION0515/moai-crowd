@@ -42,7 +42,7 @@ export default async function FollowingFeedPage() {
           <h1 className="text-2xl font-bold">フォロー中の投稿</h1>
           <p className="text-sm text-moai-muted mt-1">フォローしているメンバーの最新投稿</p>
         </div>
-        <Link href="/community" className="btn-outline btn-sm">すべての投稿</Link>
+        <Link href="/community/posts" className="btn-outline btn-sm">すべての投稿</Link>
       </div>
 
       {followeeIds.length === 0 ? (
