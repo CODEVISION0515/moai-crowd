@@ -151,9 +151,35 @@ export default function ProposalForm({
           />
         </div>
       </div>
-      <button disabled={loading} className="btn-primary w-full">
+
+      {/* 手取り計算（一般15%手数料の概算） */}
+      {amount > 0 && (
+        <div className="rounded-lg bg-moai-cloud/60 p-3 text-xs">
+          <div className="flex justify-between text-moai-muted">
+            <span>提案金額</span>
+            <span className="text-moai-ink font-medium">¥{amount.toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between text-moai-muted mt-1">
+            <span>手数料 (一般 15%)</span>
+            <span>− ¥{Math.round(amount * 0.15).toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between mt-2 pt-2 border-t border-moai-border/60">
+            <span className="font-semibold text-moai-ink">あなたの手取り目安</span>
+            <span className="font-bold text-moai-primary">¥{Math.round(amount * 0.85).toLocaleString()}</span>
+          </div>
+          <p className="mt-2 text-[10px] text-moai-muted leading-relaxed">
+            ※ MOAIスクール卒業生は手数料5%（生涯）。詳細は <Link href="/pricing" className="underline">料金ページ</Link>。
+          </p>
+        </div>
+      )}
+
+      <button disabled={loading} className="btn-accent btn-lg w-full">
         {loading ? "送信中…" : "応募する"}
       </button>
+      <p className="text-[11px] text-moai-muted text-center leading-relaxed">
+        応募は無料・キャンセル可能。
+        採用された場合のみ手数料が発生します。
+      </p>
     </form>
   );
 }

@@ -36,7 +36,7 @@ export const createPost = statefulFormAction(createPostSchema, async ({ sb, user
   if (count === 1) await sb.rpc("award_badge", { p_user_id: user.id, p_slug: "first_post" });
   await sb.rpc("award_xp", { p_user_id: user.id, p_reason: "post_created", p_amount: 10, p_meta: null });
 
-  revalidatePath("/community");
+  revalidatePath("/community/posts");
   if (d.cohort_id) revalidatePath(`/school/cohort/${d.cohort_id}`);
   redirect(`/community/${data.id}`);
 });

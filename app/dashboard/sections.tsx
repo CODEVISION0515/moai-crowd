@@ -631,7 +631,7 @@ export async function CommunityHighlights({ userId }: { userId: string }) {
   const unreadSocial = unreadSocialRes.count ?? 0;
 
   return (
-    <Section title="🔥 コミュニティの動き" link="/community" linkLabel="もっと見る">
+    <Section title="🔥 コミュニティの動き" link="/community/posts" linkLabel="もっと見る">
       {unreadSocial > 0 && (
         <Link
           href="/notifications"

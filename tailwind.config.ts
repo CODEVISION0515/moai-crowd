@@ -134,6 +134,7 @@ export default {
         "display-sm": ["1.875rem", { lineHeight: "1.25", letterSpacing: "-0.015em", fontWeight: "600" }],
       },
       spacing: {
+        13: "3.25rem",
         18: "4.5rem",
         88: "22rem",
       },
