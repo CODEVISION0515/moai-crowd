@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function CreditsPage() {
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) redirect("/login?redirect=/credits");
 
   const [balance, packages, features, { data: txs }] = await Promise.all([
     getCreditsBalance(user.id),

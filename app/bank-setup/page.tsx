@@ -29,10 +29,24 @@ export default async function BankSetupPage({
 
   // Stripe アカウント状態取得
   let status: "not_started" | "pending" | "completed" = "not_started";
+  let connectChecks = {
+    details_submitted: false,
+    charges_enabled: false,
+    payouts_enabled: false,
+  };
   if (profile?.stripe_account_id) {
     try {
       const account = await stripe.accounts.retrieve(profile.stripe_account_id);
-      if (account.details_submitted && account.charges_enabled && account.payouts_enabled) {
+      connectChecks = {
+        details_submitted: !!account.details_submitted,
+        charges_enabled: !!account.charges_enabled,
+        payouts_enabled: !!account.payouts_enabled,
+      };
+      if (
+        connectChecks.details_submitted &&
+        connectChecks.charges_enabled &&
+        connectChecks.payouts_enabled
+      ) {
         status = "completed";
       } else {
         status = "pending";
@@ -43,20 +57,22 @@ export default async function BankSetupPage({
   }
 
   return (
-    <div className="container-app max-w-2xl py-10 space-y-8">
+    <div className="container-app max-w-2xl py-6 md:py-10 space-y-8">
       {/* Header */}
       <header className="space-y-3">
         <div className="text-sm text-moai-muted">
           <Link href="/dashboard" className="hover:text-moai-primary">← ダッシュボード</Link>
         </div>
-        <h1 className="text-3xl md:text-4xl font-bold">振込先口座の登録</h1>
-        <p className="text-moai-muted">
+        <h1 className="text-2xl md:text-3xl font-bold">振込先口座の登録</h1>
+        <p className="text-moai-muted text-sm md:text-base">
           受注した案件の報酬をあなたの銀行口座に自動送金するための設定です。
         </p>
       </header>
 
       {/* Status card (top) */}
       <StatusCard status={status} justReturned={returnedFromStripe} />
+
+      {status === "pending" && <ConnectChecklist checks={connectChecks} />}
 
       {status === "completed" ? (
         <CompletedSection />
@@ -205,6 +221,61 @@ function StatusCard({
         </div>
       </div>
     </div>
+  );
+}
+
+// ── Connect checklist (pending only) ─────────────
+function ConnectChecklist({
+  checks,
+}: {
+  checks: { details_submitted: boolean; charges_enabled: boolean; payouts_enabled: boolean };
+}) {
+  const items = [
+    {
+      key: "details_submitted",
+      ok: checks.details_submitted,
+      label: "本人情報の入力",
+      hint: "氏名・住所・生年月日・身分証画像",
+    },
+    {
+      key: "charges_enabled",
+      ok: checks.charges_enabled,
+      label: "受領設定の有効化",
+      hint: "Stripe 側の本人確認が完了するとオンになります",
+    },
+    {
+      key: "payouts_enabled",
+      ok: checks.payouts_enabled,
+      label: "銀行口座への送金設定",
+      hint: "口座情報が登録され、Stripe が承認するとオンになります",
+    },
+  ];
+  return (
+    <section className="card">
+      <h2 className="font-semibold text-base mb-3 flex items-center gap-2">
+        <span aria-hidden="true">📋</span>登録の進捗
+      </h2>
+      <ul className="space-y-2.5">
+        {items.map((it) => (
+          <li key={it.key} className="flex items-start gap-3">
+            <span
+              className={`shrink-0 inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold mt-0.5 ${
+                it.ok ? "bg-emerald-500 text-white" : "bg-moai-cloud text-moai-muted"
+              }`}
+              aria-label={it.ok ? "完了" : "未完了"}
+            >
+              {it.ok ? "✓" : "·"}
+            </span>
+            <div className="flex-1 min-w-0">
+              <div className={`text-sm font-medium ${it.ok ? "text-moai-ink" : "text-moai-muted"}`}>
+                {it.label}
+              </div>
+              <div className="text-xs text-moai-muted mt-0.5">{it.hint}</div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 

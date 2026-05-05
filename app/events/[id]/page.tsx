@@ -37,14 +37,14 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
+    <div className="container-app max-w-3xl py-6 md:py-10">
       <Link href="/events" className="text-sm text-moai-primary hover:underline">← イベント一覧</Link>
       <div className="card mt-4">
         <h1 className="text-2xl font-bold">{event.title}</h1>
         <div className="mt-3 text-sm text-slate-600 space-y-1">
           <div>📅 {new Date(event.starts_at).toLocaleString("ja-JP")}{event.ends_at && ` 〜 ${new Date(event.ends_at).toLocaleString("ja-JP", { hour: "2-digit", minute: "2-digit" })}`}</div>
           {event.location && <div>📍 {event.location}</div>}
-          {event.meeting_url && <div>🔗 <a href={event.meeting_url} target="_blank" className="text-moai-primary hover:underline">{event.meeting_url}</a></div>}
+          {event.meeting_url && <div>🔗 <a href={event.meeting_url} target="_blank" rel="noopener noreferrer" className="text-moai-primary hover:underline">{event.meeting_url}</a></div>}
           <div>主催: {event.host?.display_name}</div>
           <div>参加予定: {event.attendee_count}{event.capacity ? ` / ${event.capacity}` : ""}名</div>
         </div>

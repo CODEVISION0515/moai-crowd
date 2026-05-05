@@ -4,7 +4,6 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import SignOutButton from "@/components/SignOutButton";
 import NotificationBell from "@/components/NotificationBell";
-import CreditsBadge from "@/components/CreditsBadge";
 import UserMenu from "@/components/UserMenu";
 
 const PUBLIC_LINKS = [
@@ -57,6 +56,16 @@ function Logo() {
   );
 }
 
+/**
+ * ナビゲーションのアクティブ判定。
+ * `pathname.startsWith(href)` を素朴に使うと `/jobs` が `/jobs/new` でも反応してしまうので、
+ * 完全一致 or `${href}/` 始まり を見る。
+ */
+function isNavActive(href: string, pathname: string): boolean {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export default function Header({
   userId,
   profile,
@@ -67,16 +76,7 @@ export default function Header({
   const activeMode = (profile?.active_mode ?? "worker") as "worker" | "client";
   const pathname = usePathname();
 
-  // 認証ページではロゴだけのミニマルヘッダーに
-  if (isAuthPath(pathname)) {
-    return (
-      <header className="sticky top-0 z-40 bg-white border-b border-moai-border">
-        <div className="container-app flex items-center h-[var(--header-h)]">
-          <Logo />
-        </div>
-      </header>
-    );
-  }
+  // hooks は常に同じ順序で呼ぶ必要があるため、早期 return より前に宣言する
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -89,6 +89,17 @@ export default function Header({
   }, []);
 
   const close = useCallback(() => setOpen(false), []);
+
+  // 認証ページではロゴだけのミニマルヘッダーに
+  if (isAuthPath(pathname)) {
+    return (
+      <header className="sticky top-0 z-40 bg-white border-b border-moai-border">
+        <div className="container-app flex items-center h-[var(--header-h)]">
+          <Logo />
+        </div>
+      </header>
+    );
+  }
 
   return (
     <>
@@ -106,7 +117,7 @@ export default function Header({
           {/* Desktop nav: 全ユーザー共通でクラウドソーシング動線を表示 */}
           <nav aria-label="グローバルナビゲーション" className="hidden md:flex items-center gap-0.5 flex-1">
             {PUBLIC_LINKS.map((l) => (
-              <NavLink key={l.href} href={l.href} active={pathname === l.href || pathname.startsWith(`${l.href}/`)}>
+              <NavLink key={l.href} href={l.href} active={isNavActive(l.href, pathname)}>
                 {l.label}
               </NavLink>
             ))}
@@ -116,27 +127,7 @@ export default function Header({
           <div className="flex items-center gap-2">
             {userId ? (
               <>
-                <Link
-                  href="/dashboard"
-                  aria-current={pathname.startsWith("/dashboard") ? "page" : undefined}
-                  className={`hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                    pathname.startsWith("/dashboard")
-                      ? "bg-moai-cloud text-moai-ink"
-                      : "text-moai-muted hover:text-moai-ink hover:bg-moai-cloud/60"
-                  }`}
-                >
-                  マイページ
-                  <span
-                    className={`ml-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-full leading-none ${
-                      activeMode === "client"
-                        ? "bg-amber-100 text-amber-800"
-                        : "bg-moai-primary/10 text-moai-primary"
-                    }`}
-                    aria-hidden="true"
-                  >
-                    {activeMode === "client" ? "発注" : "受注"}
-                  </span>
-                </Link>
+                {/* 主 CTA（モードに応じて変化）: マイページ・クレジット残高は UserMenu 内に集約済み */}
                 {activeMode === "client" ? (
                   <Link
                     href="/jobs/new"
@@ -152,7 +143,6 @@ export default function Header({
                     仕事を探す
                   </Link>
                 )}
-                <CreditsBadge userId={userId} />
                 <NotificationBell userId={userId} />
                 <button
                   onClick={() => setOpen(!open)}
@@ -169,6 +159,7 @@ export default function Header({
                 </button>
                 <div className="hidden md:block">
                   <UserMenu
+                    userId={userId}
                     displayName={profile?.display_name ?? null}
                     handle={profile?.handle ?? null}
                     avatarUrl={profile?.avatar_url ?? null}
@@ -204,7 +195,7 @@ export default function Header({
           <div id="mobile-menu" className="md:hidden border-t border-moai-border bg-white animate-slide-down">
             <nav aria-label="モバイルナビゲーション" className="container-app py-3 space-y-1">
               {PUBLIC_LINKS.map((l) => {
-                const active = pathname === l.href || pathname.startsWith(`${l.href}/`);
+                const active = isNavActive(l.href, pathname);
                 return (
                   <Link
                     key={l.href}
@@ -223,7 +214,7 @@ export default function Header({
                   <div className="divider my-2" />
                   <p className="px-3 pt-1 pb-1 text-[10px] font-semibold text-moai-muted uppercase tracking-wider">マイメニュー</p>
                   {AUTH_LINKS.map((l) => {
-                    const active = pathname.startsWith(l.href);
+                    const active = isNavActive(l.href, pathname);
                     return (
                       <Link
                         key={l.href}

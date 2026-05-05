@@ -7,6 +7,7 @@ import AvatarUpload from "@/components/AvatarUpload";
 import { ToastForm } from "@/components/ToastForm";
 import { FieldError } from "@/components/FieldError";
 import { FieldInput } from "@/components/Field";
+import { SubmitButton } from "@/components/SubmitButton";
 import ProfileCoach from "./ProfileCoach";
 import {
   updateBasic, updateSocial, updateBusiness,
@@ -21,7 +22,7 @@ export const dynamic = "force-dynamic";
 export default async function ProfileEditPage() {
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) redirect("/login?redirect=/profile/edit");
 
   const [{ data: profile }, { data: portfolios }, { data: workExps }, { data: educations }, { data: certs }] = await Promise.all([
     sb.from("profiles").select("*").eq("id", user.id).single(),
@@ -32,9 +33,9 @@ export default async function ProfileEditPage() {
   ]);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 space-y-6">
+    <div className="container-app max-w-3xl py-6 md:py-10 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">プロフィール編集</h1>
+        <h1 className="text-2xl md:text-3xl font-bold">プロフィール編集</h1>
         <Link href={`/profile/${profile?.handle}`} className="btn-outline">プロフィールを見る</Link>
       </div>
 
@@ -181,7 +182,7 @@ export default async function ProfileEditPage() {
           )}
         </div>
 
-        <button className="btn-primary">基本情報を保存</button>
+        <SubmitButton pendingLabel="保存中…">基本情報を保存</SubmitButton>
       </ToastForm>
 
       {/* 法人 / 個人 区分 */}
@@ -271,7 +272,7 @@ export default async function ProfileEditPage() {
           </div>
         </details>
 
-        <button className="btn-primary">法人/個人区分を保存</button>
+        <SubmitButton pendingLabel="保存中…">法人/個人区分を保存</SubmitButton>
       </ToastForm>
 
       {/* SNS */}
@@ -311,7 +312,7 @@ export default async function ProfileEditPage() {
             <input name="website" type="url" defaultValue={profile?.website ?? ""} className="input" />
           </div>
         </div>
-        <button className="btn-primary">SNSを保存</button>
+        <SubmitButton pendingLabel="保存中…">SNSを保存</SubmitButton>
       </ToastForm>
 
       {/* ポートフォリオ */}
@@ -328,7 +329,7 @@ export default async function ProfileEditPage() {
               <div className="flex-1 min-w-0">
                 <div className="font-semibold">{p.title}</div>
                 <div className="text-xs text-slate-500 line-clamp-2">{p.description}</div>
-                {p.external_url && <a href={p.external_url} target="_blank" className="text-xs text-moai-primary hover:underline">{p.external_url}</a>}
+                {p.external_url && <a href={p.external_url} target="_blank" rel="noopener noreferrer" className="text-xs text-moai-primary hover:underline">{p.external_url}</a>}
               </div>
               <form action={deletePortfolio}>
                 <input type="hidden" name="id" value={p.id} />
@@ -381,7 +382,7 @@ export default async function ProfileEditPage() {
               </div>
             </div>
 
-            <button className="btn-primary">追加</button>
+            <SubmitButton pendingLabel="追加中…">追加</SubmitButton>
           </form>
         </details>
       </section>
@@ -413,7 +414,7 @@ export default async function ProfileEditPage() {
               <input name="end_date" type="date" className="input" />
             </div>
             <label className="text-sm flex items-center gap-2"><input name="is_current" type="checkbox" /> 現職</label>
-            <button className="btn-primary">追加</button>
+            <SubmitButton pendingLabel="追加中…">追加</SubmitButton>
           </form>
         </details>
       </section>
@@ -445,7 +446,7 @@ export default async function ProfileEditPage() {
               <input name="start_date" type="date" className="input" />
               <input name="end_date" type="date" className="input" />
             </div>
-            <button className="btn-primary">追加</button>
+            <SubmitButton pendingLabel="追加中…">追加</SubmitButton>
           </form>
         </details>
       </section>
@@ -475,7 +476,7 @@ export default async function ProfileEditPage() {
             <input name="issuer" className="input" placeholder="発行団体" />
             <input name="issued_date" type="date" className="input" />
             <input name="credential_url" type="url" className="input" placeholder="認定URL" />
-            <button className="btn-primary">追加</button>
+            <SubmitButton pendingLabel="追加中…">追加</SubmitButton>
           </form>
         </details>
       </section>

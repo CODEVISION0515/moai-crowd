@@ -6,6 +6,7 @@ import { acceptProposal } from "./actions";
 import { EmptyState } from "@/components/EmptyState";
 import { RankBadge } from "@/components/RankBadge";
 import { Avatar } from "@/components/Avatar";
+import { SubmitButton } from "@/components/SubmitButton";
 import { formatCurrency } from "@/lib/utils";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -168,7 +169,7 @@ export default async function JobDetailPage({
                     {p.status === "pending" && job.status === "open" && (
                       <form action={acceptProposal} className="mt-3">
                         <input type="hidden" name="proposal_id" value={p.id} />
-                        <button className="btn-accent btn-sm">この応募を承諾する</button>
+                        <SubmitButton variant="accent" size="sm" pendingLabel="承諾中…">この応募を承諾する</SubmitButton>
                       </form>
                     )}
                     {p.status !== "pending" && (

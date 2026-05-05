@@ -27,36 +27,66 @@ function timeAgo(dateStr: string): string {
   return `${Math.floor(days / 30)}ヶ月前`;
 }
 
-export default async function HomePage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+/** Promise を try/catch し、reject 時はフォールバック値を返す */
+async function safe<T>(p: PromiseLike<T>, fallback: T): Promise<T> {
+  try {
+    return await p;
+  } catch (e) {
+    console.error("[HomePage] supabase query failed", e);
+    return fallback;
+  }
+}
 
-  const [
-    { data: jobs },
-    { data: workers },
-    { data: categories },
-    { count: jobCount },
-  ] = await Promise.all([
-    supabase
-      .from("jobs")
-      .select("id, title, category, budget_min_jpy, budget_max_jpy, proposal_count, created_at, skills, profiles:client_id(display_name, avatar_url)")
-      .eq("status", "open")
-      .order("created_at", { ascending: false })
-      .limit(8),
-    supabase
-      .from("profiles")
-      .select("id, handle, display_name, tagline, avatar_url, skills, rating_avg, rating_count, hourly_rate_jpy, crowd_role")
-      .eq("is_worker", true)
-      .eq("is_suspended", false)
-      .gte("profile_completion", 30)
-      .order("rating_avg", { ascending: false })
-      .limit(6),
-    supabase
-      .from("categories")
-      .select("slug, label")
-      .order("sort_order"),
-    supabase.from("jobs").select("*", { count: "exact", head: true }).eq("status", "open"),
-  ]);
+export default async function HomePage() {
+  // Supabase が未設定 / 接続失敗してもトップページは描画する。
+  let user: { id: string } | null = null;
+  let jobs: any[] = [];
+  let workers: any[] = [];
+  let categories: any[] = [];
+  let jobCount: number | null = 0;
+
+  try {
+    const supabase = await createClient();
+    const authRes = await safe(supabase.auth.getUser(), { data: { user: null } } as any);
+    user = authRes.data.user;
+
+    const results = await Promise.all([
+      safe(
+        supabase
+          .from("jobs")
+          .select("id, title, category, budget_min_jpy, budget_max_jpy, proposal_count, created_at, skills, profiles:client_id(display_name, avatar_url)")
+          .eq("status", "open")
+          .order("created_at", { ascending: false })
+          .limit(8),
+        { data: [] as any[] } as any,
+      ),
+      safe(
+        supabase
+          .from("profiles")
+          .select("id, handle, display_name, tagline, avatar_url, skills, rating_avg, rating_count, hourly_rate_jpy, crowd_role")
+          .eq("is_worker", true)
+          .eq("is_suspended", false)
+          .gte("profile_completion", 30)
+          .order("rating_avg", { ascending: false })
+          .limit(6),
+        { data: [] as any[] } as any,
+      ),
+      safe(
+        supabase.from("categories").select("slug, label").order("sort_order"),
+        { data: [] as any[] } as any,
+      ),
+      safe(
+        supabase.from("jobs").select("*", { count: "exact", head: true }).eq("status", "open"),
+        { count: 0 } as any,
+      ),
+    ]);
+    jobs = results[0].data ?? [];
+    workers = results[1].data ?? [];
+    categories = results[2].data ?? [];
+    jobCount = results[3].count ?? 0;
+  } catch (e) {
+    console.error("[HomePage] Supabase client init failed; rendering with empty data", e);
+  }
 
   // JSON-LD 構造化データ
   const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://moai-crowd.vercel.app";

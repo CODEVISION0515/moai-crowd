@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function BookmarksPage() {
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) redirect("/login?redirect=/bookmarks");
 
   const { data: bookmarks } = await sb
     .from("bookmarks")
@@ -19,8 +19,8 @@ export default async function BookmarksPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="text-2xl font-bold mb-6">保存した案件</h1>
+    <div className="container-app max-w-4xl py-6 md:py-10">
+      <h1 className="text-2xl md:text-3xl font-bold mb-6">保存した案件</h1>
 
       {bookmarks && bookmarks.length > 0 ? (
         <div className="space-y-3">

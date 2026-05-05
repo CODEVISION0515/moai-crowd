@@ -1,10 +1,10 @@
 "use client";
 
 import { useActionState } from "react";
-import { useFormStatus } from "react-dom";
 import { createJob } from "./actions";
 import { FieldError } from "@/components/FieldError";
 import { FormToast } from "@/components/FormToast";
+import { SubmitButton } from "@/components/SubmitButton";
 
 type Category = { slug: string; label: string };
 
@@ -159,7 +159,7 @@ export default function NewJobForm({
         </p>
       )}
 
-      <SubmitButton />
+      <SubmitButton block pendingLabel="投稿中…">案件を公開する</SubmitButton>
     </form>
   );
 }
@@ -172,20 +172,6 @@ function SectionHeader({ n, title, desc }: { n: number; title: string; desc: str
         <h2 className="text-base font-bold leading-tight">{title}</h2>
         <p className="text-xs text-moai-muted mt-0.5">{desc}</p>
       </div>
-    </div>
-  );
-}
-
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <div className="sticky bottom-4 z-10 pt-2">
-      <button type="submit" disabled={pending} className="btn-accent btn-lg w-full shadow-lg">
-        {pending ? "投稿中…" : "✓ 案件を公開する"}
-      </button>
-      <p className="mt-2 text-[11px] text-moai-muted text-center">
-        投稿は無料・マッチング成立後に手数料が発生します
-      </p>
     </div>
   );
 }

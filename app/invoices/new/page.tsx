@@ -1,12 +1,13 @@
 import { ToastForm } from "@/components/ToastForm";
 import { FieldError } from "@/components/FieldError";
 import { FieldInput } from "@/components/Field";
+import { SubmitButton } from "@/components/SubmitButton";
 import { createInvoice } from "./actions";
 
 export default function NewInvoicePage() {
   return (
-    <div className="mx-auto max-w-xl px-4 py-10">
-      <h1 className="text-2xl font-bold mb-6">請求書を発行</h1>
+    <div className="container-app max-w-xl py-6 md:py-10">
+      <h1 className="text-2xl md:text-3xl font-bold mb-6">請求書を発行</h1>
       <ToastForm action={createInvoice} className="card space-y-4" noValidate>
         <div>
           <label htmlFor="recipient_handle" className="label">
@@ -43,7 +44,7 @@ export default function NewInvoicePage() {
           <label htmlFor="notes" className="label">備考</label>
           <textarea id="notes" name="notes" rows={3} className="input" />
         </div>
-        <button className="btn-primary w-full">発行する</button>
+        <SubmitButton block pendingLabel="発行中…">発行する</SubmitButton>
       </ToastForm>
     </div>
   );
