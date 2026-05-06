@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import SignOutButton from "@/components/SignOutButton";
@@ -45,12 +46,23 @@ function isAuthPath(pathname: string): boolean {
 
 function Logo() {
   return (
-    <Link href="/" aria-label="MOAI Crowd ホーム" className="flex items-baseline gap-1.5 group shrink-0">
-      <span className="text-lg font-bold text-moai-primary transition-colors group-hover:text-moai-primary-800 tracking-tight">
-        MOAI
-      </span>
-      <span className="text-sm font-semibold text-moai-ink/80 group-hover:text-moai-ink transition-colors">
-        Crowd
+    <Link href="/" aria-label="MOAI Crowd ホーム" className="flex items-center gap-2 group shrink-0">
+      <Image
+        src="/icon-192.png"
+        alt=""
+        width={32}
+        height={32}
+        priority
+        className="rounded-md"
+        aria-hidden="true"
+      />
+      <span className="flex items-baseline gap-1">
+        <span className="text-lg font-bold text-moai-primary transition-colors group-hover:text-moai-primary-800 tracking-tight">
+          MOAI
+        </span>
+        <span className="text-sm font-semibold text-moai-coral group-hover:text-moai-coral-600 transition-colors">
+          Crowd
+        </span>
       </span>
     </Link>
   );

@@ -158,7 +158,7 @@ export default async function HomePage() {
             </div>
             <h1 className="text-display-md md:text-display-lg">
               仕事を頼む人と、<br className="sm:hidden" />
-              <span className="text-moai-primary">AIで応える人</span>を、つなぐ。
+              <span className="text-moai-coral">AIで応える人</span>を、つなぐ。
             </h1>
             <p className="mt-5 text-base md:text-lg text-moai-muted leading-relaxed max-w-2xl">
               MOAI Crowdは、AIを使いこなすワーカーが集まる新しいクラウドソーシング。
