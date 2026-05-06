@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Image from "next/image";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { createClient } from "@/lib/supabase/server";
@@ -99,9 +100,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-8">
               {/* Brand block */}
               <div className="col-span-2">
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-base font-bold text-moai-primary tracking-tight">MOAI</span>
-                  <span className="text-sm font-semibold text-moai-ink/80">Crowd</span>
+                <div className="flex items-center gap-2">
+                  <Image src="/icon-192.png" alt="" width={36} height={36} className="rounded-md" aria-hidden="true" />
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-base font-bold text-moai-primary tracking-tight">MOAI</span>
+                    <span className="text-sm font-semibold text-moai-coral">Crowd</span>
+                  </div>
                 </div>
                 <p className="mt-3 text-xs text-moai-muted leading-relaxed max-w-xs">
                   AIに強いワーカーと依頼主をつなぐ、業界最安級のクラウドソーシング。
