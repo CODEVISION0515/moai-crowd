@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { ToastForm } from "@/components/ToastForm";
 import { FieldError } from "@/components/FieldError";
 import { FieldTextarea } from "@/components/Field";
-import { formatCurrency, formatDateJP } from "@/lib/utils";
+import { formatCurrency, formatDateJP, contractStatusLabel, contractStatusBadgeClass } from "@/lib/utils";
 import { refundContract } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -56,7 +56,7 @@ export default async function AdminContractDetailPage({
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <div className="flex items-center gap-2">
-              <span className="badge">{contract.status}</span>
+              <span className={contractStatusBadgeClass(contract.status)}>{contractStatusLabel(contract.status)}</span>
               {contract.transfer_failed_at && <span className="badge-coral">⚠️ Transfer失敗</span>}
               {contract.refunded_at && <span className="badge-coral">返金済</span>}
             </div>
@@ -86,7 +86,7 @@ export default async function AdminContractDetailPage({
         </div>
         <div className="stat-card">
           <div className="stat-card-label">ステータス</div>
-          <div className="stat-card-value text-base">{contract.status}</div>
+          <div className="stat-card-value text-base">{contractStatusLabel(contract.status)}</div>
         </div>
       </div>
 

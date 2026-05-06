@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { ToastForm } from "@/components/ToastForm";
 import { EmptyState } from "@/components/EmptyState";
-import { formatDateJP } from "@/lib/utils";
+import { formatDateJP, jobStatusLabel, jobStatusBadgeClass } from "@/lib/utils";
 import type { ActionResult } from "@/lib/actions";
 
 export const dynamic = "force-dynamic";
@@ -127,7 +127,7 @@ export default async function AdminJobsPage({
                       </Link>
                     ) : "-"}
                   </td>
-                  <td className="p-3"><span className="badge">{j.status}</span></td>
+                  <td className="p-3"><span className={jobStatusBadgeClass(j.status)}>{jobStatusLabel(j.status)}</span></td>
                   <td className="p-3">{j.proposal_count}</td>
                   <td className="p-3 text-xs text-moai-muted">{formatDateJP(j.created_at)}</td>
                   <td className="p-3">

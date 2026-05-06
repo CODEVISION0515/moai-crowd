@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { SkeletonLine } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { Avatar } from "@/components/Avatar";
-import { formatCurrency, formatDateJP } from "@/lib/utils";
+import { formatCurrency, formatDateJP, jobStatusLabel, jobStatusBadgeClass } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -158,7 +158,7 @@ async function RecentJobs() {
                   <span className="font-medium text-sm block truncate">{j.title}</span>
                   <span className="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5">
                     <span className="badge text-[10px]">{j.category}</span>
-                    <span className="badge text-[10px]">{j.status}</span>
+                    <span className={`${jobStatusBadgeClass(j.status)} text-[10px]`}>{jobStatusLabel(j.status)}</span>
                   </span>
                 </span>
                 <span className="text-xs text-moai-muted shrink-0">{formatDateJP(j.created_at)}</span>

@@ -3,7 +3,15 @@ import { createClient } from "@/lib/supabase/server";
 import { Avatar } from "@/components/Avatar";
 import { EmptyState } from "@/components/EmptyState";
 import { SkeletonCard, SkeletonLine } from "@/components/Skeleton";
-import { formatCurrency } from "@/lib/utils";
+import {
+  formatCurrency,
+  contractStatusLabel,
+  contractStatusBadgeClass,
+  jobStatusLabel,
+  jobStatusBadgeClass,
+  proposalStatusLabel,
+  proposalStatusBadgeClass,
+} from "@/lib/utils";
 
 const STATUS_STYLES: Record<string, string> = {
   open: "badge-accent",
@@ -497,12 +505,13 @@ export async function ActiveContractsSection({ userId }: { userId: string }) {
       {contracts && contracts.length > 0 ? (
         <div className="grid md:grid-cols-2 gap-3">
           {contracts.map((c: any) => {
-            const statusClass = STATUS_STYLES[c.status] ?? "badge";
             return (
               <Link key={c.id} href={`/contracts/${c.id}`} className="card-hover">
                 <div className="flex items-start justify-between gap-2">
                   <div className="font-medium text-sm line-clamp-1 flex-1">{c.jobs?.title}</div>
-                  <span className={`${statusClass} shrink-0 text-[11px]`}>{c.status}</span>
+                  <span className={`${contractStatusBadgeClass(c.status)} shrink-0 text-[11px]`}>
+                    {contractStatusLabel(c.status)}
+                  </span>
                 </div>
                 <div className="mt-2 text-sm font-semibold">{formatCurrency(c.amount_jpy)}</div>
               </Link>
@@ -532,12 +541,13 @@ export async function MyJobsSection({ userId }: { userId: string }) {
       {myJobs && myJobs.length > 0 ? (
         <div className="space-y-2">
           {myJobs.map((j) => {
-            const statusClass = STATUS_STYLES[j.status] ?? "badge";
             return (
               <Link key={j.id} href={`/jobs/${j.id}`} className="card-hover block">
                 <div className="flex items-center justify-between gap-2">
                   <div className="font-medium text-sm line-clamp-1 flex-1">{j.title}</div>
-                  <span className={`${statusClass} text-[11px] shrink-0`}>{j.status}</span>
+                  <span className={`${jobStatusBadgeClass(j.status)} text-[11px] shrink-0`}>
+                    {jobStatusLabel(j.status)}
+                  </span>
                 </div>
                 <div className="text-xs text-moai-muted mt-1.5">応募 {j.proposal_count}件</div>
               </Link>
@@ -567,12 +577,13 @@ export async function MyProposalsSection({ userId }: { userId: string }) {
       {proposals && proposals.length > 0 ? (
         <div className="space-y-2">
           {proposals.map((p: any) => {
-            const statusClass = STATUS_STYLES[p.status] ?? "badge";
             return (
               <Link key={p.id} href={`/jobs/${p.jobs?.id}`} className="card-hover block">
                 <div className="flex items-center justify-between gap-2">
                   <div className="font-medium text-sm line-clamp-1 flex-1">{p.jobs?.title}</div>
-                  <span className={`${statusClass} text-[11px] shrink-0`}>{p.status}</span>
+                  <span className={`${proposalStatusBadgeClass(p.status)} text-[11px] shrink-0`}>
+                    {proposalStatusLabel(p.status)}
+                  </span>
                 </div>
                 <div className="text-xs text-moai-muted mt-1.5">提案 {formatCurrency(p.proposed_amount_jpy)}</div>
               </Link>

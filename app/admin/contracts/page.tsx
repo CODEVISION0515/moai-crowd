@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/EmptyState";
-import { formatCurrency, formatDateJP } from "@/lib/utils";
+import { formatCurrency, formatDateJP, contractStatusLabel, contractStatusBadgeClass } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -107,7 +107,7 @@ export default async function AdminContractsPage({
                     <div>発注: {c.client?.display_name ?? "-"}</div>
                     <div>受注: {c.worker?.display_name ?? "-"}</div>
                   </td>
-                  <td className="p-3"><span className="badge">{c.status}</span></td>
+                  <td className="p-3"><span className={contractStatusBadgeClass(c.status)}>{contractStatusLabel(c.status)}</span></td>
                   <td className="p-3 text-right font-semibold whitespace-nowrap">{formatCurrency(c.amount_jpy)}</td>
                   <td className="p-3 text-xs text-moai-muted whitespace-nowrap">{formatDateJP(c.created_at)}</td>
                 </tr>
