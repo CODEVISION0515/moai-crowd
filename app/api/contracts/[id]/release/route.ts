@@ -1,8 +1,13 @@
-// エスクロー解放: 発注者の承認で受注者のConnectアカウントへTransfer
-// Transfer 失敗時は契約ステータスを進めず admin に通知する
+// エスクロー解放: 発注者の承認で契約を released に進める
+//
+// 手動振込モード（Stripe Connect 不在時）:
+//   - 受注者の銀行口座が profiles テーブルに登録済みかをチェック
+//   - 自動送金は行わず、契約ステータスのみ released に進める
+//   - 実際の振込は運営が /admin/payouts から手動で処理
+//
+// Stripe Connect が将来有効化されたら、コメントアウトされた Transfer ロジックを復活させる。
 import { NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
-import { stripe } from "@/lib/stripe";
 
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -20,36 +25,48 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
 
   const admin = createAdminClient();
 
-  // 受注者のConnectアカウント取得
+  // 受注者の銀行口座登録チェック（手動振込モード）
   const { data: worker } = await admin
-    .from("profiles").select("stripe_account_id").eq("id", contract.worker_id).single();
+    .from("profiles")
+    .select("bank_name, bank_account_number, bank_account_holder")
+    .eq("id", contract.worker_id)
+    .single();
 
-  if (!worker?.stripe_account_id) {
-    await recordTransferFailure(admin, contract, "受注者のStripe Connect未設定");
+  const bankRegistered = !!(
+    worker?.bank_name &&
+    worker?.bank_account_number &&
+    worker?.bank_account_holder
+  );
+
+  if (!bankRegistered) {
     return NextResponse.json(
-      { error: "受注者の振込先口座が未設定です（Stripe Connect未完了）" },
-      { status: 400 }
+      {
+        error: "受注者の振込先口座が未登録のため、検収を確定できません。受注者に /bank-setup での登録を依頼してください。",
+      },
+      { status: 400 },
     );
   }
 
-  let transferRef: string | null = null;
-  if (contract.stripe_payment_intent_id) {
-    try {
-      const transfer = await stripe.transfers.create({
-        amount: contract.worker_payout_jpy,
-        currency: "jpy",
-        destination: worker.stripe_account_id,
-        metadata: { contract_id: id },
-      });
-      transferRef = transfer.id;
-    } catch (e: any) {
-      await recordTransferFailure(admin, contract, e?.message ?? "Transfer例外");
-      return NextResponse.json(
-        { error: `transfer_failed: ${e?.message ?? "unknown"}` },
-        { status: 500 }
-      );
-    }
-  }
+  // ────────────────────────────────────────────────
+  // Stripe Connect 復活時に有効化するブロック
+  // ────────────────────────────────────────────────
+  // let transferRef: string | null = null;
+  // if (contract.stripe_payment_intent_id && worker.stripe_account_id) {
+  //   try {
+  //     const transfer = await stripe.transfers.create({
+  //       amount: contract.worker_payout_jpy,
+  //       currency: "jpy",
+  //       destination: worker.stripe_account_id,
+  //       metadata: { contract_id: id },
+  //     });
+  //     transferRef = transfer.id;
+  //   } catch (e: unknown) {
+  //     const msg = e instanceof Error ? e.message : "Transfer例外";
+  //     await recordTransferFailure(admin, contract, msg);
+  //     return NextResponse.json({ error: `transfer_failed: ${msg}` }, { status: 500 });
+  //   }
+  // }
+  // ────────────────────────────────────────────────
 
   await admin.from("contracts").update({
     status: "released",
@@ -57,34 +74,26 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   }).eq("id", id);
 
   await admin.from("transactions").insert([
-    { contract_id: id, kind: "escrow_release", amount_jpy: contract.worker_payout_jpy, stripe_ref: transferRef, note: "受注者への支払い" },
-    { contract_id: id, kind: "platform_fee", amount_jpy: contract.platform_fee_jpy, note: "プラットフォーム手数料" },
+    {
+      contract_id: id,
+      kind: "escrow_release",
+      amount_jpy: contract.worker_payout_jpy,
+      note: "受注者への支払い (運営による手動振込待ち)",
+    },
+    {
+      contract_id: id,
+      kind: "platform_fee",
+      amount_jpy: contract.platform_fee_jpy,
+      note: "プラットフォーム手数料",
+    },
   ]);
   await admin.from("jobs").update({ status: "completed" }).eq("id", contract.job_id);
 
-  return NextResponse.json({ ok: true, transfer: transferRef });
-}
-
-async function recordTransferFailure(
-  admin: ReturnType<typeof createAdminClient>,
-  contract: { id: string; worker_payout_jpy: number },
-  reason: string,
-) {
-  await admin.from("contracts").update({
-    transfer_failed_at: new Date().toISOString(),
-    transfer_failure_reason: reason,
-  }).eq("id", contract.id);
-
-  await admin.from("transactions").insert({
-    contract_id: contract.id,
-    kind: "transfer_failed",
-    amount_jpy: contract.worker_payout_jpy,
-    note: `Transfer失敗: ${reason}`,
-  });
-
   await admin.rpc("notify_admins", {
-    p_title: "⚠️ Stripe Transfer失敗",
-    p_body: `契約ID: ${contract.id} / 理由: ${reason}`,
-    p_link: `/admin/contracts/${contract.id}`,
+    p_title: "💸 振込待ち案件が発生",
+    p_body: `契約ID: ${id} / 受注者支払額: ¥${contract.worker_payout_jpy.toLocaleString()}`,
+    p_link: `/admin/payouts`,
   });
+
+  return NextResponse.json({ ok: true });
 }
