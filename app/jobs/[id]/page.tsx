@@ -7,7 +7,13 @@ import { EmptyState } from "@/components/EmptyState";
 import { RankBadge } from "@/components/RankBadge";
 import { Avatar } from "@/components/Avatar";
 import { SubmitButton } from "@/components/SubmitButton";
-import { formatCurrency } from "@/lib/utils";
+import {
+  formatCurrency,
+  jobStatusLabel,
+  jobStatusBadgeClass,
+  proposalStatusLabel,
+  proposalStatusBadgeClass,
+} from "@/lib/utils";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -99,7 +105,11 @@ export default async function JobDetailPage({
           <div className="card">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="badge">{CATEGORY_LABEL[job.category] ?? job.category}</span>
-              {!isOpen && <span className="badge-warning text-[10px]">{job.status === "in_progress" ? "進行中" : job.status === "closed" ? "クローズ" : job.status}</span>}
+              {!isOpen && (
+                <span className={`${jobStatusBadgeClass(job.status)} text-[10px]`}>
+                  {jobStatusLabel(job.status)}
+                </span>
+              )}
               {Date.now() - new Date(job.created_at).getTime() < 86400_000 && (
                 <span className="badge-new text-[10px]">NEW</span>
               )}
@@ -173,7 +183,9 @@ export default async function JobDetailPage({
                       </form>
                     )}
                     {p.status !== "pending" && (
-                      <span className="badge mt-3">{p.status}</span>
+                      <span className={`${proposalStatusBadgeClass(p.status)} mt-3`}>
+                        {proposalStatusLabel(p.status)}
+                      </span>
                     )}
                   </div>
                 ))}
@@ -246,7 +258,9 @@ export default async function JobDetailPage({
                   </div>
                   <div className="mt-1 flex items-center justify-between text-xs">
                     <span className="text-moai-muted">ステータス</span>
-                    <span className="badge text-[10px]">{myProposal.status}</span>
+                    <span className={`${proposalStatusBadgeClass(myProposal.status)} text-[10px]`}>
+                      {proposalStatusLabel(myProposal.status)}
+                    </span>
                   </div>
                 </div>
               ) : (

@@ -1,7 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
-import { formatDateJP } from "@/lib/utils";
+import { formatDateJP, reportStatusLabel, reportStatusBadgeClass } from "@/lib/utils";
 import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
@@ -40,7 +40,7 @@ export default async function ReportsPage() {
         <div key={r.id} className="card">
           <div className="flex justify-between items-start">
             <div>
-              <span className="badge">{r.status}</span>
+              <span className={reportStatusBadgeClass(r.status)}>{reportStatusLabel(r.status)}</span>
               <span className="ml-2 text-sm text-slate-500">{r.target_kind}</span>
               <div className="mt-1 font-semibold">{r.reason}</div>
               {r.detail && <p className="mt-1 text-sm text-slate-600 whitespace-pre-wrap">{r.detail}</p>}

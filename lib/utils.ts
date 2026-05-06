@@ -114,3 +114,122 @@ export function contractStatusStep(status: string, fundedAt: string | null): num
       return 0;
   }
 }
+
+// ============================================================
+//  Status badges (proposal / job / report / contract — badge クラス共通化)
+// ============================================================
+
+export function contractStatusBadgeClass(status: string): string {
+  switch (status as ContractStatus) {
+    case "funded":
+      return "badge-warning";
+    case "working":
+      return "badge-accent";
+    case "submitted":
+      return "badge-warning";
+    case "released":
+      return "badge-success";
+    case "disputed":
+      return "badge-coral";
+    case "canceled":
+      return "badge-slate";
+    case "negotiating":
+    default:
+      return "badge";
+  }
+}
+
+export function proposalStatusLabel(status: string): string {
+  switch (status) {
+    case "pending":
+      return "応募中";
+    case "accepted":
+      return "採用";
+    case "rejected":
+      return "不採用";
+    case "withdrawn":
+      return "取り下げ";
+    default:
+      return status;
+  }
+}
+
+export function proposalStatusBadgeClass(status: string): string {
+  switch (status) {
+    case "accepted":
+      return "badge-success";
+    case "rejected":
+      return "badge-coral";
+    case "withdrawn":
+      return "badge-slate";
+    case "pending":
+    default:
+      return "badge";
+  }
+}
+
+export function jobStatusLabel(status: string): string {
+  switch (status) {
+    case "draft":
+      return "下書き";
+    case "open":
+      return "募集中";
+    case "in_progress":
+      return "進行中";
+    case "completed":
+      return "完了";
+    case "canceled":
+      return "キャンセル";
+    case "closed":
+      return "クローズ";
+    default:
+      return status;
+  }
+}
+
+export function jobStatusBadgeClass(status: string): string {
+  switch (status) {
+    case "open":
+      return "badge-accent";
+    case "in_progress":
+      return "badge-warning";
+    case "completed":
+      return "badge-success";
+    case "draft":
+    case "canceled":
+    case "closed":
+      return "badge-slate";
+    default:
+      return "badge";
+  }
+}
+
+export function reportStatusLabel(status: string): string {
+  switch (status) {
+    case "open":
+      return "未対応";
+    case "reviewing":
+      return "確認中";
+    case "resolved":
+      return "対応済";
+    case "dismissed":
+      return "却下";
+    default:
+      return status;
+  }
+}
+
+export function reportStatusBadgeClass(status: string): string {
+  switch (status) {
+    case "open":
+      return "badge-warning";
+    case "reviewing":
+      return "badge-accent";
+    case "resolved":
+      return "badge-success";
+    case "dismissed":
+      return "badge-slate";
+    default:
+      return "badge";
+  }
+}

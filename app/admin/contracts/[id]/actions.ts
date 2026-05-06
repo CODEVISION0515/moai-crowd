@@ -7,6 +7,7 @@ import { requireAdmin } from "@/lib/auth";
 import { parseFormData } from "@/lib/validations";
 import { refundContractSchema } from "@/lib/validations";
 import type { ActionResult } from "@/lib/actions";
+import { contractStatusLabel } from "@/lib/utils";
 
 export async function refundContract(
   _prev: ActionResult,
@@ -31,7 +32,7 @@ export async function refundContract(
     return { error: "既に支払い完了済みの契約は返金できません（受注者から個別に回収してください）" };
   }
   if (!["funded", "working", "submitted", "disputed"].includes(contract.status)) {
-    return { error: `このステータス（${contract.status}）では返金できません` };
+    return { error: `このステータス（${contractStatusLabel(contract.status)}）では返金できません` };
   }
 
   // Stripe Refund 実行
