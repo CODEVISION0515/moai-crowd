@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Avatar } from "@/components/Avatar";
 import { formatCurrency } from "@/lib/utils";
@@ -38,8 +39,23 @@ async function safe<T>(p: PromiseLike<T>, fallback: T): Promise<T> {
 }
 
 export default async function HomePage() {
+  // ログイン済みユーザーはマイページへ。マーケティングLPはログアウト時のみ表示。
+  // redirect() は内部的に NEXT_REDIRECT を throw するため、try/catch の外で実行する必要がある。
+  try {
+    const supabase = await createClient();
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (authUser) redirect("/dashboard");
+  } catch (e) {
+    // redirect() の throw はそのまま再 throw して Next.js に処理させる
+    if (e && typeof e === "object" && "digest" in e && typeof e.digest === "string" && e.digest.startsWith("NEXT_REDIRECT")) {
+      throw e;
+    }
+    // それ以外は Supabase 接続失敗等。マーケティングLPを匿名ユーザーとして描画継続
+    console.error("[HomePage] auth check failed; rendering as anonymous", e);
+  }
+
   // Supabase が未設定 / 接続失敗してもトップページは描画する。
-  let user: { id: string } | null = null;
+  const user: { id: string } | null = null;
   let jobs: any[] = [];
   let workers: any[] = [];
   let categories: any[] = [];
@@ -47,8 +63,6 @@ export default async function HomePage() {
 
   try {
     const supabase = await createClient();
-    const authRes = await safe(supabase.auth.getUser(), { data: { user: null } } as any);
-    user = authRes.data.user;
 
     const results = await Promise.all([
       safe(
